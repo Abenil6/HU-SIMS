@@ -28,7 +28,17 @@ const { startBackupScheduler } = require('./utils/backupScheduler');
 
 dotenv.config();
 const app = express();
-app.use(cors());
+const allowedOrigins = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : ['http://localhost:3000', 'http://localhost:5173'];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json({ limit: '15mb' }));
 app.use('/uploads/students/academic-documents', (_req, res) => {
