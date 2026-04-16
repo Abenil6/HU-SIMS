@@ -1,0 +1,35 @@
+{
+  "systemSettings": {
+    "siteName": "Haramaya University Non-Boarding Secondary School",
+    "siteDescription": "Student Information Management System",
+    "schoolAddress": "Ethiopia",
+    "academicYear": "2025-2026",
+    "semester": "1st Semester",
+    "contactEmail": "admin@school.edu",
+    "contactPhone": "+251-XX-XXX-XXXX",
+    "timezone": "Africa/Addis_Ababa",
+    "dateFormat": "YYYY-MM-DD",
+    "requireEmailVerification": true,
+    "maxLoginAttempts": 5,
+    "sessionTimeout": 30,
+    "enableNotifications": true,
+    "enableEmailAlerts": true
+  },
+  "notificationSettings": {
+    "emailNotifications": true,
+    "smsNotifications": false,
+    "absenceAlerts": true,
+    "gradeNotifications": true,
+    "announcementNotifications": true,
+    "messageNotifications": true
+  },
+  "securitySettings": {
+    "twoFactorAuth": false,
+    "passwordExpiry": 90,
+    "minPasswordLength": 8,
+    "requireSpecialChar": true,
+    "requireNumber": true,
+    "ipWhitelist": [],
+    "loginNotifications": true
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "watch": [
+    "server.js",
+    "routes",
+    "controllers",
+    "middleware",
+    "models",
+    "utils",
+    "config"
+  ],
+  "ignore": [
+    "config/system-settings.json",
+    "backups/**",
+    "uploads/**",
+    "coverage/**",
+    "node_modules/**"
+  ],
+  "ext": "js,json"
+}
