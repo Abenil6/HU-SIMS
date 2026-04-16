@@ -1600,6 +1600,10 @@ export function SystemAdminDashboard() {
         confirmText="Restore"
         severity="warning"
       />
+
+      {/* Backup Creation Dialog */}
+      <Dialog open={backupDialogOpen}>
+        <DialogContent>
           <CircularProgress size={60} thickness={4} sx={{ mb: 3 }} />
           <Typography variant="h6" fontWeight={600}>
             Creating Backup...
