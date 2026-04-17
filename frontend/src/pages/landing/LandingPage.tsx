@@ -518,37 +518,37 @@ export function LandingPage() {
   // Animation Variants
   const fadeUp = {
     hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7 } },
   };
   
   const fadeDown = {
     hidden: { opacity: 0, y: -40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7 } },
   };
   
   const fadeLeft = {
     hidden: { opacity: 0, x: 40 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut" } },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.7 } },
   };
   
   const fadeRight = {
     hidden: { opacity: 0, x: -40 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut" } },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.7 } },
   };
   
   const scaleIn = {
     hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: "easeOut" } },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.6 } },
   };
   
   const scaleBounce = {
     hidden: { opacity: 0, scale: 0.5 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: "easeOut", type: "spring", bounce: 0.4 } },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.6, type: "spring" as const, bounce: 0.4 } },
   };
   
   const rotateIn = {
     hidden: { opacity: 0, rotate: -10, scale: 0.9 },
-    visible: { opacity: 1, rotate: 0, scale: 1, transition: { duration: 0.7, ease: "easeOut" } },
+    visible: { opacity: 1, rotate: 0, scale: 1, transition: { duration: 0.7 } },
   };
   
   const stagger = {
@@ -1148,7 +1148,6 @@ export function LandingPage() {
             transition={{
               duration: 15,
               repeat: Infinity,
-              ease: "easeInOut",
             }}
             style={{
               position: "absolute",
@@ -1179,7 +1178,6 @@ export function LandingPage() {
               transition={{
                 duration: 4 + i,
                 repeat: Infinity,
-                ease: "easeInOut",
               }}
               style={{
                 position: "absolute",
@@ -1286,10 +1284,8 @@ export function LandingPage() {
                       { label: "Teachers", value: statistics.teachers, icon: <School /> },
                       { label: "Classes", value: statistics.classes, icon: <Assignment /> },
                     ].map((stat, index) => (
-                      <motion.div
+                      <Box
                         key={index}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ type: "spring", stiffness: 300 }}
                         sx={{
                           display: "flex",
                           alignItems: "center",
@@ -1297,31 +1293,36 @@ export function LandingPage() {
                           color: "white",
                         }}
                       >
-                        <Box sx={{ fontSize: 20, opacity: 0.8 }}>{stat.icon}</Box>
-                        <Box>
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              fontWeight: 700,
-                              fontSize: { xs: "2.5rem", md: "3.5rem" },
-                              lineHeight: 1,
-                            }}
-                          >
-                            {stat.value}+
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              fontSize: "0.75rem",
-                              opacity: 0.8,
-                              textTransform: "uppercase",
-                              letterSpacing: 0.5,
-                            }}
-                          >
-                            {stat.label}
-                          </Typography>
-                        </Box>
-                      </motion.div>
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                        >
+                          <Box sx={{ fontSize: 20, opacity: 0.8 }}>{stat.icon}</Box>
+                          <Box>
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                fontWeight: 700,
+                                fontSize: { xs: "2.5rem", md: "3.5rem" },
+                                lineHeight: 1,
+                              }}
+                            >
+                              {stat.value}+
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                fontSize: "0.75rem",
+                                opacity: 0.8,
+                                textTransform: "uppercase",
+                                letterSpacing: 0.5,
+                              }}
+                            >
+                              {stat.label}
+                            </Typography>
+                          </Box>
+                        </motion.div>
+                      </Box>
                     ))}
                   </Box>
                 </motion.div>
@@ -1442,10 +1443,7 @@ export function LandingPage() {
                 </Box>
                 
                 {/* Scroll Indicator */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1, duration: 0.8 }}
+                <Box
                   sx={{
                     position: "absolute",
                     bottom: 30,
@@ -1461,10 +1459,16 @@ export function LandingPage() {
                   onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
                 >
                   <motion.div
-                    animate={{ y: [0, 10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1, duration: 0.8 }}
                   >
-                    <KeyboardArrowDown sx={{ fontSize: 30, color: "white", opacity: 0.8 }} />
+                    <motion.div
+                      animate={{ y: [0, 10, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <KeyboardArrowDown sx={{ fontSize: 30, color: "white", opacity: 0.8 }} />
+                    </motion.div>
                   </motion.div>
                   <Typography
                     variant="caption"
@@ -1479,7 +1483,7 @@ export function LandingPage() {
                   >
                     Scroll to explore
                   </Typography>
-                </motion.div>
+                </Box>
               </Box>
             </motion.div>
           </Container>
@@ -1610,7 +1614,6 @@ export function LandingPage() {
               transition={{
                 duration: 8,
                 repeat: Infinity,
-                ease: "easeInOut",
               }}
             />
           </svg>
@@ -1744,7 +1747,6 @@ export function LandingPage() {
               transition={{
                 duration: 8,
                 repeat: Infinity,
-                ease: "easeInOut",
               }}
             />
           </svg>
@@ -2361,7 +2363,7 @@ export function LandingPage() {
                     const Icon = icons[index];
                     const contents = [
                       "Haramaya University Campus<br />East Hararghe Zone<br />Oromia Region, Ethiopia",
-                      "Phone: +251 XX XXX XXXX<br />Email: info@haramaya.edu.et",
+                      "Phone: +251 944167574<br />Email: info@haramaya.edu.et",
                       "Mon-Fri: 8AM-5PM<br />Sat: 8AM-12PM",
                       "Technical: support@school.edu<br />Admissions: admissions@school.edu",
                     ];
