@@ -140,11 +140,6 @@ const BulkUploadPage = lazy(() =>
     default: module.BulkUploadPage,
   })),
 );
-const MaterialsPage = lazy(() =>
-  import("@/pages/dashboard/materials/MaterialsPage").then((module) => ({
-    default: module.MaterialsPage,
-  })),
-);
 const ParentAlertsPage = lazy(() =>
   import("@/pages/dashboard/alerts/ParentAlertsPage").then((module) => ({
     default: module.ParentAlertsPage,
@@ -247,7 +242,6 @@ function App() {
           <Route path="timetable" element={<TimetablePage />} />
           <Route path="messages" element={<MessagesPage />} />
           <Route path="announcements" element={<AnnouncementsPage />} />
-          <Route path="materials" element={<MaterialsPage />} />
           <Route path="exam-schedule" element={<ExamSchedulePage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="settings" element={<SettingsPage />} />
@@ -270,7 +264,6 @@ function App() {
           <Route path="timetable" element={<TimetablePage />} />
           <Route path="messages" element={<MessagesPage />} />
           <Route path="announcements" element={<AnnouncementsPage />} />
-          <Route path="materials" element={<MaterialsPage />} />
           <Route path="exam-schedule" element={<ExamSchedulePage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="profile" element={<ProfilePage />} />
