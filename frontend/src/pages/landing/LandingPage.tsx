@@ -809,34 +809,63 @@ export function LandingPage() {
             {/* Right side - Actions */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               {isMobile && (
-                <IconButton
-                  color="inherit"
-                  onClick={handleMenuClick}
-                  aria-label="Open mobile menu"
-                  sx={{
-                    bgcolor: scrolled
-                      ? alpha(currentTheme.palette.background.paper, 0.9)
-                      : alpha("rgba(0,0,0,0.3)", 0.6),
-                    backdropFilter: "blur(12px)",
-                    color: scrolled ? "text.primary" : "white",
-                    "&:hover": {
-                      bgcolor: alpha(
-                        scrolled
-                          ? currentTheme.palette.primary.main
-                          : "#FFFFFF",
-                        0.2
-                      ),
-                      color: scrolled ? "primary.main" : "white",
-                    },
-                    "&:focus-visible": {
-                      outline: "3px solid white",
-                      outlineOffset: 2,
-                    },
-                    transition: "all 0.3s ease",
-                  }}
-                >
-                  <MenuIcon />
-                </IconButton>
+                <>
+                  <IconButton
+                    onClick={toggleDarkMode}
+                    aria-label={`Switch to ${darkMode ? "light" : "dark"} mode`}
+                    sx={{
+                      bgcolor: scrolled
+                        ? alpha(currentTheme.palette.background.paper, 0.9)
+                        : alpha("rgba(0,0,0,0.3)", 0.6),
+                      backdropFilter: "blur(12px)",
+                      color: scrolled ? "text.primary" : "white",
+                      "&:hover": {
+                        bgcolor: alpha(
+                          scrolled
+                            ? currentTheme.palette.primary.main
+                            : "#FFFFFF",
+                          0.2
+                        ),
+                        color: scrolled ? "primary.main" : "white",
+                      },
+                      "&:focus-visible": {
+                        outline: "3px solid white",
+                        outlineOffset: 2,
+                      },
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {darkMode ? <LightMode /> : <DarkMode />}
+                  </IconButton>
+                  <IconButton
+                    color="inherit"
+                    onClick={handleMenuClick}
+                    aria-label="Open mobile menu"
+                    sx={{
+                      bgcolor: scrolled
+                        ? alpha(currentTheme.palette.background.paper, 0.9)
+                        : alpha("rgba(0,0,0,0.3)", 0.6),
+                      backdropFilter: "blur(12px)",
+                      color: scrolled ? "text.primary" : "white",
+                      "&:hover": {
+                        bgcolor: alpha(
+                          scrolled
+                            ? currentTheme.palette.primary.main
+                            : "#FFFFFF",
+                          0.2
+                        ),
+                        color: scrolled ? "primary.main" : "white",
+                      },
+                      "&:focus-visible": {
+                        outline: "3px solid white",
+                        outlineOffset: 2,
+                      },
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                </>
               )}
             </Box>
           </Toolbar>
