@@ -882,47 +882,49 @@ export function LandingPage() {
             gap: 1.5,
           }}
         >
-          {/* Dark Mode Toggle */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, x: 50 }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              x: 0,
-            }}
-            transition={{
-              duration: 0.5,
-              delay: 0.2,
-              type: "spring",
-              stiffness: 200,
-            }}
-          >
-            <IconButton
-              onClick={toggleDarkMode}
-              aria-label={`Switch to ${darkMode ? "light" : "dark"} mode`}
-              sx={{
-                bgcolor: currentTheme.palette.mode === "dark" ? colors.sage : colors.forest,
-                color: "white",
-                backdropFilter: "blur(12px)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-                "&:hover": {
-                  bgcolor:
-                    currentTheme.palette.mode === "dark"
-                      ? colors.sageLight
-                      : colors.forestLight,
-                  transform: "scale(1.05) translateY(-2px)",
-                  boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
-                },
-                "&:focus-visible": {
-                  outline: "3px solid white",
-                  outlineOffset: 2,
-                },
-                transition: "all 0.3s ease",
+          {/* Dark Mode Toggle - Desktop Only */}
+          {!isMobile && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, x: 50 }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                x: 0,
+              }}
+              transition={{
+                duration: 0.5,
+                delay: 0.2,
+                type: "spring",
+                stiffness: 200,
               }}
             >
-              {darkMode ? <LightMode /> : <DarkMode />}
-            </IconButton>
-          </motion.div>
+              <IconButton
+                onClick={toggleDarkMode}
+                aria-label={`Switch to ${darkMode ? "light" : "dark"} mode`}
+                sx={{
+                  bgcolor: currentTheme.palette.mode === "dark" ? colors.sage : colors.forest,
+                  color: "white",
+                  backdropFilter: "blur(12px)",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+                  "&:hover": {
+                    bgcolor:
+                      currentTheme.palette.mode === "dark"
+                        ? colors.sageLight
+                        : colors.forestLight,
+                    transform: "scale(1.05) translateY(-2px)",
+                    boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
+                  },
+                  "&:focus-visible": {
+                    outline: "3px solid white",
+                    outlineOffset: 2,
+                  },
+                  transition: "all 0.3s ease",
+                }}
+              >
+                {darkMode ? <LightMode /> : <DarkMode />}
+              </IconButton>
+            </motion.div>
+          )}
 
           {/* Login Button */}
           {!isAuthenticated && (
