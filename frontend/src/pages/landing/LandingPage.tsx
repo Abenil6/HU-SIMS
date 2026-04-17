@@ -926,8 +926,8 @@ export function LandingPage() {
             </motion.div>
           )}
 
-          {/* Login Button */}
-          {!isAuthenticated && (
+          {/* Login Button - Desktop Only */}
+          {!isAuthenticated && !isMobile && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8, x: 50 }}
               animate={{
