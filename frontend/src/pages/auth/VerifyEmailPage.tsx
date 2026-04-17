@@ -190,7 +190,7 @@ export function VerifyEmailPage() {
                     color: colors.forest,
                   }}
                 >
-                  SchoolPro
+                  SIMS
                 </Typography>
               </Box>
 
@@ -289,7 +289,7 @@ export function VerifyEmailPage() {
                     color: colors.forest,
                   }}
                 >
-                  SchoolPro
+                  SIMS
                 </Typography>
               </Box>
 
@@ -506,7 +506,7 @@ export function VerifyEmailPage() {
               color="text.secondary"
               sx={{ textAlign: "center", mt: 3 }}
             >
-              © 2024 SchoolPro. All rights reserved.
+              © 2024 HU SIMS. All rights reserved.
             </Typography>
           </motion.div>
         </Container>
