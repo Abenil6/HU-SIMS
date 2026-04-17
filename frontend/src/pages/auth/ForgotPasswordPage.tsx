@@ -175,7 +175,7 @@ export function ForgotPasswordPage() {
                   color: colors.forest,
                 }}
               >
-                SchoolPro
+                SIMS
               </Typography>
             </Box>
 

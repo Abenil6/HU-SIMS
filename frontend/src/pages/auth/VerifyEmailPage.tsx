@@ -386,7 +386,7 @@ export function VerifyEmailPage() {
                   color: colors.forest,
                 }}
               >
-                SchoolPro
+                SIMS
               </Typography>
             </Box>
 
