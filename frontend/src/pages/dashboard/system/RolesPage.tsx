@@ -29,6 +29,21 @@ type PermissionMatrix = Record<string, Record<string, string[]>>;
 
 const CRITICAL_ACTIONS = new Set(["DELETE", "MANAGE", "ADMIN"]);
 
+const ENFORCED_RESOURCES = new Set([
+  "academic-records",
+  "attendance",
+  "timetables",
+  "certificates",
+  "reports",
+  "messages",
+  "exam-schedules",
+  "absence-alerts",
+]);
+
+const getResourceEnforcementStatus = (resource: string): "enforced" | "role-based" => {
+  return ENFORCED_RESOURCES.has(resource) ? "enforced" : "role-based";
+};
+
 const toMatrix = (roles: RolePermissionRecord[]): PermissionMatrix =>
   roles.reduce<PermissionMatrix>((acc, role) => {
     acc[role.role] = role.permissions || {};
@@ -336,6 +351,7 @@ export function RolesPage() {
                 <Grid container spacing={2}>
                   {availableResources.map((resource) => {
                     const resourceActions = selectedPermissions[resource] || [];
+                    const enforcementStatus = getResourceEnforcementStatus(resource);
                     return (
                       <Grid size={{ xs: 12, md: 6 }} key={resource}>
                         <Paper
@@ -346,9 +362,17 @@ export function RolesPage() {
                             borderColor: alpha(theme.palette.primary.main, 0.18),
                           }}
                         >
-                          <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>
-                            {resource}
-                          </Typography>
+                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+                            <Typography variant="subtitle2" fontWeight={700}>
+                              {resource}
+                            </Typography>
+                            <Chip
+                              size="small"
+                              label={enforcementStatus === "enforced" ? "Granular" : "Role-based"}
+                              color={enforcementStatus === "enforced" ? "success" : "default"}
+                              variant="outlined"
+                            />
+                          </Box>
                           <Divider sx={{ mb: 1.5 }} />
                           <Box sx={{ display: "flex", flexDirection: "column" }}>
                             {availableActions.map((action) => (
