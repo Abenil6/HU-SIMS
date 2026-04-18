@@ -416,7 +416,7 @@ export function LoginPage() {
                       <TextField
                         label="Email Address"
                         type="email"
-                        placeholder="admin@school.com"
+                        placeholder="Enter your Email Address"
                         fullWidth
                         variant="outlined"
                         error={!!errors.email}
