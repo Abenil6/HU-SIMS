@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Box,
@@ -110,6 +111,7 @@ const buildDraftKey = (userId: string, classKey: string, date: string) =>
 const csvEscape = (value: unknown) => `"${String(value ?? "").replace(/"/g, '""')}"`;
 
 function TeacherAttendanceMarkingPage() {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const canTakeAttendance = user?.role === "Teacher";
 
@@ -517,13 +519,13 @@ function TeacherAttendanceMarkingPage() {
 
   return (
     <Box>
-      <Breadcrumbs items={[{ label: "Attendance" }, { label: "Take Attendance" }]} />
-      <PageHeader title="Take Attendance" subtitle="Load class roster, mark statuses, and submit attendance" />
+      <Breadcrumbs items={[{ label: t('common.attendance') }, { label: t('common.takeAttendance') }]} />
+      <PageHeader title={t('common.takeAttendance')} subtitle={t('common.loadClassRoster')} />
 
       <Paper sx={{ p: 3, borderRadius: 3, mb: 3 }}>
         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
           <TextField
-            label="Date"
+            label={t('common.date')}
             type="date"
             value={selectedDate}
             onChange={(event) => setSelectedDate(event.target.value)}
@@ -532,10 +534,10 @@ function TeacherAttendanceMarkingPage() {
           />
 
           <FormControl size="small" sx={{ minWidth: 220 }}>
-            <InputLabel>Class</InputLabel>
+            <InputLabel>{t('pages.dashboard.classes')}</InputLabel>
             <Select
               value={selectedClassKey}
-              label="Class"
+              label={t('pages.dashboard.classes')}
               onChange={(event) => setSelectedClassKey(String(event.target.value))}
             >
               {teacherAssignments.length === 0 ? (
@@ -554,7 +556,7 @@ function TeacherAttendanceMarkingPage() {
 
           <Box sx={{ ml: { md: "auto" }, display: "flex", gap: 1 }}>
             <Button variant="contained" onClick={handleLoadStudents} disabled={!canTakeAttendance || !selectedClassKey}>
-              Take Attendance
+              {t('common.takeAttendance')}
             </Button>
           </Box>
         </Stack>
@@ -572,7 +574,7 @@ function TeacherAttendanceMarkingPage() {
               </Typography>
             </Box>
             <Button variant="outlined" startIcon={<Save />} onClick={handleSaveDraft} disabled={roster.length === 0} aria-label="Save attendance draft">
-              Save Draft
+              {t('common.save')} {t('common.draft')}
             </Button>
             <Button
               variant="contained"
@@ -581,23 +583,23 @@ function TeacherAttendanceMarkingPage() {
               disabled={roster.length === 0 || bulkRecordAttendance.isPending}
               aria-label="Submit attendance"
             >
-              {bulkRecordAttendance.isPending ? "Submitting..." : "Submit Attendance"}
+              {bulkRecordAttendance.isPending ? t('common.loading') : t('common.submit')} {t('common.attendance')}
             </Button>
           </Stack>
         </Paper>
       ) : null}
 
       <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
-        <StatsCard title="Present" value={summary.present} icon={<Check />} color="success" />
-        <StatsCard title="Absent" value={summary.absent} icon={<Close />} color="error" />
-        <StatsCard title="Late" value={summary.late} icon={<Warning />} color="warning" />
-        <StatsCard title="Excused" value={summary.excused} icon={<Warning />} color="info" />
+        <StatsCard title={t('common.present')} value={summary.present} icon={<Check />} color="success" />
+        <StatsCard title={t('common.absent')} value={summary.absent} icon={<Close />} color="error" />
+        <StatsCard title={t('common.late')} value={summary.late} icon={<Warning />} color="warning" />
+        <StatsCard title={t('common.excused')} value={summary.excused} icon={<Warning />} color="info" />
       </Box>
 
       <Paper sx={{ p: 2, borderRadius: 3, mb: 2 }}>
         <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }}>
           <TextField
-            label="Search student"
+            label={t('common.searchStudent')}
             size="small"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
@@ -606,9 +608,9 @@ function TeacherAttendanceMarkingPage() {
           />
 
           <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Filter</InputLabel>
+            <InputLabel>{t('common.filter')}</InputLabel>
             <Select
-              label="Filter"
+              label={t('common.filter')}
               value={rosterFilter}
               onChange={(event) => setRosterFilter(event.target.value as RosterFilter)}
             >
@@ -758,16 +760,16 @@ function TeacherAttendanceMarkingPage() {
           <TextField
             size="small"
             type="date"
-            label="Date"
+            label={t('common.date')}
             value={historyStartDate}
             onChange={(event) => setHistoryStartDate(event.target.value)}
             InputLabelProps={{ shrink: true }}
           />
           <FormControl size="small" sx={{ minWidth: 220 }}>
-            <InputLabel>Class</InputLabel>
+            <InputLabel>{t('pages.dashboard.classes')}</InputLabel>
             <Select
               value={historyClassFilter}
-              label="Class"
+              label={t('pages.dashboard.classes')}
               onChange={(event) => setHistoryClassFilter(String(event.target.value))}
             >
               {historyClassOptions.map((option) => (
@@ -780,10 +782,10 @@ function TeacherAttendanceMarkingPage() {
           <Box sx={{ ml: { md: "auto" } }}>
             <Stack direction="row" spacing={1}>
               <Button variant="outlined" startIcon={<Download />} onClick={handleExportHistory} disabled={filteredHistoryRecords.length === 0 || exporting}>
-                {exporting ? "Exporting..." : "Export History"}
+                {exporting ? t('common.loading') : t('common.export') + ' ' + t('common.history')}
               </Button>
               <Button variant="outlined" startIcon={<Refresh />} onClick={() => refetchHistory()}>
-                Refresh
+                {t('common.refresh')}
               </Button>
             </Stack>
           </Box>
@@ -1166,6 +1168,7 @@ function SchoolAdminAttendanceDashboard() {
 }
 
 export function AttendanceMarkingPage() {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   if (user?.role === "SchoolAdmin") {
     return <SchoolAdminAttendanceDashboard />;
@@ -1173,9 +1176,9 @@ export function AttendanceMarkingPage() {
   if (user?.role === "SystemAdmin") {
     return (
       <Box>
-        <Breadcrumbs items={[{ label: "Attendance" }]} />
+        <Breadcrumbs items={[{ label: t('common.attendance') }]} />
         <PageHeader
-          title="Attendance"
+          title={t('common.attendance')}
           subtitle="System Admin does not manage school-level attendance tasks."
         />
         <Alert severity="info">
