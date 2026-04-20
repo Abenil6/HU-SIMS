@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -153,6 +154,7 @@ const getRecipientGroupLabel = (recipient: MessageRecipient) => {
 };
 
 export function MessagesPage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const queryClient = useQueryClient();
   const userId = useAuthStore((state) => state.user?._id || state.user?.id);
@@ -335,18 +337,18 @@ export function MessagesPage() {
   const tabs = [
     {
       key: "inbox" as const,
-      label: "Inbox",
+      label: t('common.inbox'),
       count: messages.filter((message) => message.folder === "inbox" && !message.read)
         .length,
     },
     {
       key: "sent" as const,
-      label: "Sent",
+      label: t('common.sent'),
       count: 0,
     },
     {
       key: "starred" as const,
-      label: "Starred",
+      label: t('common.starred'),
       count: 0,
     },
   ];
@@ -609,10 +611,10 @@ export function MessagesPage() {
 
   return (
     <Box>
-      <Breadcrumbs items={[{ label: "Messages" }]} />
+      <Breadcrumbs items={[{ label: t('common.messages') }]} />
       <PageHeader
-        title="Messages"
-        subtitle="Secure messaging between students, teachers, parents, and school admins"
+        title={t('common.messages')}
+        subtitle={t('common.secureMessaging')}
         action={
           <Button
             variant="contained"
@@ -623,7 +625,7 @@ export function MessagesPage() {
               background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
             }}
           >
-            Compose
+            {t('common.compose')}
           </Button>
         }
       />
@@ -648,7 +650,7 @@ export function MessagesPage() {
               background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
             }}
           >
-            Compose
+            {t('common.compose')}
           </Button>
           <Divider sx={{ mb: 2 }} />
           {tabs.map((tab) => (
@@ -846,7 +848,7 @@ export function MessagesPage() {
 
               {!filteredMessages.length && (
                 <Typography color="text.secondary" textAlign="center" py={4}>
-                  No messages found
+                  {t('common.noMessagesFound')}
                 </Typography>
               )}
             </List>
@@ -947,7 +949,7 @@ export function MessagesPage() {
               }}
             >
               <Typography color="text.secondary">
-                Select a message to view its details.
+                {t('common.selectMessage')}
               </Typography>
             </Box>
           )}
@@ -957,7 +959,7 @@ export function MessagesPage() {
       <FormModal
         open={formModalOpen}
         onClose={() => setFormModalOpen(false)}
-        title="Compose Message"
+        title={t('common.composeMessage')}
         fields={formFields}
         initialValues={composeInitialValues}
         onValuesChange={setComposeValues}
@@ -978,7 +980,7 @@ export function MessagesPage() {
           setFormModalOpen(false);
           setComposeFormKey((prev) => prev + 1);
         }}
-        submitText="Send"
+        submitText={t('common.send')}
       />
 
       {/* Delete Confirmation Dialog */}
@@ -986,9 +988,9 @@ export function MessagesPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Message"
-        message="Are you sure you want to delete this message? This action cannot be undone."
-        confirmText="Delete"
+        title={t('common.deleteMessage')}
+        message={t('common.deleteMessageConfirm')}
+        confirmText={t('common.delete')}
         severity="error"
       />
     </Box>
