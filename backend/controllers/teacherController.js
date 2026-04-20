@@ -164,7 +164,7 @@ exports.updateTeacher = async (req, res) => {
     const updates = req.body;
 
     const mongoose = require('mongoose');
-    console.log('[updateTeacher] id received:', id);
+    console.log('[updateTeacher] id received:', id, 'type:', typeof id);
 
     // IMPORTANT: In this database, _id values are stored as plain String (not ObjectId).
     // Mongoose's schema declares _id as ObjectId and auto-casts all _id queries,
@@ -177,6 +177,12 @@ exports.updateTeacher = async (req, res) => {
     rawTeacher = await col.findOne({ _id: String(id), role: 'Teacher' });
     console.log('[updateTeacher] raw findOne by _id+role:', rawTeacher ? rawTeacher._id : null);
 
+    // 2. Try matching by ObjectId (in case ID is stored as ObjectId)
+    if (!rawTeacher && mongoose.Types.ObjectId.isValid(id)) {
+      rawTeacher = await col.findOne({ _id: new mongoose.Types.ObjectId(id), role: 'Teacher' });
+      console.log('[updateTeacher] raw findOne by ObjectId+role:', rawTeacher ? rawTeacher._id : null);
+    }
+
     // 2. Fall back to email or username
     if (!rawTeacher) {
       rawTeacher = await col.findOne({
@@ -187,9 +193,19 @@ exports.updateTeacher = async (req, res) => {
     }
 
     if (!rawTeacher) {
-      // Diagnostics: check if any user has this _id
-      const anyUser = await col.findOne({ _id: String(id) }, { projection: { role: 1, firstName: 1, lastName: 1 } });
-      console.log('[updateTeacher] anyUser fallback:', anyUser);
+      // Diagnostics: check if any user has this _id (try both string and ObjectId)
+      let anyUser = await col.findOne({ _id: String(id) }, { projection: { role: 1, firstName: 1, lastName: 1 } });
+      console.log('[updateTeacher] anyUser fallback (string):', anyUser);
+      
+      if (!anyUser && mongoose.Types.ObjectId.isValid(id)) {
+        anyUser = await col.findOne({ _id: new mongoose.Types.ObjectId(id) }, { projection: { role: 1, firstName: 1, lastName: 1 } });
+        console.log('[updateTeacher] anyUser fallback (ObjectId):', anyUser);
+      }
+      
+      // Additional diagnostics: list all teacher IDs in database
+      const allTeachers = await col.find({ role: 'Teacher' }, { projection: { _id: 1, firstName: 1, lastName: 1, email: 1 } }).limit(5).toArray();
+      console.log('[updateTeacher] Sample teachers in DB:', allTeachers.map(t => ({ _id: t._id, name: `${t.firstName} ${t.lastName}`, email: t.email })));
+      
       const msg = anyUser
         ? `User found but role is '${anyUser.role}' — expected 'Teacher'`
         : `Teacher not found (id: ${id})`;
