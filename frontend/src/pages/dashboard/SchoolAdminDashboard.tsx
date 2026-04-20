@@ -691,7 +691,7 @@ export function SchoolAdminDashboard() {
                 <FormControl fullWidth size="small">
                   <InputLabel>Grade</InputLabel>
                   <Select 
-                    label="Grade" 
+                    label={t('pages.dashboard.grade')} 
                     value={selectedGrade}
                     onChange={(e) => setSelectedGrade(e.target.value)}
                   >
@@ -1350,13 +1350,13 @@ export function SchoolAdminDashboard() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Add New Student</DialogTitle>
+        <DialogTitle>{t('pages.dashboard.createStudent')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="First Name"
+                label={t('pages.dashboard.firstName')}
                 value={studentForm.firstName}
                 onChange={(e) =>
                   setStudentForm({ ...studentForm, firstName: e.target.value })
@@ -1367,7 +1367,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Last Name"
+                label={t('pages.dashboard.lastName')}
                 value={studentForm.lastName}
                 onChange={(e) =>
                   setStudentForm({ ...studentForm, lastName: e.target.value })
@@ -1378,7 +1378,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
-                label="Email"
+                label={t('common.email')}
                 type="email"
                 value={studentForm.email}
                 onChange={(e) =>
@@ -1392,7 +1392,7 @@ export function SchoolAdminDashboard() {
                 <InputLabel>Grade</InputLabel>
                 <Select
                   value={studentForm.grade}
-                  label="Grade"
+                  label={t('pages.dashboard.grade')}
                   onChange={(e) =>
                     setStudentForm({ ...studentForm, grade: e.target.value })
                   }
@@ -1411,7 +1411,7 @@ export function SchoolAdminDashboard() {
                   <InputLabel>Stream</InputLabel>
                   <Select
                     value={studentForm.stream}
-                    label="Stream"
+                    label={t('pages.dashboard.stream')}
                     onChange={(e) =>
                       setStudentForm({ ...studentForm, stream: e.target.value })
                     }
@@ -1428,7 +1428,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
-                label="Phone"
+                label={t('pages.dashboard.phone')}
                 value={studentForm.phone}
                 onChange={(e) =>
                   setStudentForm({ ...studentForm, phone: e.target.value })
@@ -1437,23 +1437,23 @@ export function SchoolAdminDashboard() {
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth required>
-                <InputLabel>Gender</InputLabel>
+                <InputLabel>{t('pages.dashboard.gender')}</InputLabel>
                 <Select
                   value={studentForm.gender}
-                  label="Gender"
+                  label={t('pages.dashboard.gender')}
                   onChange={(e) =>
                     setStudentForm({ ...studentForm, gender: e.target.value as "Male" | "Female" })
                   }
                 >
-                  <MenuItem value="Male">Male</MenuItem>
-                  <MenuItem value="Female">Female</MenuItem>
+                  <MenuItem value="Male">{t('pages.dashboard.male')}</MenuItem>
+                  <MenuItem value="Female">{t('pages.dashboard.female')}</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Date of Birth"
+                label={t('pages.dashboard.dateOfBirth')}
                 type="date"
                 value={studentForm.dob}
                 onChange={(e) =>
@@ -1466,7 +1466,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Enrollment Date"
+                label={t('pages.dashboard.enrollmentDate')}
                 type="date"
                 value={studentForm.enrollmentDate}
                 onChange={(e) =>
@@ -1497,13 +1497,13 @@ export function SchoolAdminDashboard() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Add New Teacher</DialogTitle>
+        <DialogTitle>{t('pages.dashboard.createTeacher')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="First Name"
+                label={t('pages.dashboard.firstName')}
                 value={teacherForm.firstName}
                 onChange={(e) =>
                   setTeacherForm({ ...teacherForm, firstName: e.target.value })
@@ -1514,7 +1514,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Last Name"
+                label={t('pages.dashboard.lastName')}
                 value={teacherForm.lastName}
                 onChange={(e) =>
                   setTeacherForm({ ...teacherForm, lastName: e.target.value })
@@ -1525,7 +1525,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
-                label="Email"
+                label={t('common.email')}
                 type="email"
                 value={teacherForm.email}
                 onChange={(e) =>
@@ -1537,7 +1537,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Phone"
+                label={t('pages.dashboard.phone')}
                 value={teacherForm.phone}
                 onChange={(e) =>
                   setTeacherForm({ ...teacherForm, phone: e.target.value })
@@ -1546,10 +1546,10 @@ export function SchoolAdminDashboard() {
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
-                <InputLabel>Subject</InputLabel>
+                <InputLabel>{t('pages.dashboard.subject')}</InputLabel>
                 <Select
                   value={teacherForm.subject}
-                  label="Subject"
+                  label={t('pages.dashboard.subject')}
                   onChange={(e) =>
                     setTeacherForm({ ...teacherForm, subject: e.target.value })
                   }
@@ -1596,7 +1596,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="First Name"
+                label={t('pages.dashboard.firstName')}
                 value={teacherForm.firstName}
                 onChange={(e) =>
                   setTeacherForm({ ...teacherForm, firstName: e.target.value })
@@ -1607,7 +1607,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Last Name"
+                label={t('pages.dashboard.lastName')}
                 value={teacherForm.lastName}
                 onChange={(e) =>
                   setTeacherForm({ ...teacherForm, lastName: e.target.value })
@@ -1618,7 +1618,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
-                label="Email"
+                label={t('common.email')}
                 type="email"
                 value={teacherForm.email}
                 disabled
@@ -1627,7 +1627,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Phone"
+                label={t('pages.dashboard.phone')}
                 value={teacherForm.phone}
                 onChange={(e) =>
                   setTeacherForm({ ...teacherForm, phone: e.target.value })
@@ -1636,10 +1636,10 @@ export function SchoolAdminDashboard() {
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
-                <InputLabel>Subject</InputLabel>
+                <InputLabel>{t('pages.dashboard.subject')}</InputLabel>
                 <Select
                   value={teacherForm.subject}
-                  label="Subject"
+                  label={t('pages.dashboard.subject')}
                   onChange={(e) =>
                     setTeacherForm({ ...teacherForm, subject: e.target.value })
                   }
@@ -1662,14 +1662,14 @@ export function SchoolAdminDashboard() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditTeacherDialogOpen(false)}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             variant="contained"
             onClick={handleUpdateTeacher}
             disabled={updateTeacherMutation.isPending}
           >
-            {updateTeacherMutation.isPending ? "Saving..." : "Save Changes"}
+            {updateTeacherMutation.isPending ? t('common.loading') : t('common.save')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1686,7 +1686,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="First Name"
+                label={t('pages.dashboard.firstName')}
                 value={studentForm.firstName}
                 onChange={(e) =>
                   setStudentForm({ ...studentForm, firstName: e.target.value })
@@ -1697,7 +1697,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Last Name"
+                label={t('pages.dashboard.lastName')}
                 value={studentForm.lastName}
                 onChange={(e) =>
                   setStudentForm({ ...studentForm, lastName: e.target.value })
@@ -1708,7 +1708,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
-                label="Email"
+                label={t('common.email')}
                 type="email"
                 value={studentForm.email}
                 disabled
@@ -1719,7 +1719,7 @@ export function SchoolAdminDashboard() {
                 <InputLabel>Grade</InputLabel>
                 <Select
                   value={studentForm.grade}
-                  label="Grade"
+                  label={t('pages.dashboard.grade')}
                   onChange={(e) =>
                     setStudentForm({ ...studentForm, grade: e.target.value })
                   }
@@ -1738,7 +1738,7 @@ export function SchoolAdminDashboard() {
                   <InputLabel>Stream</InputLabel>
                   <Select
                     value={studentForm.stream}
-                    label="Stream"
+                    label={t('pages.dashboard.stream')}
                     onChange={(e) =>
                       setStudentForm({ ...studentForm, stream: e.target.value })
                     }
@@ -1755,7 +1755,7 @@ export function SchoolAdminDashboard() {
             <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
-                label="Phone"
+                label={t('pages.dashboard.phone')}
                 value={studentForm.phone}
                 onChange={(e) =>
                   setStudentForm({ ...studentForm, phone: e.target.value })
@@ -1764,16 +1764,16 @@ export function SchoolAdminDashboard() {
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth required>
-                <InputLabel>Gender</InputLabel>
+                <InputLabel>{t('pages.dashboard.gender')}</InputLabel>
                 <Select
                   value={studentForm.gender}
-                  label="Gender"
+                  label={t('pages.dashboard.gender')}
                   onChange={(e) =>
                     setStudentForm({ ...studentForm, gender: e.target.value as "Male" | "Female" })
                   }
                 >
-                  <MenuItem value="Male">Male</MenuItem>
-                  <MenuItem value="Female">Female</MenuItem>
+                  <MenuItem value="Male">{t('pages.dashboard.male')}</MenuItem>
+                  <MenuItem value="Female">{t('pages.dashboard.female')}</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -1781,14 +1781,14 @@ export function SchoolAdminDashboard() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditStudentDialogOpen(false)}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             variant="contained"
             onClick={handleUpdateStudent}
             disabled={updateStudentMutation.isPending}
           >
-            {updateStudentMutation.isPending ? "Saving..." : "Save Changes"}
+            {updateStudentMutation.isPending ? t('common.loading') : t('common.save')}
           </Button>
         </DialogActions>
       </Dialog>
