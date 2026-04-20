@@ -1137,7 +1137,7 @@ export function StudentListPage() {
                   },
                 }}
               >
-                Add Student
+                {t('pages.dashboard.createStudent')}
               </Button>
             </Box>
           ) : undefined
@@ -1294,7 +1294,7 @@ export function StudentListPage() {
                     <ListItemIcon>
                       <LinkIcon fontSize="small" />
                     </ListItemIcon>
-                    Link Parent
+                    {t('common.linkParent')}
                   </MenuItem>
                 )
           }
@@ -1313,10 +1313,10 @@ export function StudentListPage() {
         }}
         title={
           isViewMode
-            ? "Student Details"
+            ? t('pages.dashboard.students') + ' ' + t('common.details')
             : selectedStudent
-              ? "Edit Student"
-              : "Add New Student"
+              ? t('pages.dashboard.editStudent')
+              : t('pages.dashboard.createStudent')
         }
         fields={formFields}
         initialValues={initialValues}
@@ -1493,9 +1493,9 @@ export function StudentListPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Student"
+        title={t('pages.dashboard.deleteStudent')}
         message={`Are you sure you want to delete ${selectedStudent?.firstName} ${selectedStudent?.lastName}? This action cannot be undone.`}
-        confirmText="Delete"
+        confirmText={t('common.delete')}
         severity="error"
       />
 
@@ -1507,7 +1507,7 @@ export function StudentListPage() {
         fullWidth
       >
         <DialogTitle>
-          Link Parent to Student
+          {t('common.linkParent')} {t('common.to')} {t('pages.dashboard.students')}
           {selectedStudent && (
             <Typography variant="subtitle2" color="text.secondary">
               {selectedStudent.firstName} {selectedStudent.lastName}
@@ -1590,13 +1590,13 @@ export function StudentListPage() {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setLinkParentDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setLinkParentDialogOpen(false)}>{t('common.cancel')}</Button>
           <Button
             variant="contained"
             onClick={handleLinkParentSubmit}
             disabled={!selectedParentId}
           >
-            Link Parent
+            {t('common.linkParent')}
           </Button>
         </DialogActions>
       </Dialog>
