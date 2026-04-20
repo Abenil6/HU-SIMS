@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -154,6 +155,7 @@ const streamFilterLabel = (stream: string) =>
 
 // ─── component ───────────────────────────────────────────────────────────────
 export function GradesPage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { user } = useAuthStore();
   const canManageGrades =
@@ -947,10 +949,10 @@ export function GradesPage() {
 
   return (
     <Box>
-      <Breadcrumbs items={[{ label: "Academic" }, { label: "Grades" }]} />
+      <Breadcrumbs items={[{ label: t('common.academic') }, { label: t('common.grades') }]} />
 
       <PageHeader
-        title={filters.selectedStudentId ? "Student Grades" : "Grade Management"}
+        title={filters.selectedStudentId ? t('common.studentGrades') : t('common.gradeManagement')}
         subtitle={
           filters.selectedStudentId
             ? `View and manage grades for selected student (Mid 20 · Final 40 · Assignment 20 · Quiz 20)`
@@ -1669,10 +1671,10 @@ export function GradesPage() {
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
             {/* Student select */}
             <FormControl fullWidth size="small">
-              <InputLabel>Student *</InputLabel>
+              <InputLabel>{t('common.student')} *</InputLabel>
               <Select
                 value={formStudentId}
-                label="Student *"
+                label={t('common.student') + ' *'}
                 onChange={(e) => setFormStudentId(e.target.value)}
                 disabled={editMode}
               >
@@ -1701,10 +1703,10 @@ export function GradesPage() {
             {/* Subject — teachers can choose only from their assigned subjects; admins can choose all */}
             {isTeacher ? (
               <FormControl fullWidth size="small">
-                <InputLabel>Subject *</InputLabel>
+                <InputLabel>{t('pages.dashboard.subject')} *</InputLabel>
                 <Select
                   value={formSubject}
-                  label="Subject *"
+                  label={t('pages.dashboard.subject') + ' *'}
                   onChange={(e) => setFormSubject(e.target.value)}
                   disabled={editMode || teacherSubjects.length === 0}
                 >
@@ -1723,10 +1725,10 @@ export function GradesPage() {
               </FormControl>
             ) : (
               <FormControl fullWidth size="small">
-                <InputLabel>Subject *</InputLabel>
+                <InputLabel>{t('pages.dashboard.subject')} *</InputLabel>
                 <Select
                   value={formSubject}
-                  label="Subject *"
+                  label={t('pages.dashboard.subject') + ' *'}
                   onChange={(e) => setFormSubject(e.target.value)}
                   disabled={editMode}
                 >
@@ -1777,7 +1779,7 @@ export function GradesPage() {
                   mb={1.5}
                   color="primary"
                 >
-                  Edit {editComponent.label} (max {editComponent.max} pts)
+                  {t('common.edit')} {editComponent.label} (max {editComponent.max} pts)
                 </Typography>
                 <TextField
                   fullWidth
@@ -1889,7 +1891,7 @@ export function GradesPage() {
 
         <DialogActions sx={{ px: 3, py: 2 }}>
           <Button onClick={closeDialog} disabled={submitting}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             variant="contained"
@@ -1902,10 +1904,10 @@ export function GradesPage() {
             }
           >
             {submitting
-              ? "Saving…"
+              ? t('common.loading')
               : editMode
-                ? "Update Grade"
-                : "Save All Grades"}
+                ? t('common.save')
+                : t('common.saveAll')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1915,9 +1917,9 @@ export function GradesPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Grade"
+        title={t('common.deleteGrade')}
         message="Are you sure you want to delete this grade record?"
-        confirmText="Delete"
+        confirmText={t('common.delete')}
         severity="error"
       />
     </Box>
