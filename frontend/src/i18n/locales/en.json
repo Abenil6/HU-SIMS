@@ -49,7 +49,18 @@
     "error": "Error",
     "warning": "Warning",
     "info": "Information",
-    "language": "Language"
+    "language": "Language",
+    "academic": "Academic",
+    "grades": "Grades",
+    "student": "Student",
+    "studentGrades": "Student Grades",
+    "gradeManagement": "Grade Management",
+    "takeAttendance": "Take Attendance",
+    "attendance": "Attendance",
+    "draft": "Draft",
+    "history": "History",
+    "manage": "Manage",
+    "manageStudents": "Manage Students"
   },
   "pages": {
     "dashboard": {

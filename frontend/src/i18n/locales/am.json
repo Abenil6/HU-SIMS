@@ -48,7 +48,18 @@
     "error": "ስህተት",
     "warning": "ማስጠንቀቂያ",
     "info": "መረጃ",
-    "language": "ቋንቋ"
+    "language": "ቋንቋ",
+    "academic": "አካዳሚክ",
+    "grades": "ደረጃዎች",
+    "student": "ተማሪ",
+    "studentGrades": "የተማሪ ደረጃዎች",
+    "gradeManagement": "የደረጃ አስተዳደር",
+    "takeAttendance": "አቴንዳንስ ይዝ",
+    "attendance": "አቴንዳንስ",
+    "draft": "ንቅስ",
+    "history": "ታሪክ",
+    "manage": "አስተዳዳር",
+    "manageStudents": "ተማሪዎችን አስተዳዳር"
   },
   "pages": {
     "dashboard": {
