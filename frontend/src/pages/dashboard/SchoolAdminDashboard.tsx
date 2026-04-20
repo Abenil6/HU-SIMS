@@ -629,16 +629,16 @@ export function SchoolAdminDashboard() {
           onChange={(_, newValue) => setActiveTab(newValue)}
           sx={{ borderBottom: 1, borderColor: "divider", px: 2 }}
         >
-          <Tab label="Students" icon={<School />} iconPosition="start" />
-          <Tab label="Teachers" icon={<People />} iconPosition="start" />
-          <Tab label="Classes" icon={<Assessment />} iconPosition="start" />
+          <Tab label={t('pages.dashboard.students')} icon={<School />} iconPosition="start" />
+          <Tab label={t('pages.dashboard.teachers')} icon={<People />} iconPosition="start" />
+          <Tab label={t('pages.dashboard.classes')} icon={<Assessment />} iconPosition="start" />
           <Tab label="Calendar" icon={<CalendarToday />} iconPosition="start" />
           <Tab
-            label="Announcements"
-            icon={<TrendingUp />}
+            label={t('pages.dashboard.announcements')}
+            icon={<Announcement />}
             iconPosition="start"
           />
-          <Tab label="Reports" icon={<Assessment />} iconPosition="start" />
+          <Tab label={t('pages.dashboard.reports')} icon={<Assessment />} iconPosition="start" />
         </Tabs>
 
         <Box sx={{ p: 3 }}>
@@ -652,7 +652,7 @@ export function SchoolAdminDashboard() {
               }}
             >
               <Typography variant="h6" fontWeight={600}>
-                Student Management
+                {t('pages.dashboard.students')} {t('common.settings')}
               </Typography>
               <Box sx={{ display: "flex", gap: 2 }}>
                 <Button
@@ -660,7 +660,7 @@ export function SchoolAdminDashboard() {
                   startIcon={<Refresh />}
                   onClick={handleRefresh}
                 >
-                  Refresh
+                  {t('common.refresh')}
                 </Button>
                 <Button
                   variant="contained"
@@ -869,7 +869,7 @@ export function SchoolAdminDashboard() {
               }}
             >
               <Typography variant="h6" fontWeight={600}>
-                Teacher Management
+                {t('pages.dashboard.teachers')} {t('common.settings')}
               </Typography>
               <Button
                 variant="contained"
@@ -940,7 +940,7 @@ export function SchoolAdminDashboard() {
               <Grid size={{ xs: 12, md: 3 }}>
                 <Paper sx={{ p: 2.5, borderRadius: 2 }}>
                   <Typography variant="body2" color="text.secondary">
-                    Classes With Records
+                    {t('pages.dashboard.classes')} {t('common.status')}
                   </Typography>
                   <Typography variant="h5" fontWeight={700}>
                     {classesAttendanceOverview.totalClasses ?? 0}
@@ -950,7 +950,7 @@ export function SchoolAdminDashboard() {
               <Grid size={{ xs: 12, md: 3 }}>
                 <Paper sx={{ p: 2.5, borderRadius: 2 }}>
                   <Typography variant="body2" color="text.secondary">
-                    Attendance Records
+                    {t('pages.dashboard.attendance')} {t('common.status')}
                   </Typography>
                   <Typography variant="h5" fontWeight={700}>
                     {classesAttendanceOverview.totalRecords ?? 0}
@@ -973,13 +973,13 @@ export function SchoolAdminDashboard() {
               <Grid size={{ xs: 12, md: 7 }}>
                 <Paper sx={{ p: 2.5, borderRadius: 2 }}>
                   <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                    7-Day Attendance Trend
+                    7-Day {t('pages.dashboard.attendance')} Trend
                   </Typography>
                   {isLoadingClassesAttendance ? (
                     <LinearProgress />
                   ) : classesDailyTrend.length === 0 ? (
                     <Typography variant="body2" color="text.secondary">
-                      No attendance records in the selected window.
+                      {t('common.noData')}
                     </Typography>
                   ) : (
                     <Box sx={{ display: "flex", alignItems: "end", gap: 1, height: 180 }}>
@@ -1157,11 +1157,11 @@ export function SchoolAdminDashboard() {
 
           <TabPanel value={activeTab} index={3}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              Academic Calendar
+              {t('pages.dashboard.timetable')}
             </Typography>
             <Paper sx={{ p: 3 }}>
               <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                {academicYearData?.year || "Academic Year"}
+                {academicYearData?.year || t('common.dashboard')}
               </Typography>
               <Grid container spacing={2}>
                 {(() => {
