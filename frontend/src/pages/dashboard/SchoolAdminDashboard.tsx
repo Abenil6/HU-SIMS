@@ -876,7 +876,7 @@ export function SchoolAdminDashboard() {
                 startIcon={<PersonAdd />}
                 onClick={() => setCreateTeacherDialogOpen(true)}
               >
-                Add Teacher
+                {t('pages.dashboard.createTeacher')}
               </Button>
             </Box>
             <Grid container spacing={2}>
@@ -1479,14 +1479,14 @@ export function SchoolAdminDashboard() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setCreateStudentDialogOpen(false)}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             variant="contained"
             onClick={handleCreateStudent}
             disabled={createStudentMutation.isPending}
           >
-            {createStudentMutation.isPending ? "Creating..." : "Create Student"}
+            {createStudentMutation.isPending ? t('common.loading') : t('pages.dashboard.createStudent')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1572,14 +1572,14 @@ export function SchoolAdminDashboard() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setCreateTeacherDialogOpen(false)}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             variant="contained"
             onClick={handleCreateTeacher}
             disabled={createTeacherMutation.isPending}
           >
-            {createTeacherMutation.isPending ? "Creating..." : "Create Teacher"}
+            {createTeacherMutation.isPending ? t('common.loading') : t('pages.dashboard.createTeacher')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1590,7 +1590,7 @@ export function SchoolAdminDashboard() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Edit Teacher</DialogTitle>
+        <DialogTitle>{t('pages.dashboard.editTeacher')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -1680,7 +1680,7 @@ export function SchoolAdminDashboard() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Edit Student</DialogTitle>
+        <DialogTitle>{t('pages.dashboard.editStudent')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -1799,7 +1799,7 @@ export function SchoolAdminDashboard() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Delete Student</DialogTitle>
+        <DialogTitle>{t('pages.dashboard.deleteStudent')}</DialogTitle>
         <DialogContent>
           <Typography>
             Are you sure you want to delete {editingStudent?.firstName || editingStudent?.user?.firstName} {editingStudent?.lastName || editingStudent?.user?.lastName}? This action cannot be undone.
@@ -1807,7 +1807,7 @@ export function SchoolAdminDashboard() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteStudentDialogOpen(false)}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             variant="contained"
@@ -1815,7 +1815,7 @@ export function SchoolAdminDashboard() {
             onClick={confirmDeleteStudent}
             disabled={deleteStudentMutation.isPending}
           >
-            {deleteStudentMutation.isPending ? "Deleting..." : "Delete"}
+            {deleteStudentMutation.isPending ? t('common.loading') : t('common.delete')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1826,7 +1826,7 @@ export function SchoolAdminDashboard() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Delete Teacher</DialogTitle>
+        <DialogTitle>{t('pages.dashboard.deleteTeacher')}</DialogTitle>
         <DialogContent>
           <Typography>
             Are you sure you want to delete {editingTeacher?.firstName} {editingTeacher?.lastName}? This action cannot be undone.
@@ -1834,7 +1834,7 @@ export function SchoolAdminDashboard() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteTeacherDialogOpen(false)}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             variant="contained"
@@ -1842,7 +1842,7 @@ export function SchoolAdminDashboard() {
             onClick={confirmDeleteTeacher}
             disabled={deleteTeacherMutation.isPending}
           >
-            {deleteTeacherMutation.isPending ? "Deleting..." : "Delete"}
+            {deleteTeacherMutation.isPending ? t('common.loading') : t('common.delete')}
           </Button>
         </DialogActions>
       </Dialog>
