@@ -266,7 +266,6 @@ const getTeacherNavigation = (t: any) => [
   { text: t('dashboard.messages'), icon: <Message />, path: "messages" },
   { text: t('dashboard.announcements'), icon: <Announcement />, path: "announcements" },
   { text: t('dashboard.examSchedule'), icon: <Event />, path: "exam-schedule" },
-  { text: t('dashboard.reports'), icon: <Description />, path: "reports" },
   { text: t('dashboard.profile'), icon: <Person />, path: "profile" },
 ];
 
