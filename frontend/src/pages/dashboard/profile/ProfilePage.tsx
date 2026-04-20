@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -69,6 +70,7 @@ const ROLE_COPY = {
 } as const;
 
 export function ProfilePage() {
+  const { t } = useTranslation();
   const { user, updateUser } = useAuthStore();
   const toast = useToast();
   const roleCopy = ROLE_COPY[user?.role || "Student"];
@@ -481,21 +483,21 @@ export function ProfilePage() {
   return (
     <Box>
       <Typography variant="h4" fontWeight={700} mb={1}>
-        My Profile
+        {t('common.myProfile')}
       </Typography>
       <Typography variant="body1" color="text.secondary" mb={3}>
-        Manage your personal information
+        {t('common.managePersonalInfo')}
       </Typography>
 
       {saved && (
         <Alert severity="success" sx={{ mb: 3 }}>
-          Profile updated successfully!
+          {t('common.profileUpdated')}
         </Alert>
       )}
 
       {passwordSaved && (
         <Alert severity="success" sx={{ mb: 3 }}>
-          Password changed successfully!
+          {t('common.passwordChanged')}
         </Alert>
       )}
 
@@ -505,14 +507,14 @@ export function ProfilePage() {
           onChange={(_, newValue) => setTabValue(newValue)}
           sx={{ borderBottom: 1, borderColor: "divider", px: 2 }}
         >
-          <Tab icon={<Person />} label="Personal Info" iconPosition="start" />
+          <Tab icon={<Person />} label={t('common.personalInfo')} iconPosition="start" />
           <Tab
             icon={<ContactPhone />}
-            label="Contact Details"
+            label={t('common.contactInfo')}
             iconPosition="start"
           />
-          <Tab icon={<Lock />} label="Change Password" iconPosition="start" />
-          <Tab icon={<Palette />} label="Appearance" iconPosition="start" />
+          <Tab icon={<Lock />} label={t('common.changePassword')} iconPosition="start" />
+          <Tab icon={<Palette />} label={t('common.appearance')} iconPosition="start" />
         </Tabs>
 
         <Box sx={{ p: 3 }}>
@@ -584,7 +586,7 @@ export function ProfilePage() {
                   disabled={!isEditing}
                   aria-label="Cancel editing profile"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   variant="contained"
@@ -593,7 +595,7 @@ export function ProfilePage() {
                   disabled={!isEditing || saved}
                   aria-label="Save profile changes"
                 >
-                  Save Changes
+                  {t('common.saveChanges')}
                 </Button>
               </Box>
             ) : (
@@ -603,7 +605,7 @@ export function ProfilePage() {
                 onClick={() => setIsEditing(true)}
                 aria-label="Edit profile"
               >
-                Edit Profile
+                {t('common.editProfile')}
               </Button>
             )}
           </Box>
@@ -640,14 +642,14 @@ export function ProfilePage() {
                     <Box sx={{ textAlign: "center", p: 2 }}>
                       <Draw sx={{ fontSize: 32, color: "text.secondary" }} />
                       <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
-                        No signature
+                        {t('common.noSignature')}
                       </Typography>
                     </Box>
                   )}
                 </Box>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
-                    Digital Signature
+                    {t('common.digitalSignature')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                     Upload your signature image for official report approval. This signature will appear on
@@ -665,7 +667,7 @@ export function ProfilePage() {
                     startIcon={<Draw />}
                     onClick={() => signatureInputRef.current?.click()}
                   >
-                    {signature ? "Change Signature" : "Upload Signature"}
+                    {signature ? t('common.changeSignature') : t('common.uploadSignature')}
                   </Button>
                 </Box>
               </Box>
@@ -687,7 +689,7 @@ export function ProfilePage() {
                     <Grid size={{ xs: 12, md: 6 }}>
                       <TextField
                         fullWidth
-                        label="First Name"
+                        label={t('pages.dashboard.firstName')}
                         value={profileData.firstName}
                         onChange={handleFieldChange("firstName")}
                         disabled={!isEditing}
@@ -696,7 +698,7 @@ export function ProfilePage() {
                 <Grid size={{ xs: 12, md: 6 }}>
                   <TextField
                     fullWidth
-                    label="Last Name"
+                    label={t('pages.dashboard.lastName')}
                     value={profileData.lastName}
                     onChange={handleFieldChange("lastName")}
                     disabled={!isEditing}
@@ -705,7 +707,7 @@ export function ProfilePage() {
                 <Grid size={{ xs: 12, md: 6 }}>
                   <TextField
                     fullWidth
-                    label="Email"
+                    label={t('common.email')}
                     value={profileData.email}
                     onChange={handleFieldChange("email")}
                     disabled={!isEditing}
@@ -714,7 +716,7 @@ export function ProfilePage() {
                 <Grid size={{ xs: 12, md: 6 }}>
                   <TextField
                     fullWidth
-                    label="Username"
+                    label={t('common.username')}
                     value={user?.username || ""}
                     disabled
                   />
@@ -722,7 +724,7 @@ export function ProfilePage() {
                 <Grid size={{ xs: 12, md: 6 }}>
                   <TextField
                     fullWidth
-                    label="Role"
+                    label={t('common.role')}
                     value={roleCopy.title}
                     disabled
                   />
@@ -730,7 +732,7 @@ export function ProfilePage() {
                 <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
-                    label="About This Role"
+                    label={t('common.aboutThisRole')}
                     value={roleCopy.subtitle}
                     multiline
                     rows={3}
@@ -743,7 +745,7 @@ export function ProfilePage() {
                 <>
                   <Divider sx={{ my: 3 }} />
                   <Typography variant="h6" fontWeight={600} mb={2}>
-                    Role Details
+                    {t('common.roleDetails')}
                   </Typography>
                   {renderRoleSpecificSummary()}
                 </>
@@ -759,16 +761,7 @@ export function ProfilePage() {
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
-                  label="Phone"
-                  value={profileData.phone}
-                  onChange={handleFieldChange("phone")}
-                  disabled={!isEditing}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: 6 }}>
-                <TextField
-                  fullWidth
-                  label="Email Address"
+                  label={t('common.emailAddress')}
                   value={profileData.email}
                   disabled
                 />
@@ -790,13 +783,13 @@ export function ProfilePage() {
           {tabValue === 2 && (
             <Box sx={{ maxWidth: 500 }}>
               <Typography variant="h6" fontWeight={600} mb={3}>
-                Change Your Password
+                {t('common.changePassword')}
               </Typography>
               <Grid container spacing={3}>
                 <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
-                    label="Current Password"
+                    label={t('common.currentPassword')}
                     type="password"
                     autoComplete="current-password"
                     value={passwordData.currentPassword}
@@ -807,7 +800,7 @@ export function ProfilePage() {
                 <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
-                    label="New Password"
+                    label={t('common.newPassword')}
                     type="password"
                     autoComplete="new-password"
                     value={passwordData.newPassword}
@@ -818,7 +811,7 @@ export function ProfilePage() {
                 <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
-                    label="Confirm New Password"
+                    label={t('common.confirmPassword')}
                     type="password"
                     autoComplete="new-password"
                     value={passwordData.confirmPassword}
@@ -834,7 +827,7 @@ export function ProfilePage() {
                     disabled={passwordBusy}
                     aria-label="Change password"
                   >
-                    {passwordBusy ? "Changing..." : "Change Password"}
+                    {passwordBusy ? t('common.loading') : t('common.changePassword')}
                   </Button>
                 </Grid>
               </Grid>
