@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useScroll, useTransform, useInView, motion, useAnimation } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   AppBar,
   Toolbar,
@@ -57,6 +58,7 @@ import {
 import { useAuthStore } from "@/stores/authStore";
 import { SplitScreenLoader } from "@/components/ui/SplitScreenLoader";
 import { SchoolIllustration } from "@/components/ui/SchoolIllustration";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { ArrowUpRight } from "lucide-react";
 import axios from "axios";
 
@@ -233,6 +235,7 @@ const darkTheme = createTheme({
 });
 
 export function LandingPage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [darkMode, setDarkMode] = useState(false);
@@ -473,43 +476,42 @@ export function LandingPage() {
   const features = [
     {
       icon: <Assignment fontSize="large" />,
-      title: "Registration",
-      desc: "Online student enrollment",
+      title: t('landing.feature1.title'),
+      desc: t('landing.feature1.desc'),
     },
     {
       icon: <Grading fontSize="large" />,
-      title: "Results",
-      desc: "Academic records & grades",
+      title: t('landing.feature2.title'),
+      desc: t('landing.feature2.desc'),
     },
     {
       icon: <Campaign fontSize="large" />,
-      title: "Announcements",
-      desc: "School notices & updates",
+      title: t('landing.feature3.title'),
+      desc: t('landing.feature3.desc'),
     },
     {
       icon: <Chat fontSize="large" />,
-      title: "Communication",
-      desc: "Parent-teacher messaging",
+      title: t('landing.feature4.title'),
+      desc: t('landing.feature4.desc'),
     },
   ];
 
   const roles = [
     {
-      title: "Students",
-      description:
-        "View grades, attendance, announcements, and personal records",
+      title: t('landing.rolesSection.students'),
+      description: t('landing.rolesSection.studentsDesc'),
     },
     {
-      title: "Parents",
-      description: "Monitor academic progress and communicate with teachers",
+      title: t('landing.rolesSection.parents'),
+      description: t('landing.rolesSection.parentsDesc'),
     },
     {
-      title: "Teachers",
-      description: "Manage grades, attendance, and class materials",
+      title: t('landing.rolesSection.teachers'),
+      description: t('landing.rolesSection.teachersDesc'),
     },
     {
-      title: "Administrators",
-      description: "Full system access for school management",
+      title: t('landing.rolesSection.administrators'),
+      description: t('landing.rolesSection.administratorsDesc'),
     },
   ];
 
@@ -760,12 +762,12 @@ export function LandingPage() {
                 }}
               >
                 {[
-                  { label: "Home", href: "#home" },
-                  { label: "Features", href: "#features" },
-                  { label: "Announcements", href: "#announcements" },
-                  { label: "About", href: "#about" },
-                  { label: "FAQ", href: "#faq" },
-                  { label: "Contact", href: "#contact" },
+                  { label: t('landing.home'), href: "#home" },
+                  { label: t('landing.features'), href: "#features" },
+                  { label: t('landing.announcements'), href: "#announcements" },
+                  { label: t('landing.about'), href: "#about" },
+                  { label: t('landing.faq'), href: "#faq" },
+                  { label: t('landing.contact'), href: "#contact" },
                 ].map((item) => (
                   <Button
                     key={item.label}
@@ -811,33 +813,6 @@ export function LandingPage() {
               {isMobile && (
                 <>
                   <IconButton
-                    onClick={toggleDarkMode}
-                    aria-label={`Switch to ${darkMode ? "light" : "dark"} mode`}
-                    sx={{
-                      bgcolor: scrolled
-                        ? alpha(currentTheme.palette.background.paper, 0.9)
-                        : alpha("rgba(0,0,0,0.3)", 0.6),
-                      backdropFilter: "blur(12px)",
-                      color: scrolled ? "text.primary" : "white",
-                      "&:hover": {
-                        bgcolor: alpha(
-                          scrolled
-                            ? currentTheme.palette.primary.main
-                            : "#FFFFFF",
-                          0.2
-                        ),
-                        color: scrolled ? "primary.main" : "white",
-                      },
-                      "&:focus-visible": {
-                        outline: "3px solid white",
-                        outlineOffset: 2,
-                      },
-                      transition: "all 0.3s ease",
-                    }}
-                  >
-                    {darkMode ? <LightMode /> : <DarkMode />}
-                  </IconButton>
-                  <IconButton
                     color="inherit"
                     onClick={handleMenuClick}
                     aria-label="Open mobile menu"
@@ -871,60 +846,61 @@ export function LandingPage() {
           </Toolbar>
         </AppBar>
 
-        {/* Floating Action Buttons (Top Right) */}
-        <Box
-          sx={{
-            position: "fixed",
-            top: 20,
-            right: 20,
-            zIndex: 1100,
-            display: "flex",
-            gap: 1.5,
-          }}
-        >
-          {/* Dark Mode Toggle - Desktop Only */}
-          {!isMobile && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, x: 50 }}
-              animate={{
-                opacity: 1,
-                scale: 1,
-                x: 0,
-              }}
-              transition={{
-                duration: 0.5,
-                delay: 0.2,
-                type: "spring",
-                stiffness: 200,
-              }}
-            >
-              <IconButton
-                onClick={toggleDarkMode}
-                aria-label={`Switch to ${darkMode ? "light" : "dark"} mode`}
-                sx={{
-                  bgcolor: currentTheme.palette.mode === "dark" ? colors.sage : colors.forest,
-                  color: "white",
-                  backdropFilter: "blur(12px)",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-                  "&:hover": {
-                    bgcolor:
-                      currentTheme.palette.mode === "dark"
-                        ? colors.sageLight
-                        : colors.forestLight,
-                    transform: "scale(1.05) translateY(-2px)",
-                    boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
-                  },
-                  "&:focus-visible": {
-                    outline: "3px solid white",
-                    outlineOffset: 2,
-                  },
-                  transition: "all 0.3s ease",
+          {/* Floating Action Buttons (Top Right) */}
+          <Box
+            sx={{
+              position: "fixed",
+              top: 20,
+              right: 20,
+              zIndex: 1100,
+              display: "flex",
+              gap: 1.5,
+            }}
+          >
+            {!isMobile && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, x: 50 }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  x: 0,
+                }}
+                transition={{
+                  duration: 0.5,
+                  delay: 0.1,
+                  type: "spring",
+                  stiffness: 200,
                 }}
               >
-                {darkMode ? <LightMode /> : <DarkMode />}
-              </IconButton>
-            </motion.div>
-          )}
+                <IconButton
+                  onClick={toggleDarkMode}
+                  aria-label={`Switch to ${darkMode ? "light" : "dark"} mode`}
+                  sx={{
+                    bgcolor: currentTheme.palette.mode === "dark" ? colors.sage : colors.forest,
+                    color: "white",
+                    backdropFilter: "blur(12px)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+                    "&:hover": {
+                      bgcolor:
+                        currentTheme.palette.mode === "dark"
+                          ? colors.sageLight
+                          : colors.forestLight,
+                      transform: "scale(1.05) translateY(-2px)",
+                      boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
+                    },
+                    "&:focus-visible": {
+                      outline: "3px solid white",
+                      outlineOffset: 2,
+                    },
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  {darkMode ? <LightMode /> : <DarkMode />}
+                </IconButton>
+              </motion.div>
+            )}
+
+            {!isMobile && <LanguageSelector />}
 
           {/* Login Button - Desktop Only */}
           {!isAuthenticated && !isMobile && (
@@ -972,7 +948,7 @@ export function LandingPage() {
                   transition: "all 0.3s ease",
                 }}
               >
-                Login
+                {t('landing.login')}
               </Button>
             </motion.div>
           )}
@@ -1227,7 +1203,7 @@ export function LandingPage() {
                         textShadow: "0 16px 35px rgba(0,0,0,0.25)",
                       }}
                     >
-                      Building a Digital Future
+                      {t('landing.tagline')}
                     </Typography>
                     <Typography
                       variant="h4"
@@ -1239,7 +1215,7 @@ export function LandingPage() {
                         textShadow: "0 8px 20px rgba(0,0,0,0.3)",
                       }}
                     >
-                      Haramaya University Non-Boarding School
+                      {t('landing.subtitle')}
                     </Typography>
                     <Typography
                       variant="h6"
@@ -1252,7 +1228,7 @@ export function LandingPage() {
                         maxWidth: 600,
                       }}
                     >
-                      Secure web-based system for student registration, academic records, and school communication
+                      {t('landing.description')}
                     </Typography>
                   </motion.div>
                 </motion.div>
@@ -1366,7 +1342,7 @@ export function LandingPage() {
                           transition: "all 0.3s ease",
                         }}
                       >
-                        Get Started
+                        {t('landing.getStarted')}
                       </Button>
                     </motion.div>
                     <motion.div
@@ -1395,7 +1371,7 @@ export function LandingPage() {
                           },
                         }}
                       >
-                        View Announcements
+                        {t('landing.buttons.viewAnnouncements')}
                       </Button>
                     </motion.div>
                     <motion.div
@@ -1424,7 +1400,7 @@ export function LandingPage() {
                           transition: "all 0.3s ease",
                         }}
                       >
-                        Take a Virtual Tour
+                        {t('landing.buttons.takeVirtualTour')}
                       </Button>
                     </motion.div>
                   </Box>
@@ -1481,7 +1457,7 @@ export function LandingPage() {
                       fontWeight: 500,
                     }}
                   >
-                    Scroll to explore
+                    {t('landing.stats.scrollToExplore')}
                   </Typography>
                 </Box>
               </Box>
@@ -1516,10 +1492,10 @@ export function LandingPage() {
                 }}
               >
                 {[
-                  { label: "Students Enrolled", value: statistics.students, icon: <People /> },
-                  { label: "Teachers", value: statistics.teachers, icon: <School /> },
-                  { label: "Years of Excellence", value: statistics.yearsOfExcellence, icon: <EmojiEvents /> },
-                  { label: "Classes", value: statistics.classes, icon: <Assignment /> },
+                  { label: t('landing.stats.studentsEnrolled'), value: statistics.students, icon: <People /> },
+                  { label: t('landing.stats.teachers'), value: statistics.teachers, icon: <School /> },
+                  { label: t('landing.stats.yearsOfExcellence'), value: statistics.yearsOfExcellence, icon: <EmojiEvents /> },
+                  { label: t('landing.stats.classes'), value: statistics.classes, icon: <Assignment /> },
                 ].map((stat, index) => {
                   const { count, ref } = useAnimatedCounter(stat.value, 2);
                   return (
@@ -1760,15 +1736,14 @@ export function LandingPage() {
               component="h2"
               sx={{ mb: 2, fontWeight: 700, color: "text.primary" }}
             >
-              Announcements
+              {t('landing.announcementsSection.title')}
             </Typography>
             <Typography
               variant="body1"
               color="text.secondary"
               sx={{ maxWidth: 600, mx: "auto" }}
             >
-              Stay updated with the latest news, exam schedules, registration
-              dates, and important notices.
+              {t('landing.announcementsSection.description')}
             </Typography>
           </Box>
           <motion.div
@@ -1787,7 +1762,7 @@ export function LandingPage() {
             {!announcementsQuery.isLoading && announcements.length === 0 && (
               <motion.div variants={fadeUp}>
                 <Typography variant="body1" color="text.secondary" textAlign="center">
-                  No announcements at the moment. Check back soon!
+                  {t('landing.announcementsSection.noAnnouncements')}
                 </Typography>
               </motion.div>
             )}
@@ -1909,7 +1884,7 @@ export function LandingPage() {
                   component="h2"
                   sx={{ mb: 2, fontWeight: 700, color: "text.primary" }}
                 >
-                  About Our School
+                  {t('landing.aboutSection.title')}
                 </Typography>
               </Box>
             </motion.div>
@@ -1923,13 +1898,7 @@ export function LandingPage() {
                 color: "text.primary",
               }}
             >
-              <strong>Haramaya University Non-Boarding Secondary School</strong>{" "}
-              is a government secondary school located on the Haramaya
-              University campus. We serve students in{" "}
-              <strong>Grades 9-12</strong>, committed to academic excellence and
-              the Model School initiative. Our focus is on providing quality
-              education that prepares students for higher learning and future
-              success.
+              {t('landing.aboutSection.description')}
             </Typography>
             <motion.div
               variants={stagger}
@@ -1947,23 +1916,20 @@ export function LandingPage() {
               >
                 {[
                   {
-                    title: "Vision",
-                    subtitle:
-                      "To be a model secondary school that nurtures ethical, innovative, and academically excellent learners.",
+                    title: t('landing.aboutSection.vision'),
+                    subtitle: t('landing.aboutSection.visionText'),
                     image:
                       "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80",
                   },
                   {
-                    title: "Mission",
-                    subtitle:
-                      "Provide a supportive learning environment, modern pedagogy, and community partnership to raise future-ready graduates.",
+                    title: t('landing.aboutSection.mission'),
+                    subtitle: t('landing.aboutSection.missionText'),
                     image:
                       "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
                   },
                   {
-                    title: "Goals",
-                    subtitle:
-                      "Strengthen academic achievement, digital literacy, student wellbeing, and leadership development for all grades 9–12.",
+                    title: t('landing.aboutSection.goals'),
+                    subtitle: t('landing.aboutSection.goalsText'),
                     image:
                       "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80",
                   },
@@ -2043,9 +2009,9 @@ export function LandingPage() {
                 }}
               >
                 {[
-                  { title: "Grades 9-12", subtitle: "Secondary Education" },
-                  { title: "Model School", subtitle: "Excellence Initiative" },
-                  { title: "University Campus", subtitle: "Prime Location" },
+                  { title: t('landing.aboutFeatures.grades'), subtitle: t('landing.aboutFeatures.gradesDesc') },
+                  { title: t('landing.aboutFeatures.modelSchool'), subtitle: t('landing.aboutFeatures.modelSchoolDesc') },
+                  { title: t('landing.aboutFeatures.campus'), subtitle: t('landing.aboutFeatures.campusDesc') },
                 ].map((item, index) => (
                   <motion.div key={index} variants={fadeUp}>
                     <Card
@@ -2106,41 +2072,41 @@ export function LandingPage() {
                   component="h2"
                   sx={{ mb: 2, fontWeight: 700, color: "text.primary" }}
                 >
-                  Frequently Asked Questions
+                  {t('landing.faqSection.title')}
                 </Typography>
                 <Typography
                   variant="body1"
                   color="text.secondary"
                   sx={{ maxWidth: 600, mx: "auto" }}
                 >
-                  Find answers to common questions about the Student Information Management System
+                  {t('landing.faqSection.description')}
                 </Typography>
               </Box>
               <Box sx={{ maxWidth: 900, mx: "auto" }}>
                 {[
                   {
-                    question: "How do I register as a student?",
-                    answer: "Students can register through the system by creating an account using their student ID. You'll need to provide personal information, contact details, and upload required documents. The registration process is verified by school administration.",
+                    question: t('landing.faqs.q1'),
+                    answer: t('landing.faqs.a1'),
                   },
                   {
-                    question: "Can parents access their child's academic records?",
-                    answer: "Yes, parents can access their child's academic records, attendance, and grades through the parent portal. Each parent account is linked to their child's profile for secure access.",
+                    question: t('landing.faqs.q2'),
+                    answer: t('landing.faqs.a2'),
                   },
                   {
-                    question: "How do teachers submit grades?",
-                    answer: "Teachers can submit grades through the teacher dashboard. The system allows for easy grade entry, automatic calculations, and grade report generation. All submissions are logged for audit purposes.",
+                    question: t('landing.faqs.q3'),
+                    answer: t('landing.faqs.a3'),
                   },
                   {
-                    question: "What if I forget my password?",
-                    answer: "You can reset your password using the 'Forgot Password' link on the login page. You'll receive a password reset link via email. If you don't receive the email, please contact the school IT support.",
+                    question: t('landing.faqs.q4'),
+                    answer: t('landing.faqs.a4'),
                   },
                   {
-                    question: "Is the system secure?",
-                    answer: "Yes, the system uses industry-standard encryption and security measures. All data is encrypted in transit and at rest. Regular security audits are conducted to ensure the safety of student and staff information.",
+                    question: t('landing.faqs.q5'),
+                    answer: t('landing.faqs.a5'),
                   },
                   {
-                    question: "How can I contact technical support?",
-                    answer: "Technical support is available during school hours (8AM-5PM, Mon-Fri). You can reach us via the contact form on this page, email at support@school.edu, or visit the IT office in person.",
+                    question: t('landing.faqs.q6'),
+                    answer: t('landing.faqs.a6'),
                   },
                 ].map((faq, index) => (
                   <motion.div key={index} variants={fadeUp}>
@@ -2192,15 +2158,14 @@ export function LandingPage() {
               component="h2"
               sx={{ mb: 2, fontWeight: 700, color: "text.primary" }}
             >
-              System Access
+              {t('landing.faqSection.systemAccess')}
             </Typography>
             <Typography
               variant="body1"
               color="text.secondary"
               sx={{ maxWidth: 600, mx: "auto" }}
             >
-              Different users have different access levels based on their role
-              in the school community.
+              {t('landing.faqSection.systemAccessDesc')}
             </Typography>
           </Box>
           <motion.div
@@ -2309,7 +2274,7 @@ export function LandingPage() {
                     transition: "all 0.3s ease",
                   }}
                 >
-                  Get Started
+                  {t('landing.getStarted')}
                 </Button>
               </motion.div>
             </Box>
@@ -2334,7 +2299,7 @@ export function LandingPage() {
               component="h2"
               sx={{ mb: 6, textAlign: "center", color: "white" }}
             >
-              Get In Touch
+              {t('landing.contactSection.title')}
             </Typography>
             <Box
               sx={{
@@ -2358,14 +2323,14 @@ export function LandingPage() {
                     gap: 3,
                   }}
                 >
-                  {["Address", "Contact", "Office Hours", "Support"].map((title, index) => {
+                  {[t('landing.contactSection.address'), t('landing.contactSection.contact'), t('landing.contactSection.officeHours'), t('landing.contactSection.support')].map((title, index) => {
                     const icons = [LocationOn, Phone, AccessTime, Email];
                     const Icon = icons[index];
                     const contents = [
-                      "Haramaya University Campus<br />East Hararghe Zone<br />Oromia Region, Ethiopia",
-                      "Phone: +251 944167574<br />Email: info@haramaya.edu.et",
-                      "Mon-Fri: 8AM-5PM<br />Sat: 8AM-12PM",
-                      "Technical: support@school.edu<br />Admissions: admissions@school.edu",
+                      t('landing.contactSection.addressText'),
+                      t('landing.contactSection.phone') + '<br />' + t('landing.contactSection.email'),
+                      t('landing.contactSection.officeHoursText'),
+                      t('landing.contactSection.technical') + '<br />' + t('landing.contactSection.admissions'),
                     ];
                     return (
                       <motion.div key={index} variants={fadeRight}>
@@ -2441,7 +2406,7 @@ export function LandingPage() {
                       variant="h5"
                       sx={{ mb: 3, color: "white", fontWeight: 600 }}
                     >
-                      Send us a Message
+                      {t('landing.contactSection.sendMessage')}
                     </Typography>
                     <Collapse in={submitSuccess}>
                       <Alert severity="success" sx={{ mb: 3 }}>
@@ -2463,7 +2428,7 @@ export function LandingPage() {
                       >
                         <TextField
                           fullWidth
-                          label="Your Name"
+                          label={t('landing.contactSection.yourName')}
                           value={contactForm.name}
                           onChange={(e) =>
                             handleContactFormChange("name", e.target.value)
@@ -2503,7 +2468,7 @@ export function LandingPage() {
                         />
                         <TextField
                           fullWidth
-                          label="Email Address"
+                          label={t('landing.contactSection.emailAddress')}
                           type="email"
                           value={contactForm.email}
                           onChange={(e) =>
@@ -2544,7 +2509,7 @@ export function LandingPage() {
                         />
                         <TextField
                           fullWidth
-                          label="Subject"
+                          label={t('landing.contactSection.subject')}
                           value={contactForm.subject}
                           onChange={(e) =>
                             handleContactFormChange("subject", e.target.value)
@@ -2584,7 +2549,7 @@ export function LandingPage() {
                         />
                         <TextField
                           fullWidth
-                          label="Message"
+                          label={t('landing.contactSection.message')}
                           multiline
                           rows={4}
                           value={contactForm.message}
@@ -2692,13 +2657,13 @@ export function LandingPage() {
                     variant="body2"
                     sx={{ color: "white", fontWeight: 600 }}
                   >
-                    Haramaya University Non-Boarding Secondary School
+                    {t('landing.footer.schoolName')}
                   </Typography>
                   <Typography
                     variant="caption"
                     sx={{ color: "rgba(255,255,255,0.6)" }}
                   >
-                    Student Information Management System
+                    {t('landing.footer.systemName')}
                   </Typography>
                 </Box>
               </Box>
@@ -2711,7 +2676,7 @@ export function LandingPage() {
                     "&:hover": { color: "white" },
                   }}
                 >
-                  Privacy Policy
+                  {t('landing.footer.privacyPolicy')}
                 </Typography>
                 <Typography
                   variant="body2"
@@ -2721,7 +2686,7 @@ export function LandingPage() {
                     "&:hover": { color: "white" },
                   }}
                 >
-                  Terms of Service
+                  {t('landing.footer.termsOfService')}
                 </Typography>
                 <Typography
                   variant="body2"
@@ -2731,7 +2696,7 @@ export function LandingPage() {
                     "&:hover": { color: "white" },
                   }}
                 >
-                  Contact
+                  {t('landing.footer.contact')}
                 </Typography>
               </Box>
             </Box>
@@ -2740,8 +2705,7 @@ export function LandingPage() {
                 variant="caption"
                 sx={{ color: "rgba(255,255,255,0.4)" }}
               >
-                © 2026 SIMS - Student Information Management System. All rights
-                reserved.
+                {t('landing.footer.copyright')}
               </Typography>
             </Box>
           </Container>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Badge,
@@ -54,6 +55,7 @@ import { useInbox } from "@/hooks/messages/useMessages";
 import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "@/services/api";
 import { NotificationBell } from "@/components/layout/NotificationBell";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import {
   normalizeAppearanceSettings,
 } from "@/lib/appearance";
@@ -225,90 +227,91 @@ const drawerWidth = 280;
 const collapsedDrawerWidth = 92;
 
 // SystemAdmin specific navigation
-const systemAdminNavigation = [
-  { text: "Dashboard", icon: <Dashboard />, path: "" },
-  { text: "User Management", icon: <People />, path: "users" },
-  { text: "Roles & Permissions", icon: <Assignment />, path: "roles" },
-  { text: "System Settings", icon: <Settings />, path: "settings" },
-  { text: "Security & Backups", icon: <Warning />, path: "security" },
-  { text: "System Logs", icon: <Description />, path: "logs" },
-  { text: "Profile", icon: <Person />, path: "profile" },
+const getSystemAdminNavigation = (t: any) => [
+  { text: t('dashboard.dashboard'), icon: <Dashboard />, path: "" },
+  { text: t('dashboard.userManagement'), icon: <People />, path: "users" },
+  { text: t('dashboard.rolesPermissions'), icon: <Assignment />, path: "roles" },
+  { text: t('dashboard.systemSettings'), icon: <Settings />, path: "settings" },
+  { text: t('dashboard.securityBackups'), icon: <Warning />, path: "security" },
+  { text: t('dashboard.systemLogs'), icon: <Description />, path: "logs" },
+  { text: t('dashboard.profile'), icon: <Person />, path: "profile" },
 ];
 
 // SchoolAdmin specific navigation
-const schoolAdminNavigation = [
-  { text: "Dashboard", icon: <Dashboard />, path: "" },
-  { text: "Classes", icon: <Class />, path: "classes" },
-  { text: "Students", icon: <School />, path: "students" },
-  { text: "Bulk Upload", icon: <Assignment />, path: "students/upload" },
-  { text: "Teachers", icon: <People />, path: "teachers" },
-  { text: "Parents", icon: <People />, path: "parents" },
-  { text: "Attendance", icon: <Event />, path: "attendance" },
-  { text: "Grades", icon: <Assessment />, path: "grades" },
-  { text: "Timetable", icon: <Schedule />, path: "timetable" },
-  { text: "Messages", icon: <Message />, path: "messages" },
-  { text: "Announcements", icon: <Announcement />, path: "announcements" },
-  { text: "Exam Schedule", icon: <Event />, path: "exam-schedule" },
-  { text: "Reports", icon: <Assignment />, path: "reports" },
-  { text: "Settings", icon: <Settings />, path: "settings" },
-  { text: "Profile", icon: <Person />, path: "profile" },
+const getSchoolAdminNavigation = (t: any) => [
+  { text: t('dashboard.dashboard'), icon: <Dashboard />, path: "" },
+  { text: t('dashboard.classes'), icon: <Class />, path: "classes" },
+  { text: t('dashboard.students'), icon: <School />, path: "students" },
+  { text: t('dashboard.bulkUpload'), icon: <Assignment />, path: "students/upload" },
+  { text: t('dashboard.teachers'), icon: <People />, path: "teachers" },
+  { text: t('dashboard.parents'), icon: <People />, path: "parents" },
+  { text: t('dashboard.attendance'), icon: <Event />, path: "attendance" },
+  { text: t('dashboard.grades'), icon: <Assessment />, path: "grades" },
+  { text: t('dashboard.timetable'), icon: <Schedule />, path: "timetable" },
+  { text: t('dashboard.messages'), icon: <Message />, path: "messages" },
+  { text: t('dashboard.announcements'), icon: <Announcement />, path: "announcements" },
+  { text: t('dashboard.examSchedule'), icon: <Event />, path: "exam-schedule" },
+  { text: t('dashboard.reports'), icon: <Assignment />, path: "reports" },
+  { text: t('dashboard.settings'), icon: <Settings />, path: "settings" },
+  { text: t('dashboard.profile'), icon: <Person />, path: "profile" },
 ];
 
 // Teacher specific navigation
-const teacherNavigation = [
-  { text: "Dashboard", icon: <Dashboard />, path: "" },
-  { text: "Students", icon: <School />, path: "students" },
-  { text: "Attendance", icon: <Event />, path: "attendance" },
-  { text: "Grades", icon: <Assessment />, path: "grades" },
-  { text: "Timetable", icon: <Schedule />, path: "timetable" },
-  { text: "Messages", icon: <Message />, path: "messages" },
-  { text: "Announcements", icon: <Announcement />, path: "announcements" },
-  { text: "Exam Schedule", icon: <Event />, path: "exam-schedule" },
-  { text: "Reports", icon: <Description />, path: "reports" },
-  { text: "Profile", icon: <Person />, path: "profile" },
+const getTeacherNavigation = (t: any) => [
+  { text: t('dashboard.dashboard'), icon: <Dashboard />, path: "" },
+  { text: t('dashboard.students'), icon: <School />, path: "students" },
+  { text: t('dashboard.attendance'), icon: <Event />, path: "attendance" },
+  { text: t('dashboard.grades'), icon: <Assessment />, path: "grades" },
+  { text: t('dashboard.timetable'), icon: <Schedule />, path: "timetable" },
+  { text: t('dashboard.messages'), icon: <Message />, path: "messages" },
+  { text: t('dashboard.announcements'), icon: <Announcement />, path: "announcements" },
+  { text: t('dashboard.examSchedule'), icon: <Event />, path: "exam-schedule" },
+  { text: t('dashboard.reports'), icon: <Description />, path: "reports" },
+  { text: t('dashboard.profile'), icon: <Person />, path: "profile" },
 ];
 
 // Student specific navigation
-const studentNavigation = [
-  { text: "Dashboard", icon: <Dashboard />, path: "" },
-  { text: "Grades", icon: <Assessment />, path: "grades" },
-  { text: "Attendance", icon: <Event />, path: "attendance" },
-  { text: "Timetable", icon: <Schedule />, path: "timetable" },
-  { text: "Messages", icon: <Message />, path: "messages" },
-  { text: "Reports", icon: <Description />, path: "reports" },
-  { text: "Profile", icon: <Person />, path: "profile" },
+const getStudentNavigation = (t: any) => [
+  { text: t('dashboard.dashboard'), icon: <Dashboard />, path: "" },
+  { text: t('dashboard.grades'), icon: <Assessment />, path: "grades" },
+  { text: t('dashboard.attendance'), icon: <Event />, path: "attendance" },
+  { text: t('dashboard.timetable'), icon: <Schedule />, path: "timetable" },
+  { text: t('dashboard.messages'), icon: <Message />, path: "messages" },
+  { text: t('dashboard.reports'), icon: <Description />, path: "reports" },
+  { text: t('dashboard.profile'), icon: <Person />, path: "profile" },
 ];
 
 // Parent specific navigation
-const getParentNavigation = (firstChildId: string) => [
-  { text: "Dashboard", icon: <Dashboard />, path: "" },
-  { text: "Grades", icon: <Assessment />, path: firstChildId ? `children/${firstChildId}/grades` : "grades" },
-  { text: "Attendance", icon: <Event />, path: firstChildId ? `children/${firstChildId}/attendance` : "attendance" },
-  { text: "Timetable", icon: <Schedule />, path: "timetable" },
-  { text: "Messages", icon: <Message />, path: "messages" },
-  { text: "Alerts", icon: <Warning />, path: "alerts" },
-  { text: "Reports", icon: <Description />, path: "reports" },
-  { text: "Profile", icon: <Person />, path: "profile" },
+const getParentNavigation = (t: any, firstChildId: string) => [
+  { text: t('dashboard.dashboard'), icon: <Dashboard />, path: "" },
+  { text: t('dashboard.grades'), icon: <Assessment />, path: firstChildId ? `children/${firstChildId}/grades` : "grades" },
+  { text: t('dashboard.attendance'), icon: <Event />, path: firstChildId ? `children/${firstChildId}/attendance` : "attendance" },
+  { text: t('dashboard.timetable'), icon: <Schedule />, path: "timetable" },
+  { text: t('dashboard.messages'), icon: <Message />, path: "messages" },
+  { text: t('dashboard.alerts'), icon: <Warning />, path: "alerts" },
+  { text: t('dashboard.reports'), icon: <Description />, path: "reports" },
+  { text: t('dashboard.profile'), icon: <Person />, path: "profile" },
 ];
 
-const getNavigationItems = (role: string, firstChildId: string = "") => {
+const getNavigationItems = (role: string, firstChildId: string = "", t: any) => {
   switch (role) {
     case "SystemAdmin":
-      return systemAdminNavigation;
+      return getSystemAdminNavigation(t);
     case "SchoolAdmin":
-      return schoolAdminNavigation;
+      return getSchoolAdminNavigation(t);
     case "Teacher":
-      return teacherNavigation;
+      return getTeacherNavigation(t);
     case "Student":
-      return studentNavigation;
+      return getStudentNavigation(t);
     case "Parent":
-      return getParentNavigation(firstChildId);
+      return getParentNavigation(t, firstChildId);
     default:
-      return [{ text: "Dashboard", icon: <Dashboard />, path: "" }];
+      return [{ text: t('dashboard.dashboard'), icon: <Dashboard />, path: "" }];
   }
 };
 
 export function DashboardLayout() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -398,7 +401,7 @@ export function DashboardLayout() {
   const effectiveDrawerWidth =
     !isMobile && sidebarCollapsed ? collapsedDrawerWidth : drawerWidth;
 
-  const filteredNavItems = getNavigationItems(user?.role || "", activeChildId);
+  const filteredNavItems = getNavigationItems(user?.role || "", activeChildId, t);
   const getBasePath = () => {
     const role = user?.role || "";
     switch (role) {
@@ -451,7 +454,7 @@ export function DashboardLayout() {
               SIMS
             </Typography>
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              {user?.role || "User"}
+              {t(`roles.${user?.role?.toLowerCase() || 'student'}`) || "User"}
             </Typography>
           </Box> : null}
         </Box>
@@ -596,6 +599,7 @@ export function DashboardLayout() {
             >
               {appearanceState.darkMode ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
+            <LanguageSelector />
             <NotificationBell />
             <IconButton
               onClick={handleProfileMenuOpen}
@@ -672,7 +676,7 @@ export function DashboardLayout() {
             <ListItemIcon>
               <AccountCircle fontSize="small" />
             </ListItemIcon>
-            Profile
+            {t('dashboard.profile')}
           </MenuItem>
           {(user?.role === "SystemAdmin" || user?.role === "SchoolAdmin") && (
             <MenuItem
@@ -685,7 +689,7 @@ export function DashboardLayout() {
               <ListItemIcon>
                 <Settings fontSize="small" />
               </ListItemIcon>
-              Settings
+              {t('dashboard.settings')}
             </MenuItem>
           )}
           <Divider />
@@ -693,7 +697,7 @@ export function DashboardLayout() {
             <ListItemIcon>
               <Logout fontSize="small" />
             </ListItemIcon>
-            Logout
+            {t('dashboard.logout')}
           </MenuItem>
         </Menu>
       </Box>

@@ -1,0 +1,195 @@
+{
+  "common": {
+    "welcome": "Baga nagaan dhuftan",
+    "login": "Seenu",
+    "logout": "Baha",
+    "dashboard": "Daashibordii",
+    "settings": "Qindaa'ina",
+    "save": "Kaasaa",
+    "cancel": "Haqu",
+    "delete": "Balleessi",
+    "edit": "Gulaali",
+    "add": "Dabalaa",
+    "search": "Barbaadi",
+    "filter": "Sirrii",
+    "loading": "Fe'amaa jiru...",
+    "error": "Dogoggora",
+    "success": "Milkaa'ina",
+    "confirm": "Mirkaneessi",
+    "back": "Deebi'i",
+    "next": "Iddoo",
+    "previous": "Dura",
+    "submit": "Eegga",
+    "close": "Cufi",
+    "yes": "Eeyyee",
+    "no": "Lakki",
+    "language": "Afaan"
+  },
+  "auth": {
+    "email": "Imeelii",
+    "password": "Jecha icciitii",
+    "rememberMe": "Na yaadachi",
+    "forgotPassword": "Jecha icciitii horgotte?",
+    "signIn": "Seenu",
+    "signUp": "Galmeessi",
+    "loginError": "Imeelii ykn jecha icciitii dogoggora",
+    "twoFactorAuth": "Lamaa-faktaataa mirkaneessaa",
+    "verificationCode": "Koodii mirkaneessaa",
+    "enterCode": "Koodii mirkaneessaa imeelii keessatti ergame galchi",
+    "codeExpires": "Koodiin daqiiqaa 10 keessa hafaa"
+  },
+  "dashboard": {
+    "overview": "Ilaalaa",
+    "students": "Barattoota",
+    "teachers": "Barataa",
+    "classes": "Kilasoota",
+    "attendance": "Qabaji",
+    "grades": "Darajoota",
+    "reports": "Riportoota",
+    "messages": "Eeggala",
+    "announcements": "Eeggalo",
+    "dashboard": "Daashibordii",
+    "userManagement": "Taphataa Sirna",
+    "rolesPermissions": "Miira fi Dhiibina",
+    "systemSettings": "Sirna Qopheessaa",
+    "securityBackups": "Dhiibina fi Taphataa",
+    "systemLogs": "Sirraa Sirna",
+    "profile": "Dhiiraa",
+    "bulkUpload": "Dirree Daawwachiisi",
+    "parents": "Aabbi",
+    "timetable": "Sagantaa Yeroo",
+    "examSchedule": "Sagantaa Barataa",
+    "settings": "Qopheessota",
+    "alerts": "Dhiirri",
+    "logout": "Ba'i"
+  },
+  "roles": {
+    "systemAdmin": "Bulchiinsa sirnaa",
+    "schoolAdmin": "Bulchiinsa barnootaa",
+    "teacher": "Barataa",
+    "student": "Barattoota",
+    "parent": "Abaa"
+  },
+  "landing": {
+    "title": "SIMS",
+    "tagline": "Dijiitaa yeroo haaraa qophaa'u",
+    "subtitle": "Yuunivarsiitii Haraameeyaa Mana Barnootaa Qabxee Maleessaa",
+    "description": "Barattoota galmeessuu, qabxii barnootaa fi sagantaa barnootaa kan qabu sirrii webii qophaa'e",
+    "home": "Fuuldura",
+    "features": "Qabxii",
+    "announcements": "Eeggaloota",
+    "about": "Waa'ee",
+    "faq": "Gaaffiiwwan",
+    "contact": "Nu qabxi",
+    "login": "Seenu",
+    "getStarted": "Qophaa'ii",
+    "learnMore": "Xiqqeechaa",
+    "feature1": {
+      "title": "Galmeessuu",
+      "desc": "Barattoota galmeessuu onliin"
+    },
+    "feature2": {
+      "title": "Bu'aa",
+      "desc": "Qabxii barnootaa fi darajoota"
+    },
+    "feature3": {
+      "title": "Eeggaloota",
+      "desc": "Beellii mana barnootaa fi sagantaa"
+    },
+    "feature4": {
+      "title": "Sagantaa",
+      "desc": "Eegga barataa fi barataa"
+    },
+    "stats": {
+      "students": "Barattoota",
+      "teachers": "Barataa",
+      "classes": "Kilasoota",
+      "scrollToExplore": "Irra deebi'i",
+      "studentsEnrolled": "Galmeessaa Barattoota",
+      "yearsOfExcellence": "Waggoota Milkaa'ina"
+    },
+    "announcementsSection": {
+      "title": "Eeggaloota",
+      "description": "Oduu haaraa, sirna barataa, gaaffii galmeessuu fi beellii walitti dhufaa adda addaan ilaali.",
+      "noAnnouncements": "Eeggaloota hin jiru. Deebi'i yoo deebi'uu!"
+    },
+    "aboutSection": {
+      "title": "Waa'ee Mana Barnootaa",
+      "description": "Mana Barnootaa Sadarkaa Lammaffaa Qabxee Maleessaa Yuunivarsiitii Haraameeyaa keessatti argama. Sadarkaa 9-12 barattoota barsiisuuf, barnoota gaarii fi Moggii Mana Barnootaa kan dhiibattu. Barattoota barnoota gahaa fi eegaa taphataaf barnoota bal'aa barsiisuu.",
+      "vision": "Ijoo",
+      "visionText": "Barattoota moo'aa, fayyadamoo fi barnoota gaarii guddisuu moggii mana barnootaa ta'uu.",
+      "mission": "Ummata",
+      "missionText": "Barnoota cimaa, qophii barnootaa haaraa fi walitti dhufaa barattoota eegaa taphata guddisuu.",
+      "goals": "Ummata",
+      "goalsText": "Sadarkaa 9-12 barnoota gaarii, barnoota dijiitaa, barattoota fayyaa fi dargaggummaa guddisuu."
+    },
+    "aboutFeatures": {
+      "grades": "Darajoota 9-12",
+      "gradesDesc": "Barnoota Sadarkaa Lammaffaa",
+      "modelSchool": "Moggii Mana Barnootaa",
+      "modelSchoolDesc": "Milkaa'ina Qophaa'aa",
+      "campus": "Yuunivarsiitii",
+      "campusDesc": "Bakka Guddaa"
+    },
+    "faqSection": {
+      "title": "Gaaffiiwwan Beekamaa",
+      "description": "Sirna Barattoota Qabxii waa'ee gaaffiiwwan beekamaa deebii argadhu.",
+      "systemAccess": "Dhiibina Sirna",
+      "systemAccessDesc": "Taphataa qabxii irratti hundaa'aan taphattoota dhiibina adda adda qabu."
+    },
+    "buttons": {
+      "takeVirtualTour": "Dhaabbata Firaatii",
+      "viewAnnouncements": "Eeggalo ilaali"
+    },
+    "faqs": {
+      "q1": "Barataa akka galmeessuu ati dandeessa?",
+      "a1": "Barattoota sirna keessatti ID barataa fayyadamee akka galmeessuu danda'u. Maqaa, eeggala fi sagantaa barataa kennuu barbaachisaa. Sirna galmeessuu mana barnootaa fi bu'uuraaf sirrii taasisa.",
+      "q2": "Abbiin qabxii ilaaluu danda'a?",
+      "a2": "Eeyyee, abbiin akka bu'aa fi qabxii barataa ilaaluu danda'a.",
+      "q3": "Jecha jechaa barsiisuu yoo unattu maal si taasisa?",
+      "a3": "Sirna jechoota barsiisuu fayyadamuun jechoota jechaa barsiisuu dandeessa. Imeeliin sirrii hin dhufu yoo ta'e, gargaarsa teeknikaawaa gaafachuu dandeessa.",
+      "q4": "Sirni sirrii ta'a?",
+      "a4": "Eeyyee, sirni sirrii ta'ee barattoota fi barsiisoota eeguuf kan guuttame.",
+      "q5": "Barattoon bu'aa akka barsiisuu ati dandeessa?",
+      "a5": "Barattoon sirna fayyadamee bu'aa barsiisuu danda'a.",
+      "q6": "Sirna barataa akka argachu ati dandeessa?",
+      "a6": "Sirna barataa eeggaloota keessatti argama."
+    },
+    "rolesSection": {
+      "students": "Barattoota",
+      "studentsDesc": "Darajoota, qabaji, eeggalo fi qabxii adda addaa ilaali.",
+      "parents": "Aabbi",
+      "parentsDesc": "Qabxii barnootaa ilaalu fi barataa waliin sagantaa",
+      "teachers": "Barataa",
+      "teachersDesc": "Darajoota, qabaji fi qabxii kilasii walitti dhiyeessu",
+      "administrators": "Bulchiinsa",
+      "administratorsDesc": "Dhiibina sirna guutuu mana barnootaa bulchiinsa"
+    },
+    "contactSection": {
+      "title": "Nu Qabxi",
+      "address": "Dirree",
+      "addressText": "Yuunivarsiitii Haraameeyaa\nHarargee Bahaa\nOromiyaa, Itoophiyaa",
+      "contact": "Nu Qabxi",
+      "phone": "Bilbila: +251 944167574",
+      "email": "Imeelii: info@haramaya.edu.et",
+      "officeHours": "Saa'ii Biroo",
+      "officeHoursText": "Jim-Jim: 8AM-5PM\nSan: 8AM-12PM",
+      "support": "Gargaarsa",
+      "technical": "Teeqnikaa: support@school.edu",
+      "admissions": "Galmeessuu: admissions@school.edu",
+      "sendMessage": "Nu Eegga Eeg",
+      "yourName": "Maqaa Keessan",
+      "emailAddress": "Imeelii",
+      "subject": "Mata Duree",
+      "message": "Eegga"
+    },
+    "footer": {
+      "schoolName": "Mana Barnootaa Sadarkaa Lammaffaa Qabxee Maleessaa Yuunivarsiitii Haraameeyaa",
+      "systemName": "Sirna Barattoota Qabxii",
+      "privacyPolicy": "Sirrii Gurguddoo",
+      "termsOfService": "Sirrii Walitti Dhufaa",
+      "contact": "Nu Qabxi",
+      "copyright": "© 2026 SIMS - Sirna Barattoota Qabxii. Mirga hundi qabatamaa."
+    }
+  }
+}

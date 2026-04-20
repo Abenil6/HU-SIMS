@@ -1,0 +1,195 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "login": "Login",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "language": "Language"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "loginError": "Invalid email or password",
+    "twoFactorAuth": "Two-Factor Authentication",
+    "verificationCode": "Verification Code",
+    "enterCode": "Enter the verification code sent to your email",
+    "codeExpires": "Code expires in 10 minutes"
+  },
+  "dashboard": {
+    "overview": "Overview",
+    "students": "Students",
+    "teachers": "Teachers",
+    "classes": "Classes",
+    "attendance": "Attendance",
+    "grades": "Grades",
+    "reports": "Reports",
+    "messages": "Messages",
+    "announcements": "Announcements",
+    "dashboard": "Dashboard",
+    "userManagement": "User Management",
+    "rolesPermissions": "Roles & Permissions",
+    "systemSettings": "System Settings",
+    "securityBackups": "Security & Backups",
+    "systemLogs": "System Logs",
+    "profile": "Profile",
+    "bulkUpload": "Bulk Upload",
+    "parents": "Parents",
+    "timetable": "Timetable",
+    "examSchedule": "Exam Schedule",
+    "settings": "Settings",
+    "alerts": "Alerts",
+    "logout": "Logout"
+  },
+  "roles": {
+    "systemAdmin": "System Administrator",
+    "schoolAdmin": "School Administrator",
+    "teacher": "Teacher",
+    "student": "Student",
+    "parent": "Parent"
+  },
+  "landing": {
+    "title": "SIMS",
+    "tagline": "Building a Digital Future",
+    "subtitle": "Haramaya University Non-Boarding School",
+    "description": "Secure web-based system for student registration, academic records, and school communication",
+    "home": "Home",
+    "features": "Features",
+    "announcements": "Announcements",
+    "about": "About",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "login": "Login",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "feature1": {
+      "title": "Registration",
+      "desc": "Online student enrollment"
+    },
+    "feature2": {
+      "title": "Results",
+      "desc": "Academic records & grades"
+    },
+    "feature3": {
+      "title": "Announcements",
+      "desc": "School notices & updates"
+    },
+    "feature4": {
+      "title": "Communication",
+      "desc": "Parent-teacher messaging"
+    },
+    "stats": {
+      "students": "Students",
+      "teachers": "Teachers",
+      "classes": "Classes",
+      "scrollToExplore": "Scroll to explore",
+      "studentsEnrolled": "Students Enrolled",
+      "yearsOfExcellence": "Years of Excellence"
+    },
+    "announcementsSection": {
+      "title": "Announcements",
+      "description": "Stay updated with the latest news, exam schedules, registration dates, and important notices.",
+      "noAnnouncements": "No announcements at the moment. Check back soon!"
+    },
+    "aboutSection": {
+      "title": "About Our School",
+      "description": "Haramaya University Non-Boarding Secondary School is a government secondary school located on the Haramaya University campus. We serve students in Grades 9-12, committed to academic excellence and the Model School initiative. Our focus is on providing quality education that prepares students for higher learning and future success.",
+      "vision": "Vision",
+      "visionText": "To be a model secondary school that nurtures ethical, innovative, and academically excellent learners.",
+      "mission": "Mission",
+      "missionText": "Provide a supportive learning environment, modern pedagogy, and community partnership to raise future-ready graduates.",
+      "goals": "Goals",
+      "goalsText": "Strengthen academic achievement, digital literacy, student wellbeing, and leadership development for all grades 9–12."
+    },
+    "aboutFeatures": {
+      "grades": "Grades 9-12",
+      "gradesDesc": "Secondary Education",
+      "modelSchool": "Model School",
+      "modelSchoolDesc": "Excellence Initiative",
+      "campus": "University Campus",
+      "campusDesc": "Prime Location"
+    },
+    "faqSection": {
+      "title": "Frequently Asked Questions",
+      "description": "Find answers to common questions about the Student Information Management System",
+      "systemAccess": "System Access",
+      "systemAccessDesc": "Different users have different access levels based on their role in the school community."
+    },
+    "buttons": {
+      "takeVirtualTour": "Take a Virtual Tour",
+      "viewAnnouncements": "View Announcements"
+    },
+    "faqs": {
+      "q1": "How do I register as a student?",
+      "a1": "Students can register through the system by creating an account using their student ID. You'll need to provide personal information, contact details, and upload required documents. The registration process is verified by school administration.",
+      "q2": "Can parents access their child's academic records?",
+      "a2": "Yes, parents can view their child's grades, attendance, and academic progress by logging into their parent account.",
+      "q3": "What if I forget my password?",
+      "a3": "You can reset your password using the 'Forgot Password' link on the login page. You'll receive a password reset link via email. If you don't receive the email, please contact the school IT support.",
+      "q4": "Is the system secure?",
+      "a4": "Yes, the system uses industry-standard encryption and security measures to protect all student and staff data.",
+      "q5": "How do teachers submit grades?",
+      "a5": "Teachers can submit grades through their dashboard by accessing the class management section and entering student scores. The system automatically calculates final grades.",
+      "q6": "Where can I find exam schedules?",
+      "a6": "Exam schedules are posted in the Announcements section and are also available in the student dashboard."
+    },
+    "rolesSection": {
+      "students": "Students",
+      "studentsDesc": "View grades, attendance, announcements, and personal records",
+      "parents": "Parents",
+      "parentsDesc": "Monitor academic progress and communicate with teachers",
+      "teachers": "Teachers",
+      "teachersDesc": "Manage grades, attendance, and class materials",
+      "administrators": "Administrators",
+      "administratorsDesc": "Full system access for school management"
+    },
+    "contactSection": {
+      "title": "Get In Touch",
+      "address": "Address",
+      "addressText": "Haramaya University Campus\nEast Hararghe Zone\nOromia Region, Ethiopia",
+      "contact": "Contact",
+      "phone": "Phone: +251 944167574",
+      "email": "Email: info@haramaya.edu.et",
+      "officeHours": "Office Hours",
+      "officeHoursText": "Mon-Fri: 8AM-5PM\nSat: 8AM-12PM",
+      "support": "Support",
+      "technical": "Technical: support@school.edu",
+      "admissions": "Admissions: admissions@school.edu",
+      "sendMessage": "Send us a Message",
+      "yourName": "Your Name",
+      "emailAddress": "Email Address",
+      "subject": "Subject",
+      "message": "Message"
+    },
+    "footer": {
+      "schoolName": "Haramaya University Non-Boarding Secondary School",
+      "systemName": "Student Information Management System",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "contact": "Contact",
+      "copyright": "© 2026 SIMS - Student Information Management System. All rights reserved."
+    }
+  }
+}
