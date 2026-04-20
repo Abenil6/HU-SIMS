@@ -24,7 +24,7 @@
     "messageNotifications": true
   },
   "securitySettings": {
-    "twoFactorAuth": false,
+    "twoFactorAuth": true,
     "passwordExpiry": 90,
     "minPasswordLength": 8,
     "requireSpecialChar": true,
