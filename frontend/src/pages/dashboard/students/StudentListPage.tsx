@@ -542,30 +542,30 @@ export function StudentListPage() {
     },
     {
       name: "enrollmentDate",
-      label: "Enrollment Date",
+      label: t('pages.dashboard.enrollmentDate'),
       type: "date",
       required: true,
     },
     {
       name: "address.street",
-      label: "Street Address",
+      label: t('common.address'),
       type: "text",
     },
     { name: "address.city", label: "City", type: "text" },
     { name: "address.region", label: "Region", type: "text" },
     {
       name: "emergencyContact.name",
-      label: "Emergency Contact Name",
+      label: t('common.emergencyContact'),
       type: "text",
     },
     {
       name: "emergencyContact.phone",
-      label: "Emergency Contact Phone",
+      label: t('common.phone'),
       type: "text",
     },
     {
       name: "emergencyContact.relationship",
-      label: "Relationship",
+      label: t('common.relationship'),
       type: "select",
       options: [
         { value: "Father", label: "Father" },
@@ -1105,15 +1105,15 @@ export function StudentListPage() {
   return (
     <Box>
       <Breadcrumbs
-        items={[{ label: "Students", path: "/dashboard/students" }]}
+        items={[{ label: t('pages.dashboard.students'), path: "/dashboard/students" }]}
       />
 
       <PageHeader
-        title="Student Management"
+        title={t('pages.dashboard.students') + ' ' + t('common.settings')}
         subtitle={
           isViewOnly
-            ? "View enrolled students"
-            : "Manage enrolled students and their records"
+            ? t('common.view') + ' ' + t('pages.dashboard.students')
+            : t('common.manage') + ' ' + t('pages.dashboard.students')
         }
         action={
           !isViewOnly ? (
@@ -1124,7 +1124,7 @@ export function StudentListPage() {
                 onClick={(e) => setUploadAnchor(e.currentTarget)}
                 sx={{ borderColor: alpha(theme.palette.primary.main, 0.3) }}
               >
-                Import
+                {t('common.import')}
               </Button>
               <Button
                 variant="contained"
@@ -1166,13 +1166,13 @@ export function StudentListPage() {
             <ListItemIcon>
               <FileDownload fontSize="small" />
             </ListItemIcon>
-            Download Template
+            {t('common.downloadTemplate')}
           </MenuItem>
           <MenuItem component="label">
             <ListItemIcon>
               <Upload fontSize="small" />
             </ListItemIcon>
-            Upload CSV
+            {t('common.upload')} CSV
             <input
               type="file"
               accept=".csv"
