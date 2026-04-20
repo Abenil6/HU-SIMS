@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -183,6 +184,7 @@ const reportTypes: {
 ];
 
 export function ReportsPage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState(0);
@@ -710,19 +712,19 @@ export function ReportsPage() {
 
   return (
     <Box>
-      <Breadcrumbs items={[{ label: "Reports" }]} />
+      <Breadcrumbs items={[{ label: t('common.reports') }]} />
 
       <PageHeader
-        title="Reports"
+        title={t('common.reports')}
         subtitle={user?.role === "Student" || user?.role === "Parent"
-          ? "View your academic reports"
-          : "Generate and download school reports"
+          ? t('common.viewAcademicReports')
+          : t('common.generateReports')
         }
         action={
           user?.role === "Student" || user?.role === "Parent"
           ? null
           : <Button variant="outlined" startIcon={<Download />} onClick={handleExportAll} disabled={downloading === "all"}>
-            {downloading === "all" ? "Exporting..." : "Export All"}
+            {downloading === "all" ? t('common.exporting') : t('common.exportAll')}
           </Button>
         }
       />
@@ -732,7 +734,7 @@ export function ReportsPage() {
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <StatsCard
-              title="Reports Generated"
+              title={t('common.reportsGenerated')}
               value={reportStats.total}
               icon={<Assessment />}
               color="primary"
@@ -740,29 +742,29 @@ export function ReportsPage() {
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <StatsCard
-              title="PDF Reports"
+              title={t('common.pdfReports')}
               value={reportStats.pdfCount}
               icon={<PictureAsPdf />}
-            color="error"
-          />
+              color="error"
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <StatsCard
+              title={t('common.classReports')}
+              value={reportStats.excelCount}
+              icon={<Assessment />}
+              color="success"
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <StatsCard
+              title={t('common.thisMonth')}
+              value={reportStats.thisMonth}
+              icon={<CalendarToday />}
+              color="info"
+            />
+          </Grid>
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <StatsCard
-            title="Class Reports"
-            value={reportStats.excelCount}
-            icon={<Assessment />}
-            color="success"
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <StatsCard
-            title="This Month"
-            value={reportStats.thisMonth}
-            icon={<CalendarToday />}
-            color="info"
-          />
-        </Grid>
-      </Grid>
       )}
 
       {/* Tabs - only for admin/teachers */}
@@ -773,8 +775,8 @@ export function ReportsPage() {
             onChange={(_, v) => setActiveTab(v)}
             sx={{ borderBottom: 1, borderColor: "divider", px: 2 }}
           >
-            <Tab label="Generate Reports" />
-            <Tab label="Recent Reports" />
+            <Tab label={t('common.generateReportsTab')} />
+            <Tab label={t('common.recentReports')} />
           </Tabs>
         </Paper>
       )}
@@ -871,9 +873,7 @@ export function ReportsPage() {
                       onClick={() => handleGenerateReport(report.type)}
                       disabled={generatingReport !== null}
                     >
-                      {generatingReport === report.type
-                        ? "Generating..."
-                        : "Generate Report"}
+                      {generatingReport === report.type ? t('common.generating') : t('common.generateReport')}
                     </Button>
                   </CardActions>
                 </Card>
@@ -1037,15 +1037,15 @@ export function ReportsPage() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={cancelDelete}>
-        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogTitle>{t('common.deleteReport')}</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete this report? This action cannot be undone.
+            {t('common.deleteReportConfirm')}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={cancelDelete} disabled={deleteMutation.isPending}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             variant="contained"
@@ -1053,22 +1053,22 @@ export function ReportsPage() {
             onClick={confirmDelete}
             disabled={deleteMutation.isPending}
           >
-            Delete
+            {t('common.delete')}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Revert to Draft Confirmation Dialog */}
       <Dialog open={revertDialogOpen} onClose={() => setRevertDialogOpen(false)}>
-        <DialogTitle>Revert to Draft</DialogTitle>
+        <DialogTitle>{t('common.revertToDraft')}</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to revert this report to draft? It will no longer be visible to students and parents.
+            {t('common.revertToDraftConfirm')}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setRevertDialogOpen(false)} disabled={revertMutation.isPending}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             variant="contained"
@@ -1076,29 +1076,29 @@ export function ReportsPage() {
             onClick={handleRevertConfirm}
             disabled={revertMutation.isPending}
           >
-            Revert
+            {t('common.revert')}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Archive Confirmation Dialog */}
       <Dialog open={archiveDialogOpen} onClose={() => setArchiveDialogOpen(false)}>
-        <DialogTitle>Archive Report</DialogTitle>
+        <DialogTitle>{t('common.archiveReport')}</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to archive this report? It will be moved to the archive section.
+            {t('common.archiveReportConfirm')}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setArchiveDialogOpen(false)} disabled={archiveMutation.isPending}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             variant="contained"
             onClick={handleArchiveConfirm}
             disabled={archiveMutation.isPending}
           >
-            Archive
+            {t('common.archive')}
           </Button>
         </DialogActions>
       </Dialog>
