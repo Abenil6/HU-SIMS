@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -84,6 +85,7 @@ const mapTeacherToFormValues = (teacher: Teacher | null) => {
 };
 
 export function TeacherListPage() {
+  const { t } = useTranslation();
   const theme = useTheme();
 
   // State
@@ -199,7 +201,7 @@ export function TeacherListPage() {
     () => [
       {
         id: "firstName",
-        label: "Teacher",
+        label: t('pages.dashboard.teachers'),
         format: (_, row) => (
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
             <Box
@@ -232,12 +234,12 @@ export function TeacherListPage() {
       },
       {
         id: "email",
-        label: "Email",
+        label: t('common.email'),
         format: (value) => <Typography variant="body2">{value}</Typography>,
       },
       {
         id: "qualification",
-        label: "Qualification",
+        label: t('common.qualification'),
         format: (_, row) => {
           const qualifications = (row as any).teacherProfile?.qualifications;
           return (
@@ -251,7 +253,7 @@ export function TeacherListPage() {
       },
       {
         id: "subjects",
-        label: "Subjects",
+        label: t('pages.dashboard.subject'),
         format: (_, row) => {
           const subjects = (row as any).teacherProfile?.subjects || [];
           return (
@@ -277,7 +279,7 @@ export function TeacherListPage() {
       },
       {
         id: "classes",
-        label: "Classes",
+        label: t('pages.dashboard.classes'),
         format: (_, row) => {
           const classes = (row as any).teacherProfile?.classes || [];
           if (!Array.isArray(classes) || classes.length === 0) return "-";
@@ -297,7 +299,7 @@ export function TeacherListPage() {
       },
       {
         id: "status",
-        label: "Status",
+        label: t('common.status'),
         format: (value) => (
           <Chip
             label={value}
@@ -414,12 +416,12 @@ export function TeacherListPage() {
   return (
     <Box>
       <Breadcrumbs
-        items={[{ label: "Teachers", path: "/dashboard/teachers" }]}
+        items={[{ label: t('pages.dashboard.teachers'), path: "/dashboard/teachers" }]}
       />
 
       <PageHeader
-        title="Teacher Management"
-        subtitle="Manage teaching staff and their assignments"
+        title={t('pages.dashboard.teachers') + ' ' + t('common.settings')}
+        subtitle={t('common.manage') + ' ' + t('pages.dashboard.teachers')}
         action={
           <Button
             variant="contained"
@@ -432,7 +434,7 @@ export function TeacherListPage() {
               },
             }}
           >
-            Add Teacher
+            {t('pages.dashboard.createTeacher')}
           </Button>
         }
       />
@@ -478,7 +480,7 @@ export function TeacherListPage() {
         filters={[
           {
             name: "subject",
-            label: "Subject",
+            label: t('pages.dashboard.subject'),
             options: subjects.map((s) => ({ value: s, label: s })),
             value: filters.subject,
             onChange: (value) =>
@@ -486,7 +488,7 @@ export function TeacherListPage() {
           },
           {
             name: "status",
-            label: "Status",
+            label: t('common.status'),
             options: [
               { value: "active", label: "Active" },
               { value: "inactive", label: "Inactive" },
@@ -531,17 +533,17 @@ export function TeacherListPage() {
       >
         <DialogTitle>
           {isViewMode
-            ? "Teacher Details"
+            ? t('pages.dashboard.teachers') + ' ' + t('common.details')
             : selectedTeacher
-              ? "Edit Teacher"
-              : "Add New Teacher"}
+              ? t('pages.dashboard.editTeacher')
+              : t('pages.dashboard.createTeacher')}
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="First Name"
+                label={t('pages.dashboard.firstName')}
                 value={formValues.firstName}
                 disabled={isViewMode}
                 onChange={(e) =>
@@ -553,7 +555,7 @@ export function TeacherListPage() {
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Last Name"
+                label={t('pages.dashboard.lastName')}
                 value={formValues.lastName}
                 disabled={isViewMode}
                 onChange={(e) =>
@@ -565,7 +567,7 @@ export function TeacherListPage() {
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Email"
+                label={t('common.email')}
                 type="email"
                 value={formValues.email}
                 disabled={isViewMode}
@@ -578,7 +580,7 @@ export function TeacherListPage() {
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Phone"
+                label={t('pages.dashboard.phone')}
                 value={formValues.phone}
                 disabled={isViewMode}
                 onChange={(e) =>
@@ -588,24 +590,24 @@ export function TeacherListPage() {
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
-                <InputLabel>Gender</InputLabel>
+                <InputLabel>{t('pages.dashboard.gender')}</InputLabel>
                 <Select
                   value={formValues.gender}
-                  label="Gender"
+                  label={t('pages.dashboard.gender')}
                   disabled={isViewMode}
                   onChange={(e) =>
                     setFormValues((prev) => ({ ...prev, gender: e.target.value }))
                   }
                 >
-                  <MenuItem value="Male">Male</MenuItem>
-                  <MenuItem value="Female">Female</MenuItem>
+                  <MenuItem value="Male">{t('pages.dashboard.male')}</MenuItem>
+                  <MenuItem value="Female">{t('pages.dashboard.female')}</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Qualification"
+                label={t('common.qualification')}
                 value={formValues.qualification}
                 disabled={isViewMode}
                 onChange={(e) =>
@@ -791,7 +793,7 @@ export function TeacherListPage() {
               setIsViewMode(false);
             }}
           >
-            {isViewMode ? "Close" : "Cancel"}
+            {isViewMode ? t('common.close') : t('common.cancel')}
           </Button>
           {!isViewMode && (
             <Button
@@ -799,7 +801,7 @@ export function TeacherListPage() {
               onClick={handleSubmit}
               disabled={isSubmitting}
             >
-              {selectedTeacher ? "Update" : "Create"}
+              {selectedTeacher ? t('common.save') : t('common.create')}
             </Button>
           )}
         </DialogActions>
@@ -810,9 +812,9 @@ export function TeacherListPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Teacher"
+        title={t('pages.dashboard.deleteTeacher')}
         message={`Are you sure you want to delete ${selectedTeacher?.firstName} ${selectedTeacher?.lastName}?`}
-        confirmText="Delete"
+        confirmText={t('common.delete')}
         severity="error"
       />
     </Box>
