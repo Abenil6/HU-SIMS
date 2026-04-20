@@ -182,7 +182,6 @@ function TeacherAttendanceMarkingPage() {
       const response = await studentService.getStudents({
         grade: activeClass.grade,
         stream: classRequiresStream(activeClass.grade) ? activeClass.stream : undefined,
-        status: "Active",
         limit: 1000,
       });
 

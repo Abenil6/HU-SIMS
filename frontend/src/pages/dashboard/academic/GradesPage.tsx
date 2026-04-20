@@ -260,7 +260,6 @@ export function GradesPage() {
 
   // ── fetch all students, then filter to assigned classes for teachers ──
   const { data: studentsData } = useStudents({
-    status: "active",
     limit: 1000,
   });
 
