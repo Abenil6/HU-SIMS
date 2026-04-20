@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -88,6 +89,7 @@ interface DashboardTeacher {
 }
 
 export function SchoolAdminDashboard() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState(0);
   const [page, setPage] = useState(0);
@@ -508,7 +510,7 @@ export function SchoolAdminDashboard() {
                   {totalStudents}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Total Students
+                  {t('pages.dashboard.totalStudents')}
                 </Typography>
               </Box>
             </Box>
@@ -543,7 +545,7 @@ export function SchoolAdminDashboard() {
                   {totalTeachers}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Total Teachers
+                  {t('pages.dashboard.totalTeachers')}
                 </Typography>
               </Box>
             </Box>
@@ -665,17 +667,17 @@ export function SchoolAdminDashboard() {
                   startIcon={<PersonAdd />}
                   onClick={() => setCreateStudentDialogOpen(true)}
                 >
-                  Add Student
+                  {t('pages.dashboard.createStudent')}
                 </Button>
-              </Box>
             </Box>
+          </Box>
 
             <Grid container spacing={2} sx={{ mb: 3 }}>
               <Grid size={{ xs: 12, md: 4 }}>
                 <TextField
                   fullWidth
                   size="small"
-                  placeholder="Search students..."
+                  placeholder={t('pages.dashboard.searchStudents')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   InputProps={{
@@ -693,7 +695,7 @@ export function SchoolAdminDashboard() {
                     value={selectedGrade}
                     onChange={(e) => setSelectedGrade(e.target.value)}
                   >
-                    <MenuItem value="all">All Grades</MenuItem>
+                    <MenuItem value="all">{t('pages.dashboard.allGrades')}</MenuItem>
                     {gradeOptions.map((grade) => (
                       <MenuItem key={grade} value={grade}>
                         Grade {grade}
@@ -921,14 +923,14 @@ export function SchoolAdminDashboard() {
 
           <TabPanel value={activeTab} index={2}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              Classes Overview
+              {t('pages.dashboard.classes')} {t('pages.dashboard.overview')}
             </Typography>
 
             <Grid container spacing={2} sx={{ mb: 3 }}>
               <Grid size={{ xs: 12, md: 3 }}>
                 <Paper sx={{ p: 2.5, borderRadius: 2 }}>
                   <Typography variant="body2" color="text.secondary">
-                    Overall Attendance (30d)
+                    {t('pages.dashboard.overallAttendance')}
                   </Typography>
                   <Typography variant="h5" fontWeight={700}>
                     {classesAttendanceOverview.attendanceRate ?? 0}%
@@ -958,7 +960,7 @@ export function SchoolAdminDashboard() {
               <Grid size={{ xs: 12, md: 3 }}>
                 <Paper sx={{ p: 2.5, borderRadius: 2 }}>
                   <Typography variant="body2" color="text.secondary">
-                    Low Attendance Classes
+                    {t('pages.dashboard.lowAttendance')} {t('pages.dashboard.classes')}
                   </Typography>
                   <Typography variant="h5" fontWeight={700} color="warning.main">
                     {classesAttendanceOverview.lowAttendanceClasses ?? 0}
