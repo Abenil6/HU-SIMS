@@ -122,7 +122,17 @@
     "loadClassRoster": "የክፍል ዝርዝር ይጫኑ አቴንዳንስ ይዝ",
     "messages": "መልእክቶች",
     "secureMessaging": "ደህንነቱ የተጠበቀ መልእክክ",
-    "noMessagesFound": "መልእክት አልተገኘም"
+    "noMessagesFound": "መልእክት አልተገኘም",
+    "qualification": "ማመልከቻ",
+    "manageSettings": "ቅንብሮችን አስተዳዳር",
+    "settingsSaved": "ቅንብሮች በተሳካ ሁኔታ ተቀምጠሩ",
+    "schoolSettings": "የትምህርት ቤት ቅንብሮች",
+    "notifications": "ማስታወቂያዎች",
+    "security": "ደህንነት",
+    "schoolConfiguration": "የትምህርት ቤት ማስተካከል",
+    "notificationPreferences": "የማስታወቂያ ምርጫዎች",
+    "securitySettings": "የደህንነት ቅንብሮች",
+    "appearanceSettings": "የአስተያየነኛ ቅጽ ቅንብሮች"
   },
   "pages": {
     "dashboard": {
@@ -162,6 +172,8 @@
       "enrollmentDate": "የምዝገብ ቀን",
       "male": "ወንድ",
       "female": "ሴት",
+      "subject": "ትምህርት ክፍል",
+      "gender": "ፆታ",
       "allGrades": "ሁሉም ደረጃዎች",
       "searchStudents": "ተማሪዎችን ፈልግ...",
       "searchTeachers": "አስተማሪዎችን ፈልግ...",

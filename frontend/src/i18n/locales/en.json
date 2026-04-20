@@ -123,7 +123,17 @@
     "loadClassRoster": "Load class roster to take attendance",
     "messages": "Messages",
     "secureMessaging": "Secure Messaging",
-    "noMessagesFound": "No messages found"
+    "noMessagesFound": "No messages found",
+    "qualification": "Qualification",
+    "manageSettings": "Manage Settings",
+    "settingsSaved": "Settings saved successfully",
+    "schoolSettings": "School Settings",
+    "notifications": "Notifications",
+    "security": "Security",
+    "schoolConfiguration": "School Configuration",
+    "notificationPreferences": "Notification Preferences",
+    "securitySettings": "Security Settings",
+    "appearanceSettings": "Appearance Settings"
   },
   "pages": {
     "dashboard": {
@@ -163,6 +173,8 @@
       "enrollmentDate": "Enrollment Date",
       "male": "Male",
       "female": "Female",
+      "subject": "Subject",
+      "gender": "Gender",
       "allGrades": "All Grades",
       "searchStudents": "Search students...",
       "searchTeachers": "Search teachers...",
