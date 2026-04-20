@@ -122,6 +122,7 @@ export function SchoolAdminDashboard() {
     email: "",
     phone: "",
     subject: "",
+    classes: [] as Array<{ grade: string; stream?: string }>,
   });
 
   // Fetch real data from API
@@ -404,6 +405,7 @@ export function SchoolAdminDashboard() {
       email: teacher.email || "",
       phone: teacher.phone || "",
       subject: teacher.teacherProfile?.subjects?.[0] || teacher.subject || "",
+      classes: teacher.teacherProfile?.classes || [],
     });
     setEditTeacherDialogOpen(true);
   };
@@ -418,11 +420,12 @@ export function SchoolAdminDashboard() {
           lastName: teacherForm.lastName,
           phone: teacherForm.phone || undefined,
           subjects: teacherForm.subject ? [teacherForm.subject] : [],
+          classes: teacherForm.classes,
         },
       });
       setEditTeacherDialogOpen(false);
       setEditingTeacher(null);
-      setTeacherForm({ firstName: "", lastName: "", email: "", phone: "", subject: "" });
+      setTeacherForm({ firstName: "", lastName: "", email: "", phone: "", subject: "", classes: [] });
       refetchTeachers();
     } catch (error) {
       console.error("Update teacher error:", error);
@@ -1588,7 +1591,7 @@ export function SchoolAdminDashboard() {
       <Dialog
         open={editTeacherDialogOpen}
         onClose={() => setEditTeacherDialogOpen(false)}
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
       >
         <DialogTitle>{t('pages.dashboard.editTeacher')}</DialogTitle>
@@ -1658,6 +1661,73 @@ export function SchoolAdminDashboard() {
                   ))}
                 </Select>
               </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+                Class Assignments
+              </Typography>
+              {teacherForm.classes.map((classAssignment: any, index: number) => (
+                <Box key={index} sx={{ display: "flex", gap: 1, mb: 1 }}>
+                  <FormControl size="small" sx={{ flex: 1 }}>
+                    <InputLabel>Grade</InputLabel>
+                    <Select
+                      value={classAssignment.grade}
+                      label="Grade"
+                      onChange={(e) => {
+                        const newClasses = [...teacherForm.classes];
+                        newClasses[index] = { ...newClasses[index], grade: e.target.value };
+                        setTeacherForm({ ...teacherForm, classes: newClasses });
+                      }}
+                    >
+                      {gradeOptions.map((grade) => (
+                        <MenuItem key={grade} value={grade}>
+                          Grade {grade}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  {(classAssignment.grade === "11" || classAssignment.grade === "12") && (
+                    <FormControl size="small" sx={{ flex: 1 }}>
+                      <InputLabel>Stream</InputLabel>
+                      <Select
+                        value={classAssignment.stream || ""}
+                        label="Stream"
+                        onChange={(e) => {
+                          const newClasses = [...teacherForm.classes];
+                          newClasses[index] = { ...newClasses[index], stream: e.target.value };
+                          setTeacherForm({ ...teacherForm, classes: newClasses });
+                        }}
+                      >
+                        <MenuItem value="">No Stream</MenuItem>
+                        {streamOptions.map((stream) => (
+                          <MenuItem key={stream} value={stream}>
+                            {stream}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      const newClasses = teacherForm.classes.filter((_: any, i: number) => i !== index);
+                      setTeacherForm({ ...teacherForm, classes: newClasses });
+                    }}
+                  >
+                    <Delete fontSize="small" />
+                  </IconButton>
+                </Box>
+              ))}
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  setTeacherForm({ ...teacherForm, classes: [...teacherForm.classes, { grade: "9" }] });
+                }}
+                sx={{ mt: 1 }}
+              >
+                Add Class
+              </Button>
             </Grid>
           </Grid>
         </DialogContent>
