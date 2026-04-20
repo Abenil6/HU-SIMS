@@ -216,7 +216,8 @@ exports.updateTeacher = async (req, res) => {
     }
 
     // Wrap rawTeacher in a lightweight object we can use below
-    const teacherStringId = String(rawTeacher._id);
+    // Use the actual _id value from the document (could be string or ObjectId)
+    const teacherId = rawTeacher._id;
 
     // Build update object
     const updateData = {};
@@ -278,7 +279,7 @@ exports.updateTeacher = async (req, res) => {
     }
 
     const updated = await col.findOneAndUpdate(
-      { _id: teacherStringId },
+      { _id: teacherId },
       { $set: updateData },
       { returnDocument: 'after' }
     );
