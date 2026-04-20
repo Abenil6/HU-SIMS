@@ -132,7 +132,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    if (settings.securitySettings.twoFactorAuth) {
+    if (settings.securitySettings.twoFactorAuth && user.role !== 'SystemAdmin') {
       const { code, challengeToken } = createTwoFactorChallenge(user);
       const emailResult = await sendLoginVerificationCode(user.email, code, user.firstName);
 
