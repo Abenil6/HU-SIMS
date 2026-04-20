@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -49,6 +50,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 export function SettingsPage() {
+  const { t } = useTranslation();
   const { user, updateUser } = useAuthStore();
   const [tabValue, setTabValue] = useState(0);
   const [saved, setSaved] = useState(false);
@@ -269,15 +271,15 @@ export function SettingsPage() {
   return (
     <Box>
       <Typography variant="h4" fontWeight={700} mb={1}>
-        Settings
+        {t('common.settings')}
       </Typography>
       <Typography variant="body1" color="text.secondary" mb={3}>
-        Manage your school and account settings
+        {t('common.manageSettings')}
       </Typography>
 
       {saved && (
         <Alert severity="success" sx={{ mb: 3 }}>
-          Settings saved successfully!
+          {t('common.settingsSaved')}
         </Alert>
       )}
 
@@ -287,21 +289,21 @@ export function SettingsPage() {
           onChange={(_, newValue) => setTabValue(newValue)}
           sx={{ borderBottom: 1, borderColor: "divider", px: 2 }}
         >
-          <Tab icon={<School />} label="School Settings" iconPosition="start" />
+          <Tab icon={<School />} label={t('common.schoolSettings')} iconPosition="start" />
           <Tab
             icon={<Notifications />}
-            label="Notifications"
+            label={t('common.notifications')}
             iconPosition="start"
           />
-          <Tab icon={<Security />} label="Security" iconPosition="start" />
-          <Tab icon={<Palette />} label="Appearance" iconPosition="start" />
+          <Tab icon={<Security />} label={t('common.security')} iconPosition="start" />
+          <Tab icon={<Palette />} label={t('common.appearance')} iconPosition="start" />
         </Tabs>
 
         <Box sx={{ p: 3 }}>
           {/* School Settings */}
           <TabPanel value={tabValue} index={0}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              School Configuration
+              {t('common.schoolConfiguration')}
             </Typography>
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, md: 6 }}>
@@ -383,7 +385,7 @@ export function SettingsPage() {
           {/* Notification Settings */}
           <TabPanel value={tabValue} index={1}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              Notification Preferences
+              {t('common.notificationPreferences')}
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <FormControlLabel
@@ -439,7 +441,7 @@ export function SettingsPage() {
           {/* Security Settings */}
           <TabPanel value={tabValue} index={2}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              Security Settings
+              {t('common.securitySettings')}
             </Typography>
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, md: 6 }}>
@@ -483,7 +485,7 @@ export function SettingsPage() {
           {/* Appearance Settings */}
           <TabPanel value={tabValue} index={3}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              Appearance Settings
+              {t('common.appearanceSettings')}
             </Typography>
             <Grid container spacing={3}>
               {/* Dark Mode */}
@@ -635,7 +637,7 @@ export function SettingsPage() {
             disabled={loading}
             onClick={handleCancel}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             variant="contained"
@@ -643,7 +645,7 @@ export function SettingsPage() {
             onClick={persistSettings}
             disabled={loading}
           >
-            Save Changes
+            {t('common.saveChanges')}
           </Button>
         </Box>
       </Paper>
