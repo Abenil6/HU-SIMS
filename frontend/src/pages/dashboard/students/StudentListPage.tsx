@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -263,6 +264,7 @@ const normalizeGradeValue = (value: unknown) =>
     .trim();
 
 export function StudentListPage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { user } = useAuthStore();
   const isViewOnly = user?.role === "Teacher";
@@ -382,7 +384,7 @@ export function StudentListPage() {
     () => [
       {
         id: "firstName",
-        label: "Student",
+        label: t('pages.dashboard.students'),
         format: (_, row) => {
           const firstName = getStudentFirstName(row);
           const lastName = getStudentLastName(row);
@@ -420,7 +422,7 @@ export function StudentListPage() {
       },
       {
         id: "grade",
-        label: "Class",
+        label: t('pages.dashboard.classes'),
         format: (_, row) => (
           <Box>
             <Typography variant="body2">Grade {getStudentGrade(row) || "-"}</Typography>
@@ -434,7 +436,7 @@ export function StudentListPage() {
       },
       {
         id: "gender",
-        label: "Gender",
+        label: t('pages.dashboard.gender'),
         format: (_, row) => (
           <Chip
             label={row.studentProfile?.gender || row.gender || "-"}
@@ -445,7 +447,7 @@ export function StudentListPage() {
       },
       {
         id: "status",
-        label: "Status",
+        label: t('common.status'),
         format: (value) => {
           const statusColors: Record<
             string,
@@ -475,7 +477,7 @@ export function StudentListPage() {
       },
       {
         id: "parents",
-        label: "Parents",
+        label: t('dashboard.parents'),
         format: (_, row) => {
           const parentCount = row.studentProfile?.linkedParents?.length || row.parentIds?.length || 0;
           return (
@@ -488,7 +490,7 @@ export function StudentListPage() {
       },
       {
         id: "enrollmentDate",
-        label: "Enrolled",
+        label: t('pages.dashboard.enrollmentDate'),
         format: (_, row) => {
           const value = getStudentEnrollmentValue(row);
           if (!value || value === "Invalid Date") return "-";
@@ -505,31 +507,31 @@ export function StudentListPage() {
 
   // Form fields
   const formFields: FormField[] = [
-    { name: "firstName", label: "First Name", type: "text", required: true },
-    { name: "lastName", label: "Last Name", type: "text", required: true },
-    { name: "email", label: "Email", type: "email" },
-    { name: "phone", label: "Phone", type: "text" },
+    { name: "firstName", label: t('pages.dashboard.firstName'), type: "text", required: true },
+    { name: "lastName", label: t('pages.dashboard.lastName'), type: "text", required: true },
+    { name: "email", label: t('common.email'), type: "email" },
+    { name: "phone", label: t('pages.dashboard.phone'), type: "text" },
     {
       name: "gender",
-      label: "Gender",
+      label: t('pages.dashboard.gender'),
       type: "select",
       required: true,
       options: [
-        { value: "Male", label: "Male" },
-        { value: "Female", label: "Female" },
+        { value: "Male", label: t('pages.dashboard.male') },
+        { value: "Female", label: t('pages.dashboard.female') },
       ],
     },
-    { name: "dob", label: "Date of Birth", type: "date", required: true },
+    { name: "dob", label: t('pages.dashboard.dateOfBirth'), type: "date", required: true },
     {
       name: "grade",
-      label: "Grade",
+      label: t('pages.dashboard.grade'),
       type: "select",
       required: true,
       options: GRADES.map((g) => ({ value: g, label: `Grade ${g}` })),
     },
     {
       name: "stream",
-      label: "Stream",
+      label: t('pages.dashboard.stream'),
       type: "select",
       required: false,
       options: [
@@ -1231,7 +1233,7 @@ export function StudentListPage() {
         filters={[
           {
             name: "grade",
-            label: "Grade",
+            label: t('pages.dashboard.grade'),
             options: grades.map((g) => ({ value: g, label: `Grade ${g}` })),
             value: filters.grade,
             onChange: (value) =>
@@ -1239,7 +1241,7 @@ export function StudentListPage() {
           },
           {
             name: "stream",
-            label: "Stream",
+            label: t('pages.dashboard.stream'),
             options: streams.map((s) => ({ value: s, label: s })),
             value: filters.stream,
             onChange: (value) =>
@@ -1247,7 +1249,7 @@ export function StudentListPage() {
           },
           {
             name: "status",
-            label: "Status",
+            label: t('common.status'),
             options: [
               { value: "active", label: "Active" },
               { value: "inactive", label: "Inactive" },
