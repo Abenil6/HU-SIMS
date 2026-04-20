@@ -86,7 +86,6 @@ export function TeacherDashboard() {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("");
 
   const { data: studentsData, isLoading: isLoadingStudents, isError: isStudentsError } = useStudents({
-    status: "Active",
     limit: 1000,
   });
   const { data: messagesData, isError: isMessagesError } = useMessages({ folder: "inbox", limit: 1000 });
