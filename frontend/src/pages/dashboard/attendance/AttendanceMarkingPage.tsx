@@ -858,6 +858,7 @@ function TeacherAttendanceMarkingPage() {
 }
 
 function SchoolAdminAttendanceDashboard() {
+  const { t } = useTranslation();
   const [selectedGrade, setSelectedGrade] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [page, setPage] = useState(0);
