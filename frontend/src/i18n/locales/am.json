@@ -221,6 +221,7 @@
   },
   "roles": {
     "systemAdmin": "የሲስተም አስተዳዳሪ",
+    "systemadmin": "የሲስተም አስተዳዳሪ",
     "schoolAdmin": "የትምህርት ቤት አስተዳዳሪ",
     "teacher": "አስተማሪ",
     "student": "ተማሪ",

@@ -222,6 +222,7 @@
   },
   "roles": {
     "systemAdmin": "System Administrator",
+    "systemadmin": "System Administrator",
     "schoolAdmin": "School Administrator",
     "teacher": "Teacher",
     "student": "Student",
