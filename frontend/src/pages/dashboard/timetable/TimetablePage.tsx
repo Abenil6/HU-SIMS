@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -87,6 +88,7 @@ const getNowMinutes = () => {
 };
 
 export function TimetablePage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { user } = useAuthStore();
   const canManageTimetable =
@@ -743,11 +745,11 @@ export function TimetablePage() {
 
   return (
     <Box>
-      <Breadcrumbs items={[{ label: "Timetable" }]} />
+      <Breadcrumbs items={[{ label: t('common.timetable') }]} />
 
       <PageHeader
-        title="Timetable"
-        subtitle="Weekly class schedule with live class tracking"
+        title={t('common.timetable')}
+        subtitle={t('common.weeklySchedule')}
         action={
           <Box sx={{ display: "flex", gap: 1 }}>
             <Button
@@ -757,7 +759,7 @@ export function TimetablePage() {
               aria-label="Export timetable"
               disabled={!slots.length}
             >
-              Export
+              {t('common.export')}
             </Button>
             {!isViewOnly && (
               <Button
@@ -765,22 +767,22 @@ export function TimetablePage() {
                 onClick={runPrecheck}
                 aria-label="Generate timetable"
               >
-                Generate Timetable
+                {t('common.generateTimetable')}
               </Button>
             )}
             {!isViewOnly && (
               <Button variant="outlined" onClick={openVersions}>
-                Versions
+                {t('common.versions')}
               </Button>
             )}
             {!isViewOnly && latestTimetableMeta?.status === "Draft" && (
               <Button variant="contained" color="success" onClick={publishLatestDraft}>
-                Publish Draft
+                {t('common.publishDraft')}
               </Button>
             )}
             {!isViewOnly && (
               <Button variant="contained" startIcon={<Add />} onClick={() => setFormModalOpen(true)}>
-                {latestTimetableMeta?.status === "Draft" ? "Add Slot" : "Create Draft"}
+                {latestTimetableMeta?.status === "Draft" ? t('common.addSlot') : t('common.createDraft')}
               </Button>
             )}
           </Box>
@@ -789,51 +791,51 @@ export function TimetablePage() {
 
       {latestTimetableMeta && (
         <Box sx={{ mb: 2, display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
-          <Chip label={`Version ${latestTimetableMeta.version || 1}`} size="small" />
+          <Chip label={`${t('common.version')} ${latestTimetableMeta.version || 1}`} size="small" />
           <Chip
-            label={latestTimetableMeta.status || "Draft"}
+            label={latestTimetableMeta.status || t('common.draft')}
             size="small"
             color={latestTimetableMeta.status === "Published" ? "success" : "default"}
           />
-          {latestTimetableMeta.isLocked && <Chip label="Locked" size="small" color="warning" />}
+          {latestTimetableMeta.isLocked && <Chip label={t('common.locked')} size="small" color="warning" />}
         </Box>
       )}
 
       <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
         <Paper sx={{ p: 2, borderRadius: 3, flex: 1, minWidth: 260 }}>
-          <Typography variant="caption" color="text.secondary">Current Class</Typography>
+          <Typography variant="caption" color="text.secondary">{t('common.currentClass')}</Typography>
           {currentClass ? (
             <Box>
               <Typography variant="h6" fontWeight={700}>{currentClass.subject}</Typography>
               <Typography variant="body2" color="text.secondary">
-                {currentClass.period.startTime} - {currentClass.period.endTime} | {currentClass.teacherName} | {currentClass.room || "Room -"}
+                {currentClass.period.startTime} - {currentClass.period.endTime} | {currentClass.teacherName} | {currentClass.room || t('common.room')}
               </Typography>
             </Box>
           ) : (
-            <Typography variant="body2" color="text.secondary">No class right now</Typography>
+            <Typography variant="body2" color="text.secondary">{t('common.noClassNow')}</Typography>
           )}
         </Paper>
 
         <Paper sx={{ p: 2, borderRadius: 3, flex: 1, minWidth: 260 }}>
-          <Typography variant="caption" color="text.secondary">Next Class</Typography>
+          <Typography variant="caption" color="text.secondary">{t('common.nextClass')}</Typography>
           {nextClass ? (
             <Box>
               <Typography variant="h6" fontWeight={700}>{nextClass.subject}</Typography>
               <Typography variant="body2" color="text.secondary">
-                {nextClass.period.startTime} - {nextClass.period.endTime} | {nextClass.teacherName} | {nextClass.room || "Room -"}
+                {nextClass.period.startTime} - {nextClass.period.endTime} | {nextClass.teacherName} | {nextClass.room || t('common.room')}
               </Typography>
             </Box>
           ) : (
-            <Typography variant="body2" color="text.secondary">No more classes today</Typography>
+            <Typography variant="body2" color="text.secondary">{t('common.noMoreClasses')}</Typography>
           )}
         </Paper>
       </Box>
 
       <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
-        <StatsCard title="Periods" value={stats.periods} icon={<AccessTime />} color="primary" />
-        <StatsCard title="Subjects" value={stats.subjects} icon={<EventAvailable />} color="success" />
-        <StatsCard title="Teachers" value={stats.teachers} icon={<EventAvailable />} color="info" />
-        <StatsCard title="Rooms" value={stats.rooms} icon={<EventAvailable />} color="warning" />
+        <StatsCard title={t('common.periods')} value={stats.periods} icon={<AccessTime />} color="primary" />
+        <StatsCard title={t('common.subjects')} value={stats.subjects} icon={<EventAvailable />} color="success" />
+        <StatsCard title={t('common.teachers')} value={stats.teachers} icon={<EventAvailable />} color="info" />
+        <StatsCard title={t('common.rooms')} value={stats.rooms} icon={<EventAvailable />} color="warning" />
       </Box>
 
       <Paper sx={{ p: 2, borderRadius: 3, mb: 2 }}>
@@ -841,9 +843,9 @@ export function TimetablePage() {
           {canManageTimetable ? (
             <>
               <FormControl size="small" sx={{ minWidth: 150 }}>
-                <InputLabel>Class</InputLabel>
+                <InputLabel>{t('common.class')}</InputLabel>
                 <Select
-                  label="Class"
+                  label={t('common.class')}
                   value={selectedClass}
                   onChange={(e) => {
                     const nextClass = String(e.target.value);
@@ -855,32 +857,32 @@ export function TimetablePage() {
                     }
                   }}
                 >
-                  <MenuItem value="9">Grade 9</MenuItem>
-                  <MenuItem value="10">Grade 10</MenuItem>
-                  <MenuItem value="11">Grade 11</MenuItem>
-                  <MenuItem value="12">Grade 12</MenuItem>
+                  <MenuItem value="9">{t('common.grade9')}</MenuItem>
+                  <MenuItem value="10">{t('common.grade10')}</MenuItem>
+                  <MenuItem value="11">{t('common.grade11')}</MenuItem>
+                  <MenuItem value="12">{t('common.grade12')}</MenuItem>
                 </Select>
               </FormControl>
 
               {isStreamGrade && (
                 <FormControl size="small" sx={{ minWidth: 170 }}>
-                  <InputLabel>Stream</InputLabel>
+                  <InputLabel>{t('common.stream')}</InputLabel>
                   <Select
-                    label="Stream"
+                    label={t('common.stream')}
                     value={selectedStream}
                     onChange={(e) => setSelectedStream(String(e.target.value))}
                   >
-                    <MenuItem value="Natural">Natural</MenuItem>
-                    <MenuItem value="Social">Social</MenuItem>
+                    <MenuItem value="Natural">{t('common.natural')}</MenuItem>
+                    <MenuItem value="Social">{t('common.social')}</MenuItem>
                   </Select>
                 </FormControl>
               )}
             </>
           ) : visibleClassOptions.length > 1 ? (
             <FormControl size="small" sx={{ minWidth: 170 }}>
-              <InputLabel>Class</InputLabel>
+              <InputLabel>{t('common.class')}</InputLabel>
               <Select
-                label="Class"
+                label={t('common.class')}
                 value={selectedClassOptionValue}
                 onChange={(e) => {
                   const [grade, stream] = String(e.target.value).split("::");
@@ -901,33 +903,33 @@ export function TimetablePage() {
           ) : (
             <Paper sx={{ px: 2, py: 1, borderRadius: 2 }}>
               <Typography variant="caption" color="text.secondary">
-                Class
+                {t('common.class')}
               </Typography>
               <Typography variant="body2" fontWeight={600}>
                 {visibleClassOptions[0]?.label ||
-                  `Grade ${selectedClass}${selectedStream ? ` - ${selectedStream}` : ""}`}
+                  `${t('common.grade')} ${selectedClass}${selectedStream ? ` - ${selectedStream}` : ""}`}
               </Typography>
             </Paper>
           )}
 
           <FormControl size="small" sx={{ minWidth: 150 }}>
-            <InputLabel>Semester</InputLabel>
+            <InputLabel>{t('common.semester')}</InputLabel>
             <Select
-              label="Semester"
+              label={t('common.semester')}
               value={selectedSemester}
               onChange={(e) => setSelectedSemester(String(e.target.value))}
             >
-              <MenuItem value="1">Semester 1</MenuItem>
-              <MenuItem value="2">Semester 2</MenuItem>
+              <MenuItem value="1">{t('common.semester1')}</MenuItem>
+              <MenuItem value="2">{t('common.semester2')}</MenuItem>
             </Select>
           </FormControl>
 
           <Paper sx={{ px: 2, py: 1, borderRadius: 2 }}>
             <Typography variant="caption" color="text.secondary">
-              Academic Year
+              {t('common.academicYear')}
             </Typography>
             <Typography variant="body2" fontWeight={600}>
-              {activeAcademicYear || "Loading..."}
+              {activeAcademicYear || t('common.loading')}
             </Typography>
           </Paper>
         </Box>
@@ -937,7 +939,7 @@ export function TimetablePage() {
         {!canManageTimetable && visibleClassOptions.length === 0 ? (
           <Box sx={{ p: 4, textAlign: "center" }}>
             <Typography color="text.secondary">
-              No assigned class timetable is available for your account.
+              {t('common.noTimetableAvailable')}
             </Typography>
           </Box>
         ) : isLoadingTimetable ? (
@@ -945,7 +947,7 @@ export function TimetablePage() {
         ) : slots.length === 0 ? (
           <Box sx={{ p: 4, textAlign: "center" }}>
             <Typography color="text.secondary">
-              No timetable found for this class.
+              {t('common.noTimetableFound')}
             </Typography>
           </Box>
         ) : (
