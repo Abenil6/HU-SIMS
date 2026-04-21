@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -46,6 +47,7 @@ interface AttendanceSummary {
 }
 
 export function StudentAttendancePage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { user } = useAuthStore();
   const [exporting, setExporting] = useState(false);
@@ -168,11 +170,11 @@ export function StudentAttendancePage() {
 
   return (
     <Box>
-      <Breadcrumbs items={[{ label: "Attendance" }, { label: "My Attendance" }]} />
+      <Breadcrumbs items={[{ label: t('common.attendance') }, { label: t('common.myAttendance') }]} />
 
       <PageHeader
-        title="My Attendance"
-        subtitle="View your attendance record and summary"
+        title={t('common.myAttendance')}
+        subtitle={t('common.viewAttendanceRecord')}
         action={
           <Button
             variant="outlined"
@@ -180,7 +182,7 @@ export function StudentAttendancePage() {
             onClick={handleExportAttendance}
             disabled={records.length === 0 || exporting}
           >
-            {exporting ? "Exporting..." : "Export Attendance"}
+            {exporting ? t('common.exporting') : t('common.exportAttendance')}
           </Button>
         }
       />
@@ -188,31 +190,31 @@ export function StudentAttendancePage() {
       {/* Stats */}
       <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
         <StatsCard
-          title="Attendance Rate"
+          title={t('common.attendanceRate')}
           value={`${Math.round(summary.attendanceRate)}%`}
           icon={<CalendarToday />}
           color={summary.attendanceRate >= 90 ? "success" : summary.attendanceRate >= 75 ? "info" : "warning"}
         />
         <StatsCard
-          title="Total Days"
+          title={t('common.totalDays')}
           value={summary.totalDays}
           icon={<CalendarToday />}
           color="primary"
         />
         <StatsCard
-          title="Present"
+          title={t('common.present')}
           value={summary.presentDays}
           icon={<CalendarToday />}
           color="success"
         />
         <StatsCard
-          title="Absent"
+          title={t('common.absent')}
           value={summary.absentDays}
           icon={<CalendarToday />}
           color="error"
         />
         <StatsCard
-          title="Late"
+          title={t('common.late')}
           value={summary.lateDays}
           icon={<CalendarToday />}
           color="warning"
@@ -223,24 +225,24 @@ export function StudentAttendancePage() {
       <Paper sx={{ borderRadius: 3, mb: 3 }}>
         <Box sx={{ p: 3 }}>
           <Typography variant="h6" fontWeight={600} mb={2}>
-            Monthly Attendance Summary
+            {t('common.monthlyAttendanceSummary')}
           </Typography>
           {isLoading ? (
             <LinearProgress />
           ) : attendanceByMonth.length === 0 ? (
-            <Typography color="text.secondary">No attendance records found.</Typography>
+            <Typography color="text.secondary">{t('common.noAttendanceRecordsFound')}</Typography>
           ) : (
             <TableContainer>
               <Table>
                 <TableHead>
                   <TableRow sx={{ background: alpha(theme.palette.primary.main, 0.05) }}>
-                    <TableCell sx={{ fontWeight: 600 }}>Month</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="center">Present</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="center">Absent</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="center">Late</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="center">Excused</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="center">Total</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }} align="center">Rate</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>{t('common.month')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }} align="center">{t('common.present')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }} align="center">{t('common.absent')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }} align="center">{t('common.late')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }} align="center">{t('common.excused')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }} align="center">{t('common.total')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }} align="center">{t('common.rate')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -250,16 +252,16 @@ export function StudentAttendancePage() {
                       <TableRow key={row.month} hover>
                         <TableCell sx={{ fontWeight: 500 }}>{row.month}</TableCell>
                         <TableCell align="center">
-                          <Chip label={`${row.present} days`} color="success" size="small" variant="outlined" />
+                          <Chip label={`${row.present} ${t('common.days')}`} color="success" size="small" variant="outlined" />
                         </TableCell>
                         <TableCell align="center">
-                          <Chip label={`${row.absent} days`} color="error" size="small" variant="outlined" />
+                          <Chip label={`${row.absent} ${t('common.days')}`} color="error" size="small" variant="outlined" />
                         </TableCell>
                         <TableCell align="center">
-                          <Chip label={`${row.late} days`} color="warning" size="small" variant="outlined" />
+                          <Chip label={`${row.late} ${t('common.days')}`} color="warning" size="small" variant="outlined" />
                         </TableCell>
                         <TableCell align="center">
-                          <Chip label={`${row.excused} days`} color="info" size="small" variant="outlined" />
+                          <Chip label={`${row.excused} ${t('common.days')}`} color="info" size="small" variant="outlined" />
                         </TableCell>
                         <TableCell align="center">{row.total}</TableCell>
                         <TableCell align="center">
@@ -287,7 +289,7 @@ export function StudentAttendancePage() {
       <Paper sx={{ borderRadius: 3 }}>
         <Box sx={{ p: 3, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
           <Typography variant="h6" fontWeight={600}>
-            Attendance Records
+            {t('common.attendanceRecords')}
           </Typography>
           <Button
             variant="outlined"
@@ -295,18 +297,18 @@ export function StudentAttendancePage() {
             onClick={() => refetch()}
             size="small"
           >
-            Refresh
+            {t('common.refresh')}
           </Button>
         </Box>
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow sx={{ background: alpha(theme.palette.primary.main, 0.05) }}>
-                <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Reason</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Note</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Teacher</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('common.date')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('common.status')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('common.reason')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('common.note')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('common.teacher')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -319,7 +321,7 @@ export function StudentAttendancePage() {
               ) : records.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} align="center">
-                    <Typography color="text.secondary">No attendance records found.</Typography>
+                    <Typography color="text.secondary">{t('common.noAttendanceRecordsFound')}</Typography>
                   </TableCell>
                 </TableRow>
               ) : (
