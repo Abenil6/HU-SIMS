@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -182,6 +183,7 @@ const canonicalSubjectLabel = (subject?: string) => {
 };
 
 export function ExamSchedulePage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const user = useAuthStore((state) => state.user);
   const defaultScheduleForm: ScheduleFormValues = {
@@ -690,16 +692,16 @@ export function ExamSchedulePage() {
     <Box>
       <Breadcrumbs
         items={[
-          { label: "Dashboard", path: dashboardPath },
-          { label: "Academic" },
-          { label: "Exam Schedule" },
+          { label: t('exam.dashboard'), path: dashboardPath },
+          { label: t('exam.academic') },
+          { label: t('exam.examSchedule') },
         ]}
       />
       <PageHeader
-        title="Exam Schedule"
+        title={t('exam.examSchedule')}
         subtitle={
           user?.role === "Teacher"
-            ? "Showing exam schedules created by school administrators"
+            ? t('exam.teacherSubtitle')
             : undefined
         }
       />
@@ -717,9 +719,9 @@ export function ExamSchedulePage() {
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <FormControl fullWidth size="small">
-              <InputLabel>Academic Year</InputLabel>
+              <InputLabel>{t('exam.academicYear')}</InputLabel>
               <Select
-                label="Academic Year"
+                label={t('exam.academicYear')}
                 value={filters.academicYear}
                 onChange={(e) => setFilters({ ...filters, academicYear: e.target.value })}
               >
@@ -733,9 +735,9 @@ export function ExamSchedulePage() {
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <FormControl fullWidth size="small">
-              <InputLabel>Semester</InputLabel>
+              <InputLabel>{t('exam.semester')}</InputLabel>
               <Select
-                label="Semester"
+                label={t('exam.semester')}
                 value={filters.semester}
                 onChange={(e) => setFilters({ ...filters, semester: e.target.value })}
               >
@@ -749,16 +751,16 @@ export function ExamSchedulePage() {
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <FormControl fullWidth size="small">
-              <InputLabel>Grade</InputLabel>
+              <InputLabel>{t('exam.grade')}</InputLabel>
               <Select
-                label="Grade"
+                label={t('exam.grade')}
                 value={filters.grade}
                 onChange={(e) => setFilters({ ...filters, grade: e.target.value })}
               >
-                <MenuItem value="">All Grades</MenuItem>
+                <MenuItem value="">{t('exam.allGrades')}</MenuItem>
                 {GRADES.map((g) => (
                   <MenuItem key={g} value={g}>
-                    Grade {g}
+                    {t('exam.grade')} {g}
                   </MenuItem>
                 ))}
               </Select>
@@ -767,13 +769,13 @@ export function ExamSchedulePage() {
           {filters.grade && requiresStream(Number(filters.grade)) && (
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <FormControl fullWidth size="small">
-                <InputLabel>Stream</InputLabel>
+                <InputLabel>{t('exam.stream')}</InputLabel>
                 <Select
-                  label="Stream"
+                  label={t('exam.stream')}
                   value={filters.section}
                   onChange={(e) => setFilters({ ...filters, section: e.target.value })}
                 >
-                  <MenuItem value="">All Streams</MenuItem>
+                  <MenuItem value="">{t('exam.allStreams')}</MenuItem>
                   {STREAMS.map((s) => (
                     <MenuItem key={s} value={s}>
                       {s}
@@ -785,13 +787,13 @@ export function ExamSchedulePage() {
           )}
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <FormControl fullWidth size="small">
-              <InputLabel>Exam Type</InputLabel>
+              <InputLabel>{t('exam.examType')}</InputLabel>
               <Select
-                label="Exam Type"
+                label={t('exam.examType')}
                 value={filters.examType}
                 onChange={(e) => setFilters({ ...filters, examType: e.target.value })}
               >
-                <MenuItem value="">All Types</MenuItem>
+                <MenuItem value="">{t('exam.allTypes')}</MenuItem>
                 {EXAM_TYPES.map((t) => (
                   <MenuItem key={t} value={t}>
                     {t}
@@ -813,7 +815,7 @@ export function ExamSchedulePage() {
               })}
               sx={{ height: 40 }}
             >
-              Clear Filters
+              {t('exam.clearFilters')}
             </Button>
           </Grid>
         </Grid>
@@ -832,7 +834,7 @@ export function ExamSchedulePage() {
                 },
               }}
             >
-              Create Exam (Manual)
+              {t('exam.createExamManual')}
             </Button>
           )}
           {canManageSchedules && (
@@ -841,7 +843,7 @@ export function ExamSchedulePage() {
               startIcon={<AutoAwesome />}
               onClick={() => openScheduleUtilityDialog("generate")}
             >
-              Auto Generate Schedule
+              {t('exam.autoGenerateSchedule')}
             </Button>
           )}
           {canManageSchedules && (
@@ -850,7 +852,7 @@ export function ExamSchedulePage() {
               startIcon={<Refresh />}
               onClick={() => openScheduleUtilityDialog("regenerate")}
             >
-              Regenerate / Optimize
+              {t('exam.regenerateOptimize')}
             </Button>
           )}
           <Button
@@ -859,7 +861,7 @@ export function ExamSchedulePage() {
             onClick={handleExportCSV}
             disabled={schedules.length === 0 || exporting}
           >
-            {exporting ? "Exporting..." : "Export Schedule"}
+            {exporting ? t('exam.exporting') : t('exam.exportSchedule')}
           </Button>
         </Box>
       </Paper>
@@ -877,22 +879,22 @@ export function ExamSchedulePage() {
           <Table>
             <TableHead>
               <TableRow sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.05) }}>
-                <TableCell sx={{ fontWeight: 600 }}>Exam Name</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Subject</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Class</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Time</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Room</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Invigilator</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                {canManageSchedules && <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>}
+                <TableCell sx={{ fontWeight: 600 }}>{t('exam.examName')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('exam.subject')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('exam.class')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('exam.date')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('exam.time')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('exam.room')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('exam.invigilator')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('exam.status')}</TableCell>
+                {canManageSchedules && <TableCell sx={{ fontWeight: 600 }}>{t('exam.actions')}</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
               {isSchedulesError ? (
                 <TableRow>
                   <TableCell colSpan={canManageSchedules ? 9 : 8} align="center" sx={{ py: 4 }}>
-                    <Alert severity="error">Failed to load exam schedules. Please try again later.</Alert>
+                    <Alert severity="error">{t('exam.failedToLoad')}</Alert>
                   </TableCell>
                 </TableRow>
               ) : isLoadingSchedules ? (
@@ -905,7 +907,7 @@ export function ExamSchedulePage() {
                 <TableRow>
                   <TableCell colSpan={canManageSchedules ? 9 : 8} align="center" sx={{ py: 4 }}>
                     <Typography variant="body2" color="text.secondary">
-                      No exam schedules found.
+                      {t('exam.noExamSchedulesFound')}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -924,9 +926,9 @@ export function ExamSchedulePage() {
                     </TableCell>
                     <TableCell>{schedule.subject}</TableCell>
                     <TableCell>
-                      Grade {schedule.grade}
+                      {t('exam.grade')} {schedule.grade}
                       {requiresStream(schedule.grade) && schedule.section
-                        ? ` - Stream ${schedule.section}`
+                        ? ` - ${t('exam.stream')} ${schedule.section}`
                         : ""}
                     </TableCell>
                     <TableCell>
@@ -1001,7 +1003,7 @@ export function ExamSchedulePage() {
           <ListItemIcon>
             <Edit fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Edit</ListItemText>
+          <ListItemText>{t('common.edit')}</ListItemText>
         </MenuItem>
         {canDeleteSchedules && (
           <MenuItem
@@ -1011,7 +1013,7 @@ export function ExamSchedulePage() {
             <ListItemIcon>
               <Delete fontSize="small" sx={{ color: theme.palette.error.main }} />
             </ListItemIcon>
-            <ListItemText>Delete</ListItemText>
+            <ListItemText>{t('common.delete')}</ListItemText>
           </MenuItem>
         )}
       </Menu>
@@ -1038,7 +1040,7 @@ export function ExamSchedulePage() {
             fontWeight: 600,
           }}
         >
-          {isEditing ? "Edit Exam Schedule" : "Create Exam Schedule"}
+          {isEditing ? t('common.edit') + ' ' + t('exam.examSchedule') : t('common.create') + ' ' + t('exam.examSchedule')}
           <IconButton size="small" onClick={() => setFormModalOpen(false)}>
             <Close fontSize="small" />
           </IconButton>
@@ -1055,9 +1057,9 @@ export function ExamSchedulePage() {
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <FormControl fullWidth required>
-                    <InputLabel>Grade</InputLabel>
+                    <InputLabel>{t('exam.grade')}</InputLabel>
                     <Select
-                      label="Grade"
+                      label={t('exam.grade')}
                       value={scheduleForm.grade}
                       onChange={(e) =>
                         setScheduleForm({
@@ -1072,7 +1074,7 @@ export function ExamSchedulePage() {
                     >
                       {GRADES.map((grade) => (
                         <MenuItem key={grade} value={grade}>
-                          Grade {grade}
+                          {t('exam.grade')} {grade}
                         </MenuItem>
                       ))}
                     </Select>
@@ -1081,9 +1083,9 @@ export function ExamSchedulePage() {
                 {requiresStream(scheduleForm.grade) && (
                   <Grid size={{ xs: 12, md: 4 }}>
                     <FormControl fullWidth required>
-                      <InputLabel>Stream</InputLabel>
+                      <InputLabel>{t('exam.stream')}</InputLabel>
                       <Select
-                        label="Stream"
+                        label={t('exam.stream')}
                         value={scheduleForm.section}
                         onChange={(e) =>
                           setScheduleForm({
@@ -1106,9 +1108,9 @@ export function ExamSchedulePage() {
                 )}
                 <Grid size={{ xs: 12, md: requiresStream(scheduleForm.grade) ? 4 : 8 }}>
                   <FormControl fullWidth required>
-                    <InputLabel>Subject</InputLabel>
+                    <InputLabel>{t('exam.subject')}</InputLabel>
                     <Select
-                      label="Subject"
+                      label={t('exam.subject')}
                       value={scheduleForm.subject}
                       onChange={(e) => setScheduleForm({ ...scheduleForm, subject: e.target.value })}
                     >
@@ -1122,9 +1124,9 @@ export function ExamSchedulePage() {
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <FormControl fullWidth required>
-                    <InputLabel>Academic Year</InputLabel>
+                    <InputLabel>{t('exam.academicYear')}</InputLabel>
                     <Select
-                      label="Academic Year"
+                      label={t('exam.academicYear')}
                       value={scheduleForm.academicYear}
                       onChange={(e) =>
                         setScheduleForm({ ...scheduleForm, academicYear: e.target.value })
@@ -1140,9 +1142,9 @@ export function ExamSchedulePage() {
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <FormControl fullWidth required>
-                    <InputLabel>Semester</InputLabel>
+                    <InputLabel>{t('exam.semester')}</InputLabel>
                     <Select
-                      label="Semester"
+                      label={t('exam.semester')}
                       value={scheduleForm.semester}
                       onChange={(e) => setScheduleForm({ ...scheduleForm, semester: e.target.value })}
                     >
@@ -1156,9 +1158,9 @@ export function ExamSchedulePage() {
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <FormControl fullWidth>
-                    <InputLabel>Exam Type</InputLabel>
+                    <InputLabel>{t('exam.examType')}</InputLabel>
                     <Select
-                      label="Exam Type"
+                      label={t('exam.examType')}
                       value={scheduleForm.examType}
                       onChange={(e) =>
                         setScheduleForm({
@@ -1233,9 +1235,9 @@ export function ExamSchedulePage() {
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, md: 6 }}>
                   <FormControl fullWidth required>
-                    <InputLabel>Room</InputLabel>
+                    <InputLabel>{t('exam.room')}</InputLabel>
                     <Select
-                      label="Room"
+                      label={t('exam.room')}
                       value={scheduleForm.room}
                       onChange={(e) => setScheduleForm({ ...scheduleForm, room: e.target.value })}
                     >
@@ -1249,9 +1251,9 @@ export function ExamSchedulePage() {
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
                   <FormControl fullWidth required>
-                    <InputLabel>Invigilator (Teacher)</InputLabel>
+                    <InputLabel>{t('exam.invigilator')}</InputLabel>
                     <Select
-                      label="Invigilator (Teacher)"
+                      label={t('exam.invigilator')}
                       value={scheduleForm.invigilator}
                       onChange={(e) =>
                         setScheduleForm({ ...scheduleForm, invigilator: e.target.value })
@@ -1292,17 +1294,17 @@ export function ExamSchedulePage() {
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
           <Button onClick={() => setFormModalOpen(false)} variant="outlined">
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button onClick={resetForm} variant="outlined">
-            Reset
+            {t('common.reset')}
           </Button>
           <Button
             onClick={handleFormSubmit}
             variant="contained"
             disabled={createSchedule.isPending || updateSchedule.isPending}
           >
-            {createSchedule.isPending || updateSchedule.isPending ? "Saving..." : "Save"}
+            {createSchedule.isPending || updateSchedule.isPending ? t('common.saving') : t('common.save')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1322,14 +1324,14 @@ export function ExamSchedulePage() {
         }}
       >
         <DialogTitle sx={{ fontWeight: 600 }}>
-          {scheduleDialogMode === "regenerate" ? "Regenerate / Optimize Schedule" : "Auto Generate Schedule"}
+          {scheduleDialogMode === "regenerate" ? t('exam.regenerateOptimize') : t('exam.autoGenerateSchedule')}
         </DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
             <FormControl fullWidth size="small">
-              <InputLabel>Grade</InputLabel>
+              <InputLabel>{t('exam.grade')}</InputLabel>
               <Select
-                label="Grade"
+                label={t('exam.grade')}
                 value={autoGenerateForm.grade}
                 onChange={(e) =>
                   setAutoGenerateForm({
@@ -1341,16 +1343,16 @@ export function ExamSchedulePage() {
               >
                 {GRADES.map((g) => (
                   <MenuItem key={g} value={g}>
-                    Grade {g}
+                    {t('exam.grade')} {g}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
             {requiresStream(autoGenerateForm.grade) && (
               <FormControl fullWidth size="small">
-                <InputLabel>Stream</InputLabel>
+                <InputLabel>{t('exam.stream')}</InputLabel>
                 <Select
-                  label="Stream"
+                  label={t('exam.stream')}
                   value={autoGenerateForm.section}
                   onChange={(e) => setAutoGenerateForm({ ...autoGenerateForm, section: e.target.value })}
                 >
@@ -1363,9 +1365,9 @@ export function ExamSchedulePage() {
               </FormControl>
             )}
             <FormControl fullWidth size="small">
-              <InputLabel>Academic Year</InputLabel>
+              <InputLabel>{t('exam.academicYear')}</InputLabel>
               <Select
-                label="Academic Year"
+                label={t('exam.academicYear')}
                 value={autoGenerateForm.academicYear}
                 onChange={(e) =>
                   setAutoGenerateForm({ ...autoGenerateForm, academicYear: e.target.value })
@@ -1379,9 +1381,9 @@ export function ExamSchedulePage() {
               </Select>
             </FormControl>
             <FormControl fullWidth size="small">
-              <InputLabel>Semester</InputLabel>
+              <InputLabel>{t('exam.semester')}</InputLabel>
               <Select
-                label="Semester"
+                label={t('exam.semester')}
                 value={autoGenerateForm.semester}
                 onChange={(e) =>
                   setAutoGenerateForm({ ...autoGenerateForm, semester: e.target.value })
@@ -1395,9 +1397,9 @@ export function ExamSchedulePage() {
               </Select>
             </FormControl>
             <FormControl fullWidth size="small">
-              <InputLabel>Exam Type</InputLabel>
+              <InputLabel>{t('exam.examType')}</InputLabel>
               <Select
-                label="Exam Type"
+                label={t('exam.examType')}
                 value={autoGenerateForm.examType}
                 onChange={(e) =>
                   setAutoGenerateForm({ ...autoGenerateForm, examType: e.target.value as "Midterm" | "Final" | "Mock" })
@@ -1440,7 +1442,7 @@ export function ExamSchedulePage() {
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
           <Button onClick={() => setAutoGenerateModalOpen(false)} variant="outlined">
-            Cancel
+            {t('common.cancel')}
           </Button>
           {scheduleDialogMode === "generate" && (
             <Button
@@ -1449,7 +1451,7 @@ export function ExamSchedulePage() {
               disabled={autoGenerate.isPending}
               startIcon={<AutoAwesome />}
             >
-              {autoGenerate.isPending ? "Generating..." : "Generate"}
+              {autoGenerate.isPending ? t('common.generating') : t('common.generate')}
             </Button>
           )}
           {scheduleDialogMode === "regenerate" && (
@@ -1460,7 +1462,7 @@ export function ExamSchedulePage() {
               startIcon={<Refresh />}
               color="warning"
             >
-              {regenerate.isPending ? "Regenerating..." : "Regenerate / Optimize"}
+              {regenerate.isPending ? t('common.regenerating') : t('exam.regenerateOptimize')}
             </Button>
           )}
         </DialogActions>
@@ -1471,9 +1473,9 @@ export function ExamSchedulePage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Exam Schedule"
-        message="Are you sure you want to delete this exam schedule? This action cannot be undone."
-        confirmText="Delete"
+        title={t('common.delete') + ' ' + t('exam.examSchedule')}
+        message={t('common.deleteConfirmMessage')}
+        confirmText={t('common.delete')}
         loading={deleteSchedule.isPending}
       />
     </Box>
