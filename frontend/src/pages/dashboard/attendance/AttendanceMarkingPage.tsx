@@ -924,13 +924,13 @@ function SchoolAdminAttendanceDashboard() {
 
   return (
     <Box>
-      <Breadcrumbs items={[{ label: "Attendance" }, { label: "Analytics" }]} />
+      <Breadcrumbs items={[{ label: t('pages.dashboard.attendance') }, { label: t('pages.dashboard.analytics') }]} />
       <PageHeader
-        title="Attendance Analytics"
-        subtitle="School-wide attendance across all students with filters, charts, and trends"
+        title={t('pages.dashboard.attendanceAnalytics')}
+        subtitle={t('pages.dashboard.attendanceAnalyticsSubtitle')}
         action={
           <Button variant="outlined" startIcon={<Refresh />} onClick={() => refetchAttendance()}>
-            Refresh
+            {t('common.refresh')}
           </Button>
         }
       />
@@ -938,7 +938,7 @@ function SchoolAdminAttendanceDashboard() {
       <Paper sx={{ p: 2.5, borderRadius: 3, mb: 3 }}>
         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
           <TextField
-            label="Start Date"
+            label={t('pages.dashboard.startDate')}
             type="date"
             size="small"
             value={startDate}
@@ -946,7 +946,7 @@ function SchoolAdminAttendanceDashboard() {
             InputLabelProps={{ shrink: true }}
           />
           <TextField
-            label="End Date"
+            label={t('pages.dashboard.endDate')}
             type="date"
             size="small"
             value={endDate}
@@ -954,37 +954,37 @@ function SchoolAdminAttendanceDashboard() {
             InputLabelProps={{ shrink: true }}
           />
           <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel>Grade</InputLabel>
+            <InputLabel>{t('pages.dashboard.grade')}</InputLabel>
             <Select
               label="Grade"
               value={selectedGrade}
               onChange={(event) => setSelectedGrade(String(event.target.value))}
             >
-              <MenuItem value="all">All Grades</MenuItem>
-              <MenuItem value="9">Grade 9</MenuItem>
-              <MenuItem value="10">Grade 10</MenuItem>
-              <MenuItem value="11">Grade 11</MenuItem>
-              <MenuItem value="12">Grade 12</MenuItem>
+              <MenuItem value="all">{t('pages.dashboard.allGrades')}</MenuItem>
+              <MenuItem value="9">{t('pages.dashboard.grade')} 9</MenuItem>
+              <MenuItem value="10">{t('pages.dashboard.grade')} 10</MenuItem>
+              <MenuItem value="11">{t('pages.dashboard.grade')} 11</MenuItem>
+              <MenuItem value="12">{t('pages.dashboard.grade')} 12</MenuItem>
             </Select>
           </FormControl>
           <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Status</InputLabel>
+            <InputLabel>{t('common.status')}</InputLabel>
             <Select
               label="Status"
               value={selectedStatus}
               onChange={(event) => setSelectedStatus(String(event.target.value))}
             >
-              <MenuItem value="all">All Statuses</MenuItem>
-              <MenuItem value="Present">Present</MenuItem>
-              <MenuItem value="Late">Late</MenuItem>
-              <MenuItem value="Absent">Absent</MenuItem>
-              <MenuItem value="Excused">Excused</MenuItem>
+              <MenuItem value="all">{t('pages.dashboard.allStatuses')}</MenuItem>
+              <MenuItem value="Present">{t('pages.dashboard.present')}</MenuItem>
+              <MenuItem value="Late">{t('pages.dashboard.late')}</MenuItem>
+              <MenuItem value="Absent">{t('pages.dashboard.absent')}</MenuItem>
+              <MenuItem value="Excused">{t('common.excused')}</MenuItem>
             </Select>
           </FormControl>
           <TextField
-            label="Search Student"
+            label={t('pages.dashboard.searchStudent')}
             size="small"
-            placeholder="Name or Student ID"
+            placeholder={t('pages.dashboard.nameOrStudentId')}
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             sx={{ minWidth: 220, ml: { md: "auto" } }}
@@ -993,27 +993,27 @@ function SchoolAdminAttendanceDashboard() {
       </Paper>
 
       <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
-        <StatsCard title="Attendance Rate" value={`${summary.attendanceRate}%`} icon={<Check />} color="success" />
-        <StatsCard title="Records" value={summary.totalRecords} icon={<Save />} color="info" />
-        <StatsCard title="Unique Students" value={summary.uniqueStudents} icon={<Warning />} color="primary" />
-        <StatsCard title="Absences" value={summary.absent} icon={<Close />} color="error" />
+        <StatsCard title={t('pages.dashboard.attendanceRate')} value={`${summary.attendanceRate}%`} icon={<Check />} color="success" />
+        <StatsCard title={t('pages.dashboard.records')} value={summary.totalRecords} icon={<Save />} color="info" />
+        <StatsCard title={t('pages.dashboard.uniqueStudents')} value={summary.uniqueStudents} icon={<Warning />} color="primary" />
+        <StatsCard title={t('pages.dashboard.absences')} value={summary.absent} icon={<Close />} color="error" />
       </Box>
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2.5, borderRadius: 3, height: "100%" }}>
             <Typography variant="subtitle1" fontWeight={600} mb={2}>
-              Status Distribution
+              {t('pages.dashboard.statusDistribution')}
             </Typography>
             {isLoading ? (
               <LinearProgress />
             ) : (
               <Stack spacing={1.25}>
                 {[
-                  { label: "Present", value: summary.present, color: "success.main" },
-                  { label: "Late", value: summary.late, color: "warning.main" },
-                  { label: "Absent", value: summary.absent, color: "error.main" },
-                  { label: "Excused", value: summary.excused, color: "info.main" },
+                  { label: t('pages.dashboard.present'), value: summary.present, color: "success.main" },
+                  { label: t('pages.dashboard.late'), value: summary.late, color: "warning.main" },
+                  { label: t('pages.dashboard.absent'), value: summary.absent, color: "error.main" },
+                  { label: t('common.excused'), value: summary.excused, color: "info.main" },
                 ].map((item) => {
                   const width =
                     summary.totalRecords > 0
@@ -1038,7 +1038,7 @@ function SchoolAdminAttendanceDashboard() {
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2.5, borderRadius: 3, height: "100%" }}>
             <Typography variant="subtitle1" fontWeight={600} mb={2}>
-              Attendance Rate by Grade
+              {t('pages.dashboard.attendanceRateByGrade')}
             </Typography>
             {isLoading ? (
               <LinearProgress />
@@ -1054,7 +1054,7 @@ function SchoolAdminAttendanceDashboard() {
                       }}
                     />
                     <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
-                      G{entry.grade}
+                      {t('pages.dashboard.grade')}{entry.grade}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {entry.rate}%
