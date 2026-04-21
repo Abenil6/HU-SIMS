@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -59,6 +60,7 @@ const ROLE_OPTIONS = [
 ];
 
 export function AnnouncementsPage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { user } = useAuthStore();
   const isSchoolAdmin = user?.role === "SchoolAdmin";
@@ -204,13 +206,13 @@ export function AnnouncementsPage() {
 
   return (
     <Box>
-      <Breadcrumbs items={[{ label: "Announcements" }]} />
+      <Breadcrumbs items={[{ label: t('common.announcements') }]} />
       <PageHeader
-        title="Announcements"
+        title={t('common.announcements')}
         subtitle={
           isViewOnly
-            ? "View school announcements"
-            : "Create and manage school announcements"
+            ? t('common.viewAnnouncements')
+            : t('common.manageAnnouncements')
         }
         action={
           !isViewOnly ? (
@@ -226,7 +228,7 @@ export function AnnouncementsPage() {
               }}
               aria-label="Create new announcement"
             >
-              Create Announcement
+              {t('common.createAnnouncement')}
             </Button>
           ) : undefined
         }
@@ -234,19 +236,19 @@ export function AnnouncementsPage() {
 
       <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
         <StatsCard
-          title="Total"
+          title={t('common.total')}
           value={stats.total}
           icon={<Campaign />}
           color="primary"
         />
         <StatsCard
-          title="Published"
+          title={t('common.published')}
           value={stats.active}
           icon={<Schedule />}
           color="success"
         />
         <StatsCard
-          title="Urgent"
+          title={t('common.urgent')}
           value={stats.urgent}
           icon={<Campaign />}
           color="error"
@@ -256,30 +258,30 @@ export function AnnouncementsPage() {
       <FilterBar
         searchValue={search}
         onSearchChange={setSearch}
-        searchPlaceholder="Search announcements..."
+        searchPlaceholder={t('common.searchAnnouncements')}
         filters={[
           {
             name: "category",
-            label: "Category",
+            label: t('common.category'),
             options: [
-              { value: "General", label: "General" },
-              { value: "Academic", label: "Academic" },
-              { value: "Event", label: "Event" },
-              { value: "Holiday", label: "Holiday" },
-              { value: "Emergency", label: "Emergency" },
-              { value: "Fee", label: "Fee" },
+              { value: "General", label: t('common.general') },
+              { value: "Academic", label: t('common.academic') },
+              { value: "Event", label: t('common.event') },
+              { value: "Holiday", label: t('common.holiday') },
+              { value: "Emergency", label: t('common.emergency') },
+              { value: "Fee", label: t('common.fee') },
             ],
             value: filters.category,
             onChange: (value) => setFilters((previous) => ({ ...previous, category: value })),
           },
           {
             name: "priority",
-            label: "Priority",
+            label: t('common.priority'),
             options: [
-              { value: "low", label: "Low" },
-              { value: "normal", label: "Normal" },
-              { value: "high", label: "High" },
-              { value: "urgent", label: "Urgent" },
+              { value: "low", label: t('common.low') },
+              { value: "normal", label: t('common.normal') },
+              { value: "high", label: t('common.high') },
+              { value: "urgent", label: t('common.urgent') },
             ],
             value: filters.priority,
             onChange: (value) => setFilters((previous) => ({ ...previous, priority: value })),
@@ -330,7 +332,7 @@ export function AnnouncementsPage() {
                 <Chip label={announcement.category} size="small" variant="outlined" />
                 <Chip label={announcement.audience} size="small" icon={<Group />} />
                 <Chip
-                  label={announcement.published ? "Published" : "Draft"}
+                  label={announcement.published ? t('common.published') : t('common.draft')}
                   size="small"
                   color={announcement.published ? "success" : "default"}
                 />
@@ -345,7 +347,7 @@ export function AnnouncementsPage() {
                 }}
               >
                 <Typography variant="caption" color="text.secondary">
-                  Posted: {announcement.createdAt}
+                  {t('common.posted')}: {announcement.createdAt}
                 </Typography>
 
                 {!isViewOnly && (
@@ -380,7 +382,7 @@ export function AnnouncementsPage() {
           {filtered.length === 0 && (
             <Paper sx={{ p: 4, borderRadius: 3, width: "100%", textAlign: "center" }}>
               <Typography color="text.secondary">
-                No announcements matched your current filters.
+                {t('common.noAnnouncementsFound')}
               </Typography>
             </Paper>
           )}
@@ -393,7 +395,7 @@ export function AnnouncementsPage() {
           setFormModalOpen(false);
           setEditingAnnouncement(null);
         }}
-        title={editingAnnouncement ? "Edit Announcement" : "Create Announcement"}
+        title={editingAnnouncement ? t('common.editAnnouncement') : t('common.createAnnouncement')}
         fields={formFields}
         initialValues={{
           title: editingAnnouncement?.title || "",
@@ -445,9 +447,9 @@ export function AnnouncementsPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Announcement"
-        message={`Are you sure you want to delete "${announcementToDelete?.title}"? This action cannot be undone.`}
-        confirmText="Delete"
+        title={t('common.deleteAnnouncement')}
+        message={t('common.deleteAnnouncementConfirm', { title: announcementToDelete?.title })}
+        confirmText={t('common.delete')}
         severity="error"
       />
     </Box>
