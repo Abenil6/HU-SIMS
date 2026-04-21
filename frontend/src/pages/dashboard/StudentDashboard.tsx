@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -55,6 +56,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 export function StudentDashboard() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState(0);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<any | null>(null);
@@ -188,25 +190,25 @@ export function StudentDashboard() {
 
   const stats = [
     {
-      label: "Average",
+      label: t('pages.dashboard.average'),
       value: overallAverage ? `${overallAverage}%` : "--",
       icon: <TrendingUp />,
       color: "success" as const,
     },
     {
-      label: "Attendance",
+      label: t('common.attendance'),
       value: attendanceSummary ? `${Math.round(attendanceRate)}%` : "--",
       icon: <CalendarToday />,
       color: "primary" as const,
     },
     {
-      label: "Subjects",
+      label: t('pages.dashboard.subjects'),
       value: gradeRows.length,
       icon: <Assignment />,
       color: "warning" as const,
     },
     {
-      label: "Messages",
+      label: t('common.messages'),
       value: unreadInboxCount,
       icon: <Message />,
       color: "info" as const,
@@ -238,13 +240,13 @@ export function StudentDashboard() {
   return (
     <Box>
       <Typography variant="h4" fontWeight={700} mb={1}>
-        Student Dashboard
+        {t('pages.dashboard.studentDashboard')}
       </Typography>
       <Typography variant="body1" color="text.secondary" mb={3}>
-        Welcome back! Here is your academic overview.
+        {t('pages.dashboard.studentDashboardSubtitle')}
       </Typography>
 
-      <HonorRollBadge honorRoll={overallAverage >= 90} honorRollType="First Class" size="large" showDetails />
+      <HonorRollBadge honorRoll={overallAverage >= 90} honorRollType={t('pages.dashboard.firstClass')} size="large" showDetails />
 
       <Grid container spacing={3} sx={{ mb: 4, mt: 2 }}>
         {stats.map((stat, index) => {
@@ -290,32 +292,32 @@ export function StudentDashboard() {
           onChange={(_, newValue) => setActiveTab(newValue)}
           sx={{ borderBottom: 1, borderColor: "divider", px: 2 }}
         >
-          <Tab label="Grades" icon={<Assessment />} iconPosition="start" />
+          <Tab label={t('common.grades')} icon={<Assessment />} iconPosition="start" />
           <Tab
-            label="Attendance"
+            label={t('common.attendance')}
             icon={<CalendarToday />}
             iconPosition="start"
           />
-          <Tab label="Schedule" icon={<School />} iconPosition="start" />
-          <Tab label="Announcements" icon={<Message />} iconPosition="start" />
-          <Tab label="Profile" icon={<Person />} iconPosition="start" />
+          <Tab label={t('common.timetable')} icon={<School />} iconPosition="start" />
+          <Tab label={t('common.announcements')} icon={<Message />} iconPosition="start" />
+          <Tab label={t('pages.dashboard.myProfile')} icon={<Person />} iconPosition="start" />
         </Tabs>
 
         <Box sx={{ p: 3 }}>
           <TabPanel value={activeTab} index={0}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              Academic Performance
+              {t('pages.dashboard.academicPerformance')}
             </Typography>
             {(gradesQuery.isLoading || profileQuery.isLoading) && <LinearProgress sx={{ mb: 2 }} />}
             <TableContainer>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Subject</TableCell>
-                    <TableCell align="center">Midterm</TableCell>
-                    <TableCell align="center">Final</TableCell>
-                    <TableCell align="center">Average</TableCell>
-                    <TableCell align="center">Grade</TableCell>
+                    <TableCell>{t('pages.dashboard.subject')}</TableCell>
+                    <TableCell align="center">{t('pages.dashboard.midterm')}</TableCell>
+                    <TableCell align="center">{t('pages.dashboard.final')}</TableCell>
+                    <TableCell align="center">{t('pages.dashboard.average')}</TableCell>
+                    <TableCell align="center">{t('pages.dashboard.grade')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -368,16 +370,16 @@ export function StudentDashboard() {
                         <Chip
                           label={
                             row.average >= 90
-                              ? "Excellent"
+                              ? t('pages.dashboard.excellent')
                               : row.average >= 80
-                                ? "Very Good"
+                                ? t('pages.dashboard.veryGood')
                                 : row.average >= 70
-                                  ? "Good"
+                                  ? t('pages.dashboard.good')
                                   : row.average >= 60
-                                    ? "Satisfactory"
+                                    ? t('pages.dashboard.satisfactory')
                                     : row.average >= 50
-                                      ? "Pass"
-                                      : "Fail"
+                                      ? t('pages.dashboard.pass')
+                                      : t('pages.dashboard.fail')
                           }
                           color={
                             row.average >= 90
@@ -400,18 +402,18 @@ export function StudentDashboard() {
 
           <TabPanel value={activeTab} index={1}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              Attendance Record
+              {t('pages.dashboard.attendanceRecord')}
             </Typography>
             {attendanceQuery.isLoading && <LinearProgress sx={{ mb: 2 }} />}
             <TableContainer>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Month</TableCell>
-                    <TableCell align="center">Present</TableCell>
-                    <TableCell align="center">Absent</TableCell>
-                    <TableCell align="center">Late</TableCell>
-                    <TableCell align="center">Rate</TableCell>
+                    <TableCell>{t('pages.dashboard.month')}</TableCell>
+                    <TableCell align="center">{t('common.present')}</TableCell>
+                    <TableCell align="center">{t('common.absent')}</TableCell>
+                    <TableCell align="center">{t('common.late')}</TableCell>
+                    <TableCell align="center">{t('pages.dashboard.rate')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -427,7 +429,7 @@ export function StudentDashboard() {
                         </TableCell>
                         <TableCell align="center">
                           <Chip
-                            label={`${row.present} days`}
+                            label={`${row.present} ${t('pages.dashboard.days')}`}
                             color="success"
                             size="small"
                             variant="outlined"
@@ -435,7 +437,7 @@ export function StudentDashboard() {
                         </TableCell>
                         <TableCell align="center">
                           <Chip
-                            label={`${row.absent} days`}
+                            label={`${row.absent} ${t('pages.dashboard.days')}`}
                             color="error"
                             size="small"
                             variant="outlined"
@@ -443,7 +445,7 @@ export function StudentDashboard() {
                         </TableCell>
                         <TableCell align="center">
                           <Chip
-                            label={`${row.late} days`}
+                            label={`${row.late} ${t('pages.dashboard.days')}`}
                             color="warning"
                             size="small"
                             variant="outlined"
@@ -495,19 +497,19 @@ export function StudentDashboard() {
 
           <TabPanel value={activeTab} index={2}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              Class Timetable
+              {t('pages.dashboard.classTimetable')}
             </Typography>
             {scheduleQuery.isLoading && <LinearProgress sx={{ mb: 2 }} />}
             <TableContainer>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Time</TableCell>
-                    <TableCell align="center">Monday</TableCell>
-                    <TableCell align="center">Tuesday</TableCell>
-                    <TableCell align="center">Wednesday</TableCell>
-                    <TableCell align="center">Thursday</TableCell>
-                    <TableCell align="center">Friday</TableCell>
+                    <TableCell>{t('pages.dashboard.time')}</TableCell>
+                    <TableCell align="center">{t('pages.dashboard.monday')}</TableCell>
+                    <TableCell align="center">{t('pages.dashboard.tuesday')}</TableCell>
+                    <TableCell align="center">{t('pages.dashboard.wednesday')}</TableCell>
+                    <TableCell align="center">{t('pages.dashboard.thursday')}</TableCell>
+                    <TableCell align="center">{t('pages.dashboard.friday')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -542,7 +544,7 @@ export function StudentDashboard() {
 
           <TabPanel value={activeTab} index={3}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              School Announcements
+              {t('pages.dashboard.schoolAnnouncements')}
             </Typography>
             {announcementsQuery.isLoading && <LinearProgress sx={{ mb: 2 }} />}
             <Grid container spacing={2}>
@@ -567,9 +569,9 @@ export function StudentDashboard() {
                       }}
                     >
                       <Typography variant="subtitle1" fontWeight={600}>
-                        {item.title || item.subject || "Announcement"}
+                        {item.title || item.subject || t('common.announcement')}
                       </Typography>
-                      <Chip label={item.category || item.type || "General"} size="small" />
+                      <Chip label={item.category || item.type || t('common.general')} size="small" />
                     </Box>
                     <Typography variant="body2" color="text.secondary">
                       {item.date || item.createdAt
@@ -577,7 +579,7 @@ export function StudentDashboard() {
                         : ""}
                     </Typography>
                     <Button size="small" sx={{ mt: 1 }} onClick={() => setSelectedAnnouncement(item)}>
-                      Read More
+                      {t('pages.dashboard.readMore')}
                     </Button>
                   </Paper>
                 </Grid>
@@ -611,7 +613,7 @@ export function StudentDashboard() {
                   </Box>
                   <Typography variant="h6">{studentName}</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Student ID: {student?.username || student?.email || "--"}
+                    {t('pages.dashboard.studentIdLabel')}: {student?.username || student?.email || "--"}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {gradeLabel}
@@ -622,12 +624,12 @@ export function StudentDashboard() {
               <Grid size={{ xs: 12, md: 8 }}>
                 <Paper sx={{ p: 3 }}>
                   <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                    Personal Information
+                    {t('pages.dashboard.personalInformation')}
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 12, md: 6 }}>
                       <Typography variant="body2" color="text.secondary">
-                        Email
+                        {t('common.email')}
                       </Typography>
                       <Typography variant="body1">
                         {student?.email || "--"}
@@ -635,13 +637,13 @@ export function StudentDashboard() {
                     </Grid>
                     <Grid size={{ xs: 12, md: 6 }}>
                       <Typography variant="body2" color="text.secondary">
-                        Phone
+                        {t('common.phone')}
                       </Typography>
                       <Typography variant="body1">{student?.phone || "--"}</Typography>
                     </Grid>
                     <Grid size={{ xs: 12, md: 6 }}>
                       <Typography variant="body2" color="text.secondary">
-                        Date of Birth
+                        {t('common.dateOfBirth')}
                       </Typography>
                       <Typography variant="body1">
                         {studentProfile?.dateOfBirth
@@ -651,16 +653,16 @@ export function StudentDashboard() {
                     </Grid>
                     <Grid size={{ xs: 12, md: 6 }}>
                       <Typography variant="body2" color="text.secondary">
-                        Gender
+                        {t('common.gender')}
                       </Typography>
                       <Typography variant="body1">{studentProfile?.gender || "--"}</Typography>
                     </Grid>
                   </Grid>
                   <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
                     <Button variant="contained" startIcon={<Download />}>
-                      Download Report Card
+                      {t('pages.dashboard.downloadReportCard')}
                     </Button>
-                    <Button variant="outlined">Edit Profile</Button>
+                    <Button variant="outlined">{t('common.editProfile')}</Button>
                   </Box>
                 </Paper>
               </Grid>
@@ -702,7 +704,7 @@ export function StudentDashboard() {
             <Divider />
             <DialogContent>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Posted:{" "}
+                {t('pages.dashboard.posted')}{" "}
                 {selectedAnnouncement.date || selectedAnnouncement.createdAt
                   ? new Date(selectedAnnouncement.date || selectedAnnouncement.createdAt).toLocaleDateString(
                       "en-US",
@@ -711,11 +713,11 @@ export function StudentDashboard() {
                   : ""}
               </Typography>
               <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
-                {selectedAnnouncement.content || selectedAnnouncement.description || "No content available."}
+                {selectedAnnouncement.content || selectedAnnouncement.description || t('pages.dashboard.noContentAvailable')}
               </Typography>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setSelectedAnnouncement(null)}>Close</Button>
+              <Button onClick={() => setSelectedAnnouncement(null)}>{t('common.close')}</Button>
             </DialogActions>
           </>
         )}

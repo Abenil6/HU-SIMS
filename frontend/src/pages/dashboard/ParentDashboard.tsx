@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import {
   Box,
@@ -62,6 +63,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 export function ParentDashboard() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const navigate = useNavigate();
   const { selectedChildId, setSelectedChildId } = useAuthStore();
@@ -223,20 +225,20 @@ export function ParentDashboard() {
 
   const stats = [
     {
-      label: "Average",
+      label: t('pages.dashboard.average'),
       value: overallAverage ? `${overallAverage}%` : "--",
       icon: <TrendingUp />,
       color: "success" as const,
     },
     {
-      label: "Attendance",
+      label: t('common.attendance'),
       value: attendanceSummary ? `${Math.round(attendanceRate)}%` : "--",
       icon: <CalendarToday />,
       color: "primary" as const,
     },
-    { label: "Available Teachers", value: teachers.length, icon: <People />, color: "info" as const },
+    { label: t('pages.dashboard.availableTeachers'), value: teachers.length, icon: <People />, color: "info" as const },
     {
-      label: "Messages",
+      label: t('common.messages'),
       value: unreadInboxCount,
       icon: <Message />,
       color: "warning" as const,
@@ -245,9 +247,9 @@ export function ParentDashboard() {
 
   const sendMessageMutation = useMutation({
     mutationFn: async () => {
-      if (!selectedTeacherId) throw new Error("Please select a teacher");
-      if (!messageSubject.trim()) throw new Error("Subject is required");
-      if (!messageBody.trim()) throw new Error("Message is required");
+      if (!selectedTeacherId) throw new Error(t('pages.dashboard.pleaseSelectTeacher'));
+      if (!messageSubject.trim()) throw new Error(t('pages.dashboard.subjectRequired'));
+      if (!messageBody.trim()) throw new Error(t('pages.dashboard.messageRequired'));
       return apiPost("/messages", {
         recipientId: selectedTeacherId,
         subject: messageSubject,
@@ -256,14 +258,14 @@ export function ParentDashboard() {
       });
     },
     onSuccess: () => {
-      toast.success("Message sent successfully");
+      toast.success(t('pages.dashboard.messageSentSuccessfully'));
       setMessageDialogOpen(false);
       setSelectedTeacherId("");
       setMessageSubject("");
       setMessageBody("");
     },
     onError: (error: any) => {
-      toast.error(error.message || "Failed to send message");
+      toast.error(error.message || t('pages.dashboard.failedToSendMessage'));
     },
   });
 
@@ -309,7 +311,7 @@ export function ParentDashboard() {
     <Box>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
         <Typography variant="h4" fontWeight={700}>
-          Parent Dashboard
+          {t('pages.dashboard.parentDashboard')}
         </Typography>
         <Button
           variant="outlined"
@@ -318,7 +320,7 @@ export function ParentDashboard() {
           disabled={isRefreshing}
           aria-label="Refresh dashboard data"
         >
-          Refresh
+          {t('common.refresh')}
         </Button>
       </Box>
       <Typography variant="body1" color="text.secondary" mb={3}>
@@ -358,7 +360,7 @@ export function ParentDashboard() {
                   <InputLabel>Select Child</InputLabel>
                   <Select
                     value={activeChildId || activeChild?._id || activeChild?.id || ""}
-                    label="Select Child"
+                    label={t('pages.dashboard.selectChild')}
                     onChange={(e) => handleChildChange(e.target.value)}
                     aria-label="Select child to view"
                   >
@@ -435,27 +437,27 @@ export function ParentDashboard() {
           sx={{ borderBottom: 1, borderColor: "divider", px: 2 }}
           aria-label="Dashboard tabs"
         >
-          <Tab label="Grades" icon={<Assessment />} iconPosition="start" aria-label="Grades tab" />
+          <Tab label={t('common.grades')} icon={<Assessment />} iconPosition="start" aria-label="Grades tab" />
           <Tab
-            label="Attendance"
+            label={t('common.attendance')}
             icon={<CalendarToday />}
             iconPosition="start"
             aria-label="Attendance tab"
           />
-          <Tab label="Absence Alerts" icon={<Warning />} iconPosition="start" aria-label="Absence Alerts tab" />
-          <Tab label="Messages" icon={<Message />} iconPosition="start" aria-label="Messages tab" />
-          <Tab label="Announcements" icon={<School />} iconPosition="start" aria-label="Announcements tab" />
-          <Tab label="Teachers" icon={<People />} iconPosition="start" aria-label="Teachers tab" />
+          <Tab label={t('pages.dashboard.absenceAlerts')} icon={<Warning />} iconPosition="start" aria-label="Absence Alerts tab" />
+          <Tab label={t('common.messages')} icon={<Message />} iconPosition="start" aria-label="Messages tab" />
+          <Tab label={t('common.announcements')} icon={<School />} iconPosition="start" aria-label="Announcements tab" />
+          <Tab label={t('common.teachers')} icon={<People />} iconPosition="start" aria-label="Teachers tab" />
         </Tabs>
 
         <Box sx={{ p: 3 }}>
           <TabPanel value={activeTab} index={0}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              Academic Performance
+              {t('pages.dashboard.academicPerformance')}
             </Typography>
             {childGradesQuery.isError && (
               <Alert severity="error" sx={{ mb: 2 }}>
-                Failed to load grades data. Please try again later.
+                {t('pages.dashboard.failedToLoadGrades')}
               </Alert>
             )}
             {(childrenQuery.isLoading || childGradesQuery.isLoading) && (
@@ -568,11 +570,11 @@ export function ParentDashboard() {
 
           <TabPanel value={activeTab} index={1}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              Attendance Record
+              {t('pages.dashboard.attendanceRecord')}
             </Typography>
             {childAttendanceQuery.isError && (
               <Alert severity="error" sx={{ mb: 2 }}>
-                Failed to load attendance data. Please try again later.
+                {t('pages.dashboard.failedToLoadAttendance')}
               </Alert>
             )}
             {childAttendanceQuery.isLoading && <LinearProgress sx={{ mb: 2 }} />}
@@ -686,7 +688,7 @@ export function ParentDashboard() {
               }}
             >
               <Typography variant="h6" fontWeight={600}>
-                Absence Alerts
+                {t('pages.dashboard.absenceAlerts')}
               </Typography>
               <Button
                 variant="outlined"
@@ -694,12 +696,12 @@ export function ParentDashboard() {
                 startIcon={<ArrowForward />}
                 aria-label="View all absence alerts"
               >
-                View All Alerts
+                {t('pages.dashboard.viewAllAlerts')}
               </Button>
             </Box>
             {absenceAlertsQuery.isError && (
               <Alert severity="error" sx={{ mb: 2 }}>
-                Failed to load absence alerts. Please try again later.
+                {t('pages.dashboard.failedToLoadAbsenceAlerts')}
               </Alert>
             )}
             {absenceAlertsQuery.isLoading && <LinearProgress sx={{ mb: 2 }} />}
@@ -803,26 +805,11 @@ export function ParentDashboard() {
                 Messages
               </Typography>
               <Box sx={{ display: "flex", gap: 1.5 }}>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate("/parent/messages")}
-                  aria-label="Open inbox messages"
-                >
-                  Open Inbox
-                </Button>
-                <Button
-                  variant="contained"
-                  startIcon={<Email />}
-                  onClick={() => setMessageDialogOpen(true)}
-                  aria-label="Compose new message"
-                >
-                  New Message
-                </Button>
               </Box>
             </Box>
             {inboxQuery.isError && (
               <Alert severity="error" sx={{ mb: 2 }}>
-                Failed to load messages. Please try again later.
+                {t('pages.dashboard.failedToLoadMessages')}
               </Alert>
             )}
             {inboxQuery.isLoading && <LinearProgress sx={{ mb: 2 }} />}
@@ -873,7 +860,7 @@ export function ParentDashboard() {
                 <Grid size={{ xs: 12 }}>
                   <Paper sx={{ p: 3, textAlign: "center" }}>
                     <Typography color="text.secondary">
-                      No messages yet. Use "New Message" to contact a teacher.
+                      {t('pages.dashboard.noMessagesContactTeacher')}
                     </Typography>
                   </Paper>
                 </Grid>
@@ -883,11 +870,11 @@ export function ParentDashboard() {
 
           <TabPanel value={activeTab} index={4}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              School Announcements
+              {t('pages.dashboard.schoolAnnouncements')}
             </Typography>
             {announcementsQuery.isError && (
               <Alert severity="error" sx={{ mb: 2 }}>
-                Failed to load announcements. Please try again later.
+                {t('pages.dashboard.failedToLoadAnnouncements')}
               </Alert>
             )}
             {announcementsQuery.isLoading && <LinearProgress sx={{ mb: 2 }} />}
@@ -900,7 +887,7 @@ export function ParentDashboard() {
                 }}
               >
                 <Typography variant="body1" color="info.main">
-                  No announcements available at this time.
+                  {t('pages.dashboard.noAnnouncementsAvailable')}
                 </Typography>
               </Paper>
             ) : (
@@ -946,11 +933,11 @@ export function ParentDashboard() {
 
           <TabPanel value={activeTab} index={5}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              Contact Teachers
+              {t('pages.dashboard.contactTeachers')}
             </Typography>
             {teachersQuery.isError && (
               <Alert severity="error" sx={{ mb: 2 }}>
-                Failed to load teachers. Please try again later.
+                {t('pages.dashboard.failedToLoadTeachers')}
               </Alert>
             )}
             {teachersQuery.isLoading && <LinearProgress sx={{ mb: 2 }} />}
@@ -963,7 +950,7 @@ export function ParentDashboard() {
                 }}
               >
                 <Typography variant="body1" color="info.main">
-                  No teachers available at this time.
+                  {t('pages.dashboard.noTeachersAvailable')}
                 </Typography>
               </Paper>
             ) : (
@@ -1014,7 +1001,7 @@ export function ParentDashboard() {
                       }}
                       aria-label={`Send message to ${teacher.name || teacher.fullName || "teacher"}`}
                     >
-                      Send Message
+                      {t('pages.dashboard.sendMessageToTeacher')}
                     </Button>
                   </Paper>
                 </Grid>
@@ -1031,14 +1018,14 @@ export function ParentDashboard() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Send Message to Teacher</DialogTitle>
+        <DialogTitle>{t('pages.dashboard.sendMessageToTeacher')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12 }}>
               <FormControl fullWidth>
-                <InputLabel>Select Teacher</InputLabel>
+                <InputLabel>{t('pages.dashboard.selectTeacher')}</InputLabel>
                 <Select
-                  label="Select Teacher"
+                  label={t('pages.dashboard.selectTeacher')}
                   value={selectedTeacherId}
                   onChange={(e) => setSelectedTeacherId(e.target.value)}
                   aria-label="Select teacher to message"
@@ -1059,7 +1046,7 @@ export function ParentDashboard() {
             <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
-                label="Subject"
+                label={t('pages.dashboard.messageSubject')}
                 value={messageSubject}
                 onChange={(e) => setMessageSubject(e.target.value)}
               />
@@ -1069,7 +1056,7 @@ export function ParentDashboard() {
                 fullWidth
                 multiline
                 rows={4}
-                label="Message"
+                label={t('pages.dashboard.messageBody')}
                 value={messageBody}
                 onChange={(e) => setMessageBody(e.target.value)}
               />
@@ -1078,7 +1065,7 @@ export function ParentDashboard() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setMessageDialogOpen(false)} aria-label="Cancel message">
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             variant="contained"
@@ -1086,7 +1073,7 @@ export function ParentDashboard() {
             onClick={() => sendMessageMutation.mutate()}
             aria-label="Send message"
           >
-            Send Message
+            {t('common.send')}
           </Button>
         </DialogActions>
       </Dialog>
