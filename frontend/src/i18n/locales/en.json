@@ -301,6 +301,7 @@
     "systemAdmin": "System Administrator",
     "systemadmin": "System Administrator",
     "schoolAdmin": "School Administrator",
+    "schooladmin": "School Administrator",
     "teacher": "Teacher",
     "student": "Student",
     "parent": "Parent"
