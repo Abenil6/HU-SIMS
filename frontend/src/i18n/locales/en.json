@@ -133,7 +133,13 @@
     "schoolConfiguration": "School Configuration",
     "notificationPreferences": "Notification Preferences",
     "securitySettings": "Security Settings",
-    "appearanceSettings": "Appearance Settings"
+    "appearanceSettings": "Appearance Settings",
+    "compose": "Compose",
+    "inbox": "Inbox",
+    "sent": "Sent",
+    "starred": "Starred",
+    "selectMessage": "Select a message to view",
+    "composeMessage": "Compose Message"
   },
   "pages": {
     "dashboard": {

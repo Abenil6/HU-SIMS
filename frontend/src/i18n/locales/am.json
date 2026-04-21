@@ -132,7 +132,13 @@
     "schoolConfiguration": "የትምህርት ቤት ማስተካከል",
     "notificationPreferences": "የማስታወቂያ ምርጫዎች",
     "securitySettings": "የደህንነት ቅንብሮች",
-    "appearanceSettings": "የአስተያየነኛ ቅጽ ቅንብሮች"
+    "appearanceSettings": "የአስተያየነኛ ቅጽ ቅንብሮች",
+    "compose": "ይጽፉ",
+    "inbox": "ወደ መጣጣፊው",
+    "sent": "ተልኳል",
+    "starred": "ከንዑል ዝርዝር ውስጥ",
+    "selectMessage": "ለመመልከት መልእክት ይምረጡ",
+    "composeMessage": "መልእክት ይጽፉ"
   },
   "pages": {
     "dashboard": {
