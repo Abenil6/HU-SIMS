@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -50,6 +51,7 @@ const allSubjects = [
 ];
 
 export function ClassesPage() {
+  const { t } = useTranslation();
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedClass, setSelectedClass] = useState<ClassData | null>(null);
   const [gradeFilter, setGradeFilter] = useState("");
@@ -159,19 +161,19 @@ export function ClassesPage() {
   };
 
   const columns: Column<ClassData>[] = [
-    { id: "name", label: "Class Name", minWidth: 120 },
-    { id: "grade", label: "Grade", minWidth: 100 },
-    { id: "stream", label: "Stream", minWidth: 100 },
+    { id: "name", label: t('common.className'), minWidth: 120 },
+    { id: "grade", label: t('common.grade'), minWidth: 100 },
+    { id: "stream", label: t('common.stream'), minWidth: 100 },
     {
       id: "capacity",
-      label: "Students",
+      label: t('common.students'),
       minWidth: 100,
       format: (_, row) => `${row.students}/${row.capacity}`,
     },
-    { id: "classTeacher", label: "Class Teacher", minWidth: 150 },
+    { id: "classTeacher", label: t('common.classTeacher'), minWidth: 150 },
     {
       id: "status",
-      label: "Status",
+      label: t('common.status'),
       minWidth: 100,
       format: (_, row) => (
         <Chip
@@ -186,10 +188,10 @@ export function ClassesPage() {
   return (
     <Box>
       <Typography variant="h4" fontWeight={700} mb={1}>
-        Classes & Streams
+        {t('common.classesStreams')}
       </Typography>
       <Typography variant="body1" color="text.secondary" mb={3}>
-        View classes derived from student enrollments
+        {t('common.viewClasses')}
       </Typography>
 
       {isLoading ? (
@@ -201,19 +203,19 @@ export function ClassesPage() {
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
             <Box sx={{ display: "flex", gap: 2 }}>
               <TextField
-                placeholder="Search classes..."
+                placeholder={t('common.searchClasses')}
                 size="small"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
               <FormControl size="small" sx={{ minWidth: 150 }}>
-                <InputLabel>Grade</InputLabel>
+                <InputLabel>{t('common.grade')}</InputLabel>
                 <Select 
-                  label="Grade" 
+                  label={t('common.grade')} 
                   value={gradeFilter}
                   onChange={(e) => setGradeFilter(e.target.value)}
                 >
-                  <MenuItem value="">All Grades</MenuItem>
+                  <MenuItem value="">{t('common.allGrades')}</MenuItem>
                   {grades.map((g) => (
                     <MenuItem key={g} value={g}>
                       {g}
@@ -246,7 +248,7 @@ export function ClassesPage() {
                   <Typography variant="h4" fontWeight={700}>
                     {filteredClasses.length}
                   </Typography>
-                  <Typography variant="body2">Total Classes</Typography>
+                  <Typography variant="body2">{t('common.totalClasses')}</Typography>
                 </Paper>
               </Grid>
               <Grid size={{ xs: 6, md: 3 }}>
@@ -254,7 +256,7 @@ export function ClassesPage() {
                   <Typography variant="h4" fontWeight={700}>
                     {filteredClasses.reduce((sum, c) => sum + c.students, 0)}
                   </Typography>
-                  <Typography variant="body2">Total Students</Typography>
+                  <Typography variant="body2">{t('common.totalStudents')}</Typography>
                 </Paper>
               </Grid>
               <Grid size={{ xs: 6, md: 3 }}>
@@ -262,7 +264,7 @@ export function ClassesPage() {
                   <Typography variant="h4" fontWeight={700}>
                     {grades.length}
                   </Typography>
-                  <Typography variant="body2">Grades</Typography>
+                  <Typography variant="body2">{t('common.grades')}</Typography>
                 </Paper>
               </Grid>
               <Grid size={{ xs: 6, md: 3 }}>
@@ -270,7 +272,7 @@ export function ClassesPage() {
                   <Typography variant="h4" fontWeight={700}>
                     {filteredClasses.filter((c) => c.status === "Active").length}
                   </Typography>
-                  <Typography variant="body2">Active Classes</Typography>
+                  <Typography variant="body2">{t('common.activeClasses')}</Typography>
                 </Paper>
               </Grid>
             </Grid>
@@ -284,7 +286,7 @@ export function ClassesPage() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Class Details</DialogTitle>
+        <DialogTitle>{t('common.classDetails')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12, md: 6 }}>
