@@ -584,7 +584,7 @@ export function SchoolAdminDashboard() {
                   {averageAttendance}%
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Attendance Rate
+                  {t('pages.dashboard.attendanceRate')}
                 </Typography>
               </Box>
             </Box>
@@ -717,7 +717,7 @@ export function SchoolAdminDashboard() {
                     <TableCell>Name</TableCell>
                     <TableCell>Grade</TableCell>
                     <TableCell>Stream</TableCell>
-                    <TableCell>Attendance</TableCell>
+                    <TableCell>{t('pages.dashboard.attendance')}</TableCell>
                     <TableCell>Status</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
@@ -1016,13 +1016,13 @@ export function SchoolAdminDashboard() {
               <Grid size={{ xs: 12, md: 5 }}>
                 <Paper sx={{ p: 2.5, borderRadius: 2 }}>
                   <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                    Lowest Attendance Classes
+                    {t('pages.dashboard.lowestAttendanceClasses')}
                   </Typography>
                   {isLoadingClassesAttendance ? (
                     <LinearProgress />
                   ) : lowAttendanceClasses.length === 0 ? (
                     <Typography variant="body2" color="text.secondary">
-                      No low-attendance classes found.
+                      {t('pages.dashboard.noLowAttendanceClasses')}
                     </Typography>
                   ) : (
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>
@@ -1047,24 +1047,24 @@ export function SchoolAdminDashboard() {
 
             <Paper sx={{ p: 2.5, borderRadius: 2, mb: 3 }}>
               <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                Attendance By Class (30 Days)
+                {t('pages.dashboard.attendanceByClass')}
               </Typography>
               {isLoadingClassesAttendance ? (
                 <LinearProgress />
               ) : classesAttendance.length === 0 ? (
                 <Typography variant="body2" color="text.secondary">
-                  No class attendance data available.
+                  {t('pages.dashboard.noClassAttendanceData')}
                 </Typography>
               ) : (
                 <TableContainer>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Class</TableCell>
-                        <TableCell align="right">Attendance Rate</TableCell>
-                        <TableCell align="right">Present</TableCell>
-                        <TableCell align="right">Late</TableCell>
-                        <TableCell align="right">Absent</TableCell>
+                        <TableCell>{t('pages.dashboard.class')}</TableCell>
+                        <TableCell align="right">{t('pages.dashboard.attendanceRate')}</TableCell>
+                        <TableCell align="right">{t('pages.dashboard.present')}</TableCell>
+                        <TableCell align="right">{t('pages.dashboard.late')}</TableCell>
+                        <TableCell align="right">{t('pages.dashboard.absent')}</TableCell>
                         <TableCell align="right">Total</TableCell>
                       </TableRow>
                     </TableHead>
