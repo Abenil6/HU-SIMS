@@ -472,7 +472,7 @@ export function ParentDashboard() {
                 }}
               >
                 <Typography variant="body1" color="info.main">
-                  No grade records available for this child yet.
+                  {t('pages.dashboard.noGradeRecordsAvailable')}
                 </Typography>
               </Paper>
             ) : (
@@ -587,7 +587,7 @@ export function ParentDashboard() {
                 }}
               >
                 <Typography variant="body1" color="info.main">
-                  No attendance records available for this child yet.
+                  {t('pages.dashboard.noAttendanceRecordsAvailable')}
                 </Typography>
               </Paper>
             ) : (
@@ -714,7 +714,7 @@ export function ParentDashboard() {
                 }}
               >
                 <Typography variant="body1" color="success.main">
-                  No absence alerts - Great attendance!
+                  {t('pages.dashboard.noAbsenceAlerts')}
                 </Typography>
               </Paper>
             ) : (
