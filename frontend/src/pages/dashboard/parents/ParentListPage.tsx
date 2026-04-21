@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -33,6 +34,7 @@ import {
 } from "@/hooks/parents/useParents";
 
 export function ParentListPage() {
+  const { t } = useTranslation();
   const theme = useTheme();
 
   // State
@@ -67,7 +69,7 @@ export function ParentListPage() {
     () => [
       {
         id: "firstName",
-        label: "Parent",
+        label: t('parentManagement.parent'),
         format: (_, row) => (
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
             <Box
@@ -100,19 +102,19 @@ export function ParentListPage() {
       },
       {
         id: "email",
-        label: "Email",
+        label: t('parentManagement.email'),
         format: (value) => <Typography variant="body2">{value}</Typography>,
       },
       {
         id: "phone",
-        label: "Phone",
+        label: t('parentManagement.phone'),
         format: (value) => (
           <Typography variant="body2">{value || "-"}</Typography>
         ),
       },
       {
         id: "students",
-        label: "Children",
+        label: t('parentManagement.children'),
         format: (_, row) => {
           const children =
             row.students ||
@@ -138,7 +140,7 @@ export function ParentListPage() {
       },
       {
         id: "status",
-        label: "Status",
+        label: t('common.status'),
         format: (value) => (
           <Chip
             label={value}
@@ -165,29 +167,29 @@ export function ParentListPage() {
   );
 
   const formFields: FormField[] = [
-    { name: "firstName", label: "First Name", type: "text", required: true },
-    { name: "lastName", label: "Last Name", type: "text", required: true },
-    { name: "email", label: "Email", type: "email", required: true },
-    { name: "phone", label: "Phone", type: "text", required: true },
+    { name: "firstName", label: t('parentManagement.firstName'), type: "text", required: true },
+    { name: "lastName", label: t('parentManagement.lastName'), type: "text", required: true },
+    { name: "email", label: t('parentManagement.email'), type: "email", required: true },
+    { name: "phone", label: t('parentManagement.phone'), type: "text", required: true },
     {
       name: "gender",
-      label: "Gender",
+      label: t('parentManagement.gender'),
       type: "select",
       options: [
-        { value: "Male", label: "Male" },
-        { value: "Female", label: "Female" },
+        { value: "Male", label: t('parentManagement.male') },
+        { value: "Female", label: t('parentManagement.female') },
       ],
     },
-    { name: "occupation", label: "Occupation", type: "text" },
+    { name: "occupation", label: t('parentManagement.occupation'), type: "text" },
     {
       name: "relationship",
-      label: "Relationship",
+      label: t('parentManagement.relationship'),
       type: "select",
       required: true,
       options: [
-        { value: "Father", label: "Father" },
-        { value: "Mother", label: "Mother" },
-        { value: "Guardian", label: "Guardian" },
+        { value: "Father", label: t('parentManagement.father') },
+        { value: "Mother", label: t('parentManagement.mother') },
+        { value: "Guardian", label: t('parentManagement.guardian') },
       ],
     },
   ];
@@ -292,11 +294,11 @@ export function ParentListPage() {
 
   return (
     <Box>
-      <Breadcrumbs items={[{ label: "Parents", path: "/dashboard/parents" }]} />
+      <Breadcrumbs items={[{ label: t('parentManagement.parent'), path: "/dashboard/parents" }]} />
 
       <PageHeader
-        title="Parent Management"
-        subtitle="Manage parent/guardian accounts and link to students"
+        title={t('parentManagement.parentManagement')}
+        subtitle={t('parentManagement.parentManagementSubtitle')}
         action={
           <Button
             variant="contained"
@@ -309,7 +311,7 @@ export function ParentListPage() {
               },
             }}
           >
-            Add Parent
+            {t('parentManagement.addParent')}
           </Button>
         }
       />
@@ -317,9 +319,9 @@ export function ParentListPage() {
       {/* Stats Cards */}
       <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
         {[
-          { label: "Total Parents", value: stats.total, icon: <People /> },
-          { label: "Active", value: stats.active, icon: <FamilyRestroom /> },
-          { label: "Linked Children", value: stats.linked, icon: <LinkIcon /> },
+          { label: t('parentManagement.totalParents'), value: stats.total, icon: <People /> },
+          { label: t('parentManagement.active'), value: stats.active, icon: <FamilyRestroom /> },
+          { label: t('parentManagement.linkedChildren'), value: stats.linked, icon: <LinkIcon /> },
         ].map((stat, index) => (
           <Box
             key={index}
@@ -355,10 +357,10 @@ export function ParentListPage() {
         filters={[
           {
             name: "status",
-            label: "Status",
+            label: t('common.status'),
             options: [
-              { value: "active", label: "Active" },
-              { value: "inactive", label: "Inactive" },
+              { value: "active", label: t('parentManagement.active') },
+              { value: "inactive", label: t('parentManagement.inactive') },
             ],
             value: filters.status,
             onChange: (value) =>
@@ -396,12 +398,12 @@ export function ParentListPage() {
           setIsViewMode(false);
         }}
         title={
-          isViewMode ? "Parent Details" : selectedParent ? "Edit Parent" : "Add New Parent"
+          isViewMode ? t('parentManagement.parentDetails') : selectedParent ? t('parentManagement.editParent') : t('parentManagement.addNewParent')
         }
         fields={formFields}
         initialValues={initialValues}
         onSubmit={handleFormSubmit}
-        submitText={selectedParent ? "Update" : "Create"}
+        submitText={selectedParent ? t('parentManagement.update') : t('parentManagement.create')}
         loading={isSubmitting}
         maxWidth="md"
         readOnly={isViewMode}
@@ -412,9 +414,9 @@ export function ParentListPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Parent"
-        message={`Are you sure you want to delete ${selectedParent?.firstName} ${selectedParent?.lastName}?`}
-        confirmText="Delete"
+        title={t('common.delete') + ' ' + t('parentManagement.parent')}
+        message={t('common.deleteConfirmMessage')}
+        confirmText={t('common.delete')}
         severity="error"
       />
     </Box>
