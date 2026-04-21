@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -72,12 +73,13 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-const classBadgeLabel = (cls: AssignedClass) => {
-  if (cls.stream) return `Grade ${cls.grade} - ${cls.stream}`;
-  return `Grade ${cls.grade}`;
+const classBadgeLabel = (cls: AssignedClass, t: any) => {
+  if (cls.stream) return `${t('pages.dashboard.grade')} ${cls.grade} - ${cls.stream}`;
+  return `${t('pages.dashboard.grade')} ${cls.grade}`;
 };
 
 export function TeacherDashboard() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const navigate = useNavigate();
   const { user } = useAuthStore();
@@ -215,25 +217,25 @@ export function TeacherDashboard() {
 
   const stats = [
     {
-      label: "Assigned Classes",
+      label: t('pages.dashboard.assignedClasses'),
       value: assignedClasses.length,
       icon: <School />,
       color: "primary" as const,
     },
     {
-      label: "Assigned Students",
+      label: t('pages.dashboard.assignedStudents'),
       value: assignedStudents.length,
       icon: <People />,
       color: "info" as const,
     },
     {
-      label: "Unread Messages",
+      label: t('pages.dashboard.unreadMessages'),
       value: unreadMessages,
       icon: <Message />,
       color: "warning" as const,
     },
     {
-      label: "Today's Classes",
+      label: t('pages.dashboard.todaysClasses'),
       value: todaySchedule.length,
       icon: <CalendarToday />,
       color: "success" as const,
@@ -244,7 +246,7 @@ export function TeacherDashboard() {
     <Box>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
         <Typography variant="h4" fontWeight={700}>
-          Teacher Dashboard
+          {t('pages.dashboard.teacherDashboard')}
         </Typography>
         <Button
           variant="outlined"
@@ -253,11 +255,11 @@ export function TeacherDashboard() {
           disabled={isRefreshing}
           aria-label="Refresh dashboard data"
         >
-          Refresh
+          {t('common.refresh')}
         </Button>
       </Box>
       <Typography variant="body1" color="text.secondary" mb={3}>
-        Assigned classes, your students, today&apos;s timetable, and inbox overview.
+        {t('pages.dashboard.assignedClassesSubtitle')}
       </Typography>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -305,16 +307,16 @@ export function TeacherDashboard() {
           sx={{ borderBottom: 1, borderColor: "divider", px: 2 }}
           aria-label="Teacher dashboard tabs"
         >
-          <Tab label="Assigned Classes" icon={<School />} iconPosition="start" aria-label="Assigned Classes tab" />
-          <Tab label="Assigned Students" icon={<People />} iconPosition="start" aria-label="Assigned Students tab" />
-          <Tab label="Today's Schedule" icon={<CalendarToday />} iconPosition="start" aria-label="Today's Schedule tab" />
-          <Tab label="Messages" icon={<Message />} iconPosition="start" aria-label="Messages tab" />
+          <Tab label={t('pages.dashboard.assignedClasses')} icon={<School />} iconPosition="start" aria-label="Assigned Classes tab" />
+          <Tab label={t('pages.dashboard.assignedStudents')} icon={<People />} iconPosition="start" aria-label="Assigned Students tab" />
+          <Tab label={t('pages.dashboard.todaysSchedule')} icon={<CalendarToday />} iconPosition="start" aria-label="Today's Schedule tab" />
+          <Tab label={t('common.messages')} icon={<Message />} iconPosition="start" aria-label="Messages tab" />
         </Tabs>
 
         <Box sx={{ p: 3 }}>
           <TabPanel value={activeTab} index={0}>
             <Typography variant="h6" fontWeight={600} mb={3}>
-              Assigned Classes
+              {t('pages.dashboard.assignedClasses')}
             </Typography>
             {isLoadingSchedule && <LinearProgress sx={{ mb: 2 }} />}
             {assignedClasses.length === 0 ? (
@@ -327,7 +329,7 @@ export function TeacherDashboard() {
               >
                 <School sx={{ fontSize: 48, color: theme.palette.info.main, mb: 2 }} />
                 <Typography variant="body1" color="info.main">
-                  No assigned classes found in your profile.
+                  {t('pages.dashboard.noAssignedClasses')}
                 </Typography>
               </Paper>
             ) : (
@@ -345,15 +347,15 @@ export function TeacherDashboard() {
                         },
                       }}
                       onClick={() => navigate("/teacher/students")}
-                      aria-label={`View students for ${classBadgeLabel(cls)}`}
+                      aria-label={`View students for ${classBadgeLabel(cls, t)}`}
                     >
                       <Typography variant="h6" fontWeight={600} mb={1}>
-                        {classBadgeLabel(cls)}
+                        {classBadgeLabel(cls, t)}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         {cls.stream
-                          ? `Stream: ${cls.stream}`
-                          : "General class assignment"}
+                          ? `${t('pages.dashboard.stream')}: ${cls.stream}`
+                          : t('pages.dashboard.generalClassAssignment')}
                       </Typography>
                     </Paper>
                   </Grid>
@@ -372,7 +374,7 @@ export function TeacherDashboard() {
               }}
             >
               <Typography variant="h6" fontWeight={600}>
-                Students In Assigned Classes
+                {t('pages.dashboard.studentsInAssignedClasses')}
               </Typography>
               {assignedStudents.length > 20 && (
                 <Button
@@ -380,44 +382,44 @@ export function TeacherDashboard() {
                   onClick={() => navigate("/teacher/students")}
                   aria-label="View all students"
                 >
-                  View All Students
+                  {t('pages.dashboard.viewAllStudents')}
                 </Button>
               )}
             </Box>
             <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
               <FormControl size="small" sx={{ minWidth: 150 }}>
-                <InputLabel>Filter by Class</InputLabel>
+                <InputLabel>{t('pages.dashboard.filterByClass')}</InputLabel>
                 <Select
                   value={selectedClassFilter}
-                  label="Filter by Class"
+                  label={t('pages.dashboard.filterByClass')}
                   onChange={(e) => setSelectedClassFilter(e.target.value)}
                   aria-label="Filter students by class"
                 >
-                  <MenuItem value="">All Classes</MenuItem>
+                  <MenuItem value="">{t('pages.dashboard.allClasses')}</MenuItem>
                   {assignedClasses.map((cls) => (
                     <MenuItem key={`${cls.grade}-${cls.stream || ""}`} value={cls.stream || "General"}>
-                      {classBadgeLabel(cls)}
+                      {classBadgeLabel(cls, t)}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
               <FormControl size="small" sx={{ minWidth: 150 }}>
-                <InputLabel>Filter by Status</InputLabel>
+                <InputLabel>{t('pages.dashboard.filterByStatus')}</InputLabel>
                 <Select
                   value={selectedStatusFilter}
-                  label="Filter by Status"
+                  label={t('pages.dashboard.filterByStatus')}
                   onChange={(e) => setSelectedStatusFilter(e.target.value)}
                   aria-label="Filter students by status"
                 >
-                  <MenuItem value="">All Status</MenuItem>
-                  <MenuItem value="Active">Active</MenuItem>
-                  <MenuItem value="Inactive">Inactive</MenuItem>
+                  <MenuItem value="">{t('pages.dashboard.allStatus')}</MenuItem>
+                  <MenuItem value="Active">{t('pages.dashboard.active')}</MenuItem>
+                  <MenuItem value="Inactive">{t('pages.dashboard.inactive')}</MenuItem>
                 </Select>
               </FormControl>
             </Box>
             {isStudentsError && (
               <Alert severity="error" sx={{ mb: 2 }}>
-                Failed to load students. Please try again later.
+                {t('pages.dashboard.failedToLoadStudents')}
               </Alert>
             )}
             {isLoadingStudents ? (
@@ -434,7 +436,7 @@ export function TeacherDashboard() {
               >
                 <People sx={{ fontSize: 48, color: theme.palette.info.main, mb: 2 }} />
                 <Typography variant="body1" color="info.main">
-                  No students matched your assigned classes.
+                  {t('pages.dashboard.noStudentsMatched')}
                 </Typography>
               </Paper>
             ) : (
@@ -442,11 +444,11 @@ export function TeacherDashboard() {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Student Name</TableCell>
-                      <TableCell>Student ID</TableCell>
-                      <TableCell>Grade</TableCell>
-                      <TableCell>Class</TableCell>
-                      <TableCell>Status</TableCell>
+                      <TableCell>{t('pages.dashboard.studentName')}</TableCell>
+                      <TableCell>{t('pages.dashboard.studentId')}</TableCell>
+                      <TableCell>{t('pages.dashboard.grade')}</TableCell>
+                      <TableCell>{t('pages.dashboard.studentClass')}</TableCell>
+                      <TableCell>{t('common.status')}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -470,7 +472,7 @@ export function TeacherDashboard() {
                           </TableCell>
                           <TableCell>{student.studentId || student.studentProfile?.studentId || "-"}</TableCell>
                           <TableCell>
-                            <Chip label={`Grade ${grade}`} size="small" />
+                            <Chip label={`${t('pages.dashboard.grade')} ${grade}`} size="small" />
                           </TableCell>
                           <TableCell>{classValue}</TableCell>
                           <TableCell>
@@ -499,19 +501,19 @@ export function TeacherDashboard() {
               }}
             >
               <Typography variant="h6" fontWeight={600}>
-                Today&apos;s Schedule
+                {t('pages.dashboard.todaysSchedule')}
               </Typography>
               <Button
                 variant="outlined"
                 onClick={() => navigate("/teacher/timetable")}
                 aria-label="View full schedule"
               >
-                View Full Schedule
+                {t('pages.dashboard.viewFullSchedule')}
               </Button>
             </Box>
             {isScheduleError && (
               <Alert severity="error" sx={{ mb: 2 }}>
-                Failed to load schedule. Please try again later.
+                {t('pages.dashboard.failedToLoadSchedule')}
               </Alert>
             )}
             {isLoadingSchedule ? (
@@ -528,7 +530,7 @@ export function TeacherDashboard() {
               >
                 <CalendarToday sx={{ fontSize: 48, color: theme.palette.success.main, mb: 2 }} />
                 <Typography variant="body1" color="success.main">
-                  No classes scheduled for today.
+                  {t('pages.dashboard.noClassesToday')}
                 </Typography>
               </Paper>
             ) : (
@@ -555,7 +557,7 @@ export function TeacherDashboard() {
                         {slot.classLabel} - {slot.room}
                       </Typography>
                     </Box>
-                    <Chip label="Scheduled" color="primary" size="small" />
+                    <Chip label={t('pages.dashboard.scheduled')} color="primary" size="small" />
                   </Paper>
                 ))}
               </Box>
@@ -572,7 +574,7 @@ export function TeacherDashboard() {
               }}
             >
               <Typography variant="h6" fontWeight={600}>
-                Messages
+                {t('common.messages')}
               </Typography>
               <Box sx={{ display: "flex", gap: 1 }}>
                 {messages.length > 10 && (
@@ -581,7 +583,7 @@ export function TeacherDashboard() {
                     onClick={() => navigate("/teacher/messages")}
                     aria-label="View all messages"
                   >
-                    View All Messages
+                    {t('pages.dashboard.viewAllMessages')}
                   </Button>
                 )}
                 <Button
@@ -590,13 +592,13 @@ export function TeacherDashboard() {
                   onClick={() => navigate("/teacher/messages")}
                   aria-label="Go to messages to reply"
                 >
-                  Go To Messages To Reply
+                  {t('pages.dashboard.goToMessagesToReply')}
                 </Button>
               </Box>
             </Box>
             {isMessagesError && (
               <Alert severity="error" sx={{ mb: 2 }}>
-                Failed to load messages. Please try again later.
+                {t('pages.dashboard.failedToLoadMessages')}
               </Alert>
             )}
             {isLoadingStudents && <LinearProgress sx={{ mb: 2 }} />}
@@ -610,7 +612,7 @@ export function TeacherDashboard() {
               >
                 <Message sx={{ fontSize: 48, color: theme.palette.info.main, mb: 2 }} />
                 <Typography variant="body1" color="info.main">
-                  No messages yet
+                  {t('pages.dashboard.noMessagesYet')}
                 </Typography>
               </Paper>
             ) : (
@@ -635,10 +637,10 @@ export function TeacherDashboard() {
                   >
                     <Box sx={{ flex: 1 }}>
                       <Typography variant="body1" fontWeight={!msg.isRead ? 600 : 400}>
-                        {msg.subject || "No Subject"}
+                        {msg.subject || t('pages.dashboard.noSubject')}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        From {msg.senderName || "Unknown sender"}
+                        {t('pages.dashboard.from')} {msg.senderName || t('pages.dashboard.unknownSender')}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {msg.createdAt ? new Date(msg.createdAt).toLocaleDateString() : ""}
@@ -647,7 +649,7 @@ export function TeacherDashboard() {
                         {msg.content?.substring(0, 100) || ""}
                       </Typography>
                     </Box>
-                    {!msg.isRead ? <Chip label="Unread" color="warning" size="small" /> : null}
+                    {!msg.isRead ? <Chip label={t('pages.dashboard.unread')} color="warning" size="small" /> : null}
                   </Paper>
                 ))}
               </Box>
