@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -38,6 +39,7 @@ interface AttendanceRecord {
 }
 
 export function ParentChildAttendancePage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const navigate = useNavigate();
   const { childId } = useParams<{ childId: string }>();
@@ -118,19 +120,19 @@ export function ParentChildAttendancePage() {
   }, [attendanceRecords]);
 
   const months = [
-    { value: "", label: "All Months" },
-    { value: "1", label: "January" },
-    { value: "2", label: "February" },
-    { value: "3", label: "March" },
-    { value: "4", label: "April" },
-    { value: "5", label: "May" },
-    { value: "6", label: "June" },
-    { value: "7", label: "July" },
-    { value: "8", label: "August" },
-    { value: "9", label: "September" },
-    { value: "10", label: "October" },
-    { value: "11", label: "November" },
-    { value: "12", label: "December" },
+    { value: "", label: t('parent.allMonths') },
+    { value: "1", label: t('parent.january') },
+    { value: "2", label: t('parent.february') },
+    { value: "3", label: t('parent.march') },
+    { value: "4", label: t('parent.april') },
+    { value: "5", label: t('parent.may') },
+    { value: "6", label: t('parent.june') },
+    { value: "7", label: t('parent.july') },
+    { value: "8", label: t('parent.august') },
+    { value: "9", label: t('parent.september') },
+    { value: "10", label: t('parent.october') },
+    { value: "11", label: t('parent.november') },
+    { value: "12", label: t('parent.december') },
   ];
 
   const handleBack = () => {
@@ -178,20 +180,20 @@ export function ParentChildAttendancePage() {
   return (
     <Box>
       <Breadcrumbs items={[
-        { label: "Parent", path: "/parent/dashboard" },
-        { label: "Child Attendance" }
+        { label: t('parent.parent'), path: "/parent/dashboard" },
+        { label: t('parent.childAttendance') }
       ]} />
 
       <PageHeader
-        title={`${child?.firstName || ""} ${child?.lastName || ""} - Attendance History`}
-        subtitle={`Track ${child?.firstName || "your child"}'s attendance patterns and history`}
+        title={`${child?.firstName || ""} ${child?.lastName || ""} - ${t('parent.attendanceHistory')}`}
+        subtitle={t('parent.trackAttendance', { name: child?.firstName || t('parent.parent') })}
         action={
           <Button
             variant="outlined"
             startIcon={<ArrowBack />}
             onClick={handleBack}
           >
-            Back to Dashboard
+            {t('parent.backToDashboard')}
           </Button>
         }
       />
@@ -204,19 +206,19 @@ export function ParentChildAttendancePage() {
               {child?.firstName} {child?.lastName}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Grade: {child?.studentProfile?.grade || "N/A"}
+              {t('parent.gradeLevel')}: {child?.studentProfile?.grade || "N/A"}
               {child?.studentProfile?.stream && ` - ${child.studentProfile.stream}`}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Student ID: {child?.studentProfile?.studentId || "N/A"}
+              {t('parent.studentId')}: {child?.studentProfile?.studentId || "N/A"}
             </Typography>
           </Box>
           <Box sx={{ flex: 1, minWidth: 300 }}>
             <Typography variant="body2" color="text.secondary">
-              Total Attendance Records: {stats.total}
+              {t('parent.totalAttendanceRecords')}: {stats.total}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Attendance Rate: {stats.percentage}%
+              {t('parent.attendanceRate')}: {stats.percentage}%
             </Typography>
           </Box>
         </Box>
@@ -225,31 +227,31 @@ export function ParentChildAttendancePage() {
       {/* Stats */}
       <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
         <StatsCard
-          title="Attendance Rate"
+          title={t('parent.attendanceRatePercent')}
           value={`${stats.percentage}%`}
           icon={<TrendingUp />}
           color={stats.percentage >= 80 ? "success" : stats.percentage >= 60 ? "warning" : "error"}
         />
         <StatsCard
-          title="Present Days"
+          title={t('parent.presentDays')}
           value={stats.present}
           icon={<CheckCircle />}
           color="success"
         />
         <StatsCard
-          title="Absent Days"
+          title={t('parent.absentDays')}
           value={stats.absent}
           icon={<Cancel />}
           color="error"
         />
         <StatsCard
-          title="Late Arrivals"
+          title={t('parent.lateArrivals')}
           value={stats.late}
           icon={<Schedule />}
           color="warning"
         />
         <StatsCard
-          title="Excused Days"
+          title={t('parent.excusedDays')}
           value={stats.excused}
           icon={<CalendarToday />}
           color="info"
@@ -260,19 +262,19 @@ export function ParentChildAttendancePage() {
       <Paper sx={{ p: 3, borderRadius: 3, mb: 3 }}>
         <Box sx={{ mb: 2 }}>
           <Typography variant="subtitle1" fontWeight={600}>
-            Filters
+            {t('parent.filters')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Filter by month and year to view specific attendance records
+            {t('parent.filterDescription')}
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
           <FormControl sx={{ minWidth: 140 }}>
-            <InputLabel>Year</InputLabel>
+            <InputLabel>{t('parent.year')}</InputLabel>
             <Select
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
-              label="Year"
+              label={t('parent.year')}
             >
               <MenuItem value="2024">2024</MenuItem>
               <MenuItem value="2025">2025</MenuItem>
@@ -281,11 +283,11 @@ export function ParentChildAttendancePage() {
           </FormControl>
 
           <FormControl sx={{ minWidth: 140 }}>
-            <InputLabel>Month</InputLabel>
+            <InputLabel>{t('parent.month')}</InputLabel>
             <Select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              label="Month"
+              label={t('parent.month')}
             >
               {months.map((month) => (
                 <MenuItem key={month.value} value={month.value}>
@@ -299,7 +301,7 @@ export function ParentChildAttendancePage() {
             variant="outlined"
             onClick={() => refetch()}
           >
-            Refresh
+            {t('common.refresh')}
           </Button>
         </Box>
       </Paper>
@@ -308,7 +310,7 @@ export function ParentChildAttendancePage() {
       {monthlyTrends.length > 0 && (
         <Paper sx={{ p: 3, borderRadius: 3, mb: 3 }}>
           <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-            Monthly Attendance Trends
+            {t('parent.monthlyAttendanceTrends')}
           </Typography>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             {monthlyTrends.map((trend) => (
@@ -348,10 +350,10 @@ export function ParentChildAttendancePage() {
               <TableRow
                 sx={{ background: alpha(theme.palette.primary.main, 0.05) }}
               >
-                <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Period</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Notes</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('parent.date')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('parent.status')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('parent.period')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('parent.notes')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -365,7 +367,7 @@ export function ParentChildAttendancePage() {
                 <TableRow>
                   <TableCell colSpan={4} align="center">
                     <Typography color="text.secondary">
-                      No attendance records found.
+                      {t('parent.noAttendanceRecordsFound')}
                     </Typography>
                   </TableCell>
                 </TableRow>

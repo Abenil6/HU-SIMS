@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -45,6 +46,7 @@ interface Grade {
 }
 
 export function ParentChildGradesPage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const navigate = useNavigate();
   const { childId } = useParams<{ childId: string }>();
@@ -174,20 +176,20 @@ export function ParentChildGradesPage() {
   return (
     <Box>
       <Breadcrumbs items={[
-        { label: "Parent", path: "/parent/dashboard" },
-        { label: "Child Grades" }
+        { label: t('parent.parent'), path: "/parent/dashboard" },
+        { label: t('parent.childGrades') }
       ]} />
 
       <PageHeader
-        title={`${child?.firstName || ""} ${child?.lastName || ""} - Academic Progress`}
-        subtitle={`Track ${child?.firstName || "your child"}'s academic performance and progress over time`}
+        title={`${child?.firstName || ""} ${child?.lastName || ""} - ${t('parent.academicProgress')}`}
+        subtitle={t('parent.trackPerformance', { name: child?.firstName || t('parent.parent') })}
         action={
           <Button
             variant="outlined"
             startIcon={<ArrowBack />}
             onClick={handleBack}
           >
-            Back to Dashboard
+            {t('parent.backToDashboard')}
           </Button>
         }
       />
@@ -200,19 +202,19 @@ export function ParentChildGradesPage() {
               {child?.firstName} {child?.lastName}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Grade: {child?.studentProfile?.grade || "N/A"}
+              {t('parent.gradeLevel')}: {child?.studentProfile?.grade || "N/A"}
               {child?.studentProfile?.stream && ` - ${child.studentProfile.stream}`}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Student ID: {child?.studentProfile?.studentId || "N/A"}
+              {t('parent.studentId')}: {child?.studentProfile?.studentId || "N/A"}
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
             <Typography variant="body2" color="text.secondary">
-              Academic Year: {selectedYear || "All"}
+              {t('parent.academicYear')}: {selectedYear || t('parent.allYears')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Semester: {selectedSemester || "All"}
+              {t('parent.semester')}: {selectedSemester || t('parent.allSemesters')}
             </Typography>
           </Grid>
         </Grid>
@@ -221,31 +223,31 @@ export function ParentChildGradesPage() {
       {/* Stats */}
       <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
         <StatsCard
-          title="Overall Average"
+          title={t('parent.overallAverage')}
           value={`${stats.average}%`}
           icon={<TrendingUp />}
           color="primary"
         />
         <StatsCard
-          title="Highest Score"
+          title={t('parent.highestScore')}
           value={`${stats.highest}%`}
           icon={<TrendingUp />}
           color="success"
         />
         <StatsCard
-          title="Lowest Score"
+          title={t('parent.lowestScore')}
           value={`${stats.lowest}%`}
           icon={<Assessment />}
           color="warning"
         />
         <StatsCard
-          title="Passed (≥50%)"
+          title={t('parent.passed')}
           value={stats.passed}
           icon={<Assessment />}
           color="success"
         />
         <StatsCard
-          title="Failed (<50%)"
+          title={t('parent.failed')}
           value={stats.failed}
           icon={<Assessment />}
           color="error"
@@ -256,21 +258,21 @@ export function ParentChildGradesPage() {
       <Paper sx={{ p: 3, borderRadius: 3, mb: 3 }}>
         <Box sx={{ mb: 2 }}>
           <Typography variant="subtitle1" fontWeight={600}>
-            Filters
+            {t('parent.filters')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Filter by academic year and semester to view specific performance
+            {t('parent.filterPerformance')}
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
           <FormControl sx={{ minWidth: 140 }}>
-            <InputLabel>Academic Year</InputLabel>
+            <InputLabel>{t('parent.academicYear')}</InputLabel>
             <Select
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
-              label="Academic Year"
+              label={t('parent.academicYear')}
             >
-              <MenuItem value="">All Years</MenuItem>
+              <MenuItem value="">{t('parent.allYears')}</MenuItem>
               {availableYears.map((year) => (
                 <MenuItem key={year} value={year}>
                   {year}
@@ -280,13 +282,13 @@ export function ParentChildGradesPage() {
           </FormControl>
 
           <FormControl sx={{ minWidth: 140 }}>
-            <InputLabel>Semester</InputLabel>
+            <InputLabel>{t('parent.semester')}</InputLabel>
             <Select
               value={selectedSemester}
               onChange={(e) => setSelectedSemester(e.target.value)}
-              label="Semester"
+              label={t('parent.semester')}
             >
-              <MenuItem value="">All Semesters</MenuItem>
+              <MenuItem value="">{t('parent.allSemesters')}</MenuItem>
               {availableSemesters.map((semester) => (
                 <MenuItem key={semester} value={semester}>
                   {semester}
@@ -299,7 +301,7 @@ export function ParentChildGradesPage() {
             variant="outlined"
             onClick={() => refetch()}
           >
-            Refresh
+            {t('common.refresh')}
           </Button>
         </Box>
       </Paper>
@@ -312,17 +314,17 @@ export function ParentChildGradesPage() {
               <TableRow
                 sx={{ background: alpha(theme.palette.primary.main, 0.05) }}
               >
-                <TableCell sx={{ fontWeight: 600 }}>Subject</TableCell>
-                <TableCell sx={{ fontWeight: 600 }} align="center">Mid (20)</TableCell>
-                <TableCell sx={{ fontWeight: 600 }} align="center">Final (40)</TableCell>
-                <TableCell sx={{ fontWeight: 600 }} align="center">Assignment (20)</TableCell>
-                <TableCell sx={{ fontWeight: 600 }} align="center">Quiz (20)</TableCell>
-                <TableCell sx={{ fontWeight: 600 }} align="center">Continuous (10)</TableCell>
-                <TableCell sx={{ fontWeight: 600 }} align="center">Total</TableCell>
-                <TableCell sx={{ fontWeight: 600 }} align="center">Percentage</TableCell>
-                <TableCell sx={{ fontWeight: 600 }} align="center">Grade</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Semester</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Year</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('parent.subject')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }} align="center">{t('parent.mid')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }} align="center">{t('parent.final')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }} align="center">{t('parent.assignment')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }} align="center">{t('parent.quiz')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }} align="center">{t('parent.continuous')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }} align="center">{t('parent.total')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }} align="center">{t('parent.percentage')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }} align="center">{t('parent.letterGrade')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('parent.semester')}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{t('parent.year')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -336,7 +338,7 @@ export function ParentChildGradesPage() {
                 <TableRow>
                   <TableCell colSpan={10} align="center">
                     <Typography color="text.secondary">
-                      No grades have been entered yet.
+                      {t('parent.noGradesEntered')}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -375,7 +377,7 @@ export function ParentChildGradesPage() {
                     </TableCell>
                     <TableCell align="center">
                       <Chip
-                        label={getStatus(row.percentage) === "passed" ? "Pass" : "Fail"}
+                        label={getStatus(row.percentage) === "passed" ? t('parent.pass') : t('parent.fail')}
                         color={getStatus(row.percentage) === "passed" ? "success" : "error"}
                         size="small"
                       />
