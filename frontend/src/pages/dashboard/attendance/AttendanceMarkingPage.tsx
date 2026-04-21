@@ -1069,12 +1069,12 @@ function SchoolAdminAttendanceDashboard() {
 
       <Paper sx={{ p: 2.5, borderRadius: 3, mb: 2 }}>
         <Typography variant="subtitle1" fontWeight={600} mb={2}>
-          Last 7 Attendance Days Trend
+          {t('pages.dashboard.last7DaysTrend')}
         </Typography>
         {isLoading ? (
           <LinearProgress />
         ) : recentTrend.length === 0 ? (
-          <Alert severity="info">No attendance records for the selected filters.</Alert>
+          <Alert severity="info">{t('pages.dashboard.noAttendanceRecordsFilters')}</Alert>
         ) : (
           <Box sx={{ display: "flex", alignItems: "end", gap: 1.25, minHeight: 145 }}>
             {recentTrend.map((entry: any) => (
@@ -1104,13 +1104,13 @@ function SchoolAdminAttendanceDashboard() {
           <Table stickyHeader size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Student</TableCell>
-                <TableCell>Student ID</TableCell>
-                <TableCell>Grade</TableCell>
-                <TableCell>Stream</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Teacher</TableCell>
+                <TableCell>{t('pages.dashboard.date')}</TableCell>
+                <TableCell>{t('pages.dashboard.student')}</TableCell>
+                <TableCell>{t('pages.dashboard.studentId')}</TableCell>
+                <TableCell>{t('pages.dashboard.grade')}</TableCell>
+                <TableCell>{t('pages.dashboard.stream')}</TableCell>
+                <TableCell>{t('common.status')}</TableCell>
+                <TableCell>{t('pages.dashboard.teacher')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -1119,7 +1119,7 @@ function SchoolAdminAttendanceDashboard() {
                   <TableCell>{record.date ? toDateInputValue(record.date) : "-"}</TableCell>
                   <TableCell sx={{ fontWeight: 500 }}>{record.fullName}</TableCell>
                   <TableCell>{record.studentId}</TableCell>
-                  <TableCell>{record.grade ? `Grade ${record.grade}` : "-"}</TableCell>
+                  <TableCell>{record.grade ? `${t('pages.dashboard.grade')} ${record.grade}` : "-"}</TableCell>
                   <TableCell>{record.stream || "-"}</TableCell>
                   <TableCell>
                     <Chip
@@ -1142,7 +1142,7 @@ function SchoolAdminAttendanceDashboard() {
               {!isLoading && tableRows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} align="center">
-                    <Typography color="text.secondary">No attendance records found for current filters.</Typography>
+                    <Typography color="text.secondary">{t('pages.dashboard.noAttendanceRecordsCurrent')}</Typography>
                   </TableCell>
                 </TableRow>
               ) : null}
