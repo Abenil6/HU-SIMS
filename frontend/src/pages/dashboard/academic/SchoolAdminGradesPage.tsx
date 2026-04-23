@@ -720,6 +720,30 @@ export function SchoolAdminGradesPage() {
     }
   };
 
+  const handleDeleteAllStudentGrades = async (studentId: string) => {
+    try {
+      // Get all grades for this student
+      const studentGrades = grades.filter((g: any) => g.studentId === studentId);
+      
+      if (studentGrades.length === 0) {
+        toast.error("No grades found for this student");
+        return;
+      }
+
+      // Delete each grade
+      await Promise.all(
+        studentGrades.map((g: any) => 
+          academicService.deleteAcademicRecord(g.rawRecordId || g.id)
+        )
+      );
+
+      toast.success(`Deleted ${studentGrades.length} grade(s) for this student`);
+      refetchGrades();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to delete grades");
+    }
+  };
+
   return (
     <Box>
       <Breadcrumbs items={[{ label: "Academic" }, { label: "School Grades" }]} />
@@ -1173,14 +1197,29 @@ export function SchoolAdminGradesPage() {
                           </Box>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => openStudentDetail(row.studentId)}
-                            aria-label={`View grades for ${row.studentName}`}
-                          >
-                            View
-                          </Button>
+                          <Box sx={{ display: "flex", gap: 1 }}>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={() => openStudentDetail(row.studentId)}
+                              aria-label={`View grades for ${row.studentName}`}
+                            >
+                              View
+                            </Button>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="error"
+                              onClick={() => {
+                                if (window.confirm(`Are you sure you want to delete all grades for ${row.studentName}? This action cannot be undone.`)) {
+                                  handleDeleteAllStudentGrades(row.studentId);
+                                }
+                              }}
+                              aria-label={`Delete all grades for ${row.studentName}`}
+                            >
+                              Delete All
+                            </Button>
+                          </Box>
                         </TableCell>
                       </TableRow>
                     ))
