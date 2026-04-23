@@ -822,7 +822,8 @@ exports.deleteAcademicRecord = async (req, res) => {
       });
     }
 
-    if (record.status === 'Approved') {
+    // Only non-admin users cannot delete approved records
+    if (!isAcademicAdmin(req.user.role) && record.status === 'Approved') {
       return res.status(400).json({
         success: false,
         message: 'Cannot delete approved records'
