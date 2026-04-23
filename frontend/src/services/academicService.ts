@@ -165,6 +165,12 @@ export const academicService = {
   // Delete grade
   deleteGrade: async (id: string) => apiDelete(`/academic-records/grades/${id}`),
 
+  // Approve grade
+  approveGrade: async (id: string) => apiPost(`/academic-records/${id}/approve`),
+
+  // Reject grade
+  rejectGrade: async (id: string, reason: string) => apiPost(`/academic-records/${id}/reject`, { reason }),
+
   // ============ STUDENT RESULTS ============
 
   // Get student result for a subject

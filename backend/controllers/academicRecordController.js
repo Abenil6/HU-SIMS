@@ -277,7 +277,7 @@ exports.createAcademicRecordFromGrade = async (req, res) => {
           gradeLevel,
           academicYear,
           semester: normSemester,
-          status: 'Draft',
+          status: 'Pending Approval',
           createdBy: req.user.id,
         },
       },
@@ -408,7 +408,7 @@ exports.bulkCreateGrades = async (req, res) => {
             continuousAssessment: Math.round(totalPercentage * 0.1),
             assignment: Math.round(totalPercentage * 0.2)
           },
-          status: 'Draft',
+          status: 'Pending Approval',
           createdBy: req.user.id
         });
 
@@ -865,10 +865,10 @@ exports.submitForApproval = async (req, res) => {
       });
     }
 
-    if (record.status !== 'Draft' && record.status !== 'Rejected') {
+    if (record.status !== 'Pending Approval' && record.status !== 'Rejected') {
       return res.status(400).json({
         success: false,
-        message: 'Only draft or rejected records can be submitted'
+        message: 'Only pending approval or rejected records can be submitted'
       });
     }
 
@@ -903,10 +903,10 @@ exports.approveGrade = async (req, res) => {
       });
     }
 
-    if (record.status !== 'Submitted') {
+    if (record.status !== 'Pending Approval' && record.status !== 'Submitted') {
       return res.status(400).json({
         success: false,
-        message: 'Only submitted grades can be approved'
+        message: 'Only pending approval or submitted grades can be approved'
       });
     }
 
@@ -991,10 +991,10 @@ exports.rejectGrade = async (req, res) => {
       });
     }
 
-    if (record.status !== 'Submitted') {
+    if (record.status !== 'Pending Approval' && record.status !== 'Submitted') {
       return res.status(400).json({
         success: false,
-        message: 'Only submitted grades can be rejected'
+        message: 'Only pending approval or submitted grades can be rejected'
       });
     }
 

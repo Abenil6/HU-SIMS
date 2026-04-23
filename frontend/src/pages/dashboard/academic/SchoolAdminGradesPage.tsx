@@ -28,6 +28,7 @@ import {
   Tabs,
   Tab,
   Tooltip,
+  TextField,
 } from "@mui/material";
 import {
   Download,
@@ -39,13 +40,15 @@ import {
   InfoOutlined,
   Refresh,
   Person,
+  CheckCircle,
+  Cancel,
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import { PageHeader, Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { StatsCard } from "@/components/ui/StatsCard";
 import { useStudents } from "@/hooks/students/useStudents";
 import { useAcademicRecords } from "@/hooks/academic/useAcademicRecords";
-import { getStatus, getGradeColor } from "@/services/academicService";
+import { getStatus, getGradeColor, academicService } from "@/services/academicService";
 import { academicYearService } from "@/services/academicYearService";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -133,6 +136,7 @@ export function SchoolAdminGradesPage() {
     semester: "",
     academicYear: "",
     selectedStudentId: "",
+    status: "",
   });
 
   const [page, setPage] = useState(0);
@@ -141,6 +145,9 @@ export function SchoolAdminGradesPage() {
   const [studentDetailOpen, setStudentDetailOpen] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState<string>("");
   const [exporting, setExporting] = useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [selectedRecordId, setSelectedRecordId] = useState<string>("");
 
   useEffect(() => {
     let cancelled = false;
@@ -683,6 +690,38 @@ export function SchoolAdminGradesPage() {
     setStudentDetailOpen(true);
   };
 
+  const handleApprove = async (recordId: string) => {
+    try {
+      await academicService.approveGrade(recordId);
+      toast.success("Grade approved successfully");
+      refetchGrades();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to approve grade");
+    }
+  };
+
+  const handleReject = async () => {
+    if (!rejectReason.trim()) {
+      toast.error("Please provide a rejection reason");
+      return;
+    }
+    try {
+      await academicService.rejectGrade(selectedRecordId, rejectReason);
+      toast.success("Grade rejected successfully");
+      setRejectDialogOpen(false);
+      setRejectReason("");
+      setSelectedRecordId("");
+      refetchGrades();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to reject grade");
+    }
+  };
+
+  const openRejectDialog = (recordId: string) => {
+    setSelectedRecordId(recordId);
+    setRejectDialogOpen(true);
+  };
+
   return (
     <Box>
       <Breadcrumbs items={[{ label: "Academic" }, { label: "School Grades" }]} />
@@ -711,10 +750,92 @@ export function SchoolAdminGradesPage() {
           sx={{ borderBottom: 1, borderColor: "divider", px: 2 }}
         >
           <Tab label="All Students" />
+          <Tab label="Pending Approvals" />
           <Tab label="Analytics" />
           <Tab label="Alerts" />
         </Tabs>
       </Paper>
+
+      {/* Tab 1: Pending Approvals */}
+      {tabValue === 1 && (
+        <>
+          <Paper sx={{ p: 3, borderRadius: 3, mb: 3 }}>
+            <Typography variant="h6" fontWeight={600} mb={2}>
+              Pending Approvals
+            </Typography>
+            <Typography variant="body2" color="text.secondary" mb={3}>
+              Review and approve grades entered by teachers
+            </Typography>
+            
+            {isLoadingRecords ? (
+              <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                <CircularProgress size={24} />
+              </Box>
+            ) : filteredGrades.filter((g: any) => g.status === "Pending Approval").length === 0 ? (
+              <Alert severity="info">
+                No grades pending approval
+              </Alert>
+            ) : (
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow sx={{ background: alpha(theme.palette.primary.main, 0.05) }}>
+                      <TableCell sx={{ fontWeight: 600 }}>Student</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Subject</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Grade</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Score</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Entered By</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredGrades
+                      .filter((g: any) => g.status === "Pending Approval")
+                      .map((grade: any) => (
+                        <TableRow
+                          key={grade.id}
+                          sx={{ "&:hover": { background: alpha(theme.palette.primary.main, 0.02) } }}
+                        >
+                          <TableCell>{grade.studentName}</TableCell>
+                          <TableCell>{grade.subject}</TableCell>
+                          <TableCell>
+                            {gradeRequiresStream(grade.grade) && grade.stream
+                              ? `Grade ${grade.grade} – ${streamFilterLabel(grade.stream)}`
+                              : `Grade ${grade.grade}`}
+                          </TableCell>
+                          <TableCell>{grade.score}/{grade.maxScore} ({grade.percentage}%)</TableCell>
+                          <TableCell>{grade.enteredBy}</TableCell>
+                          <TableCell>
+                            <Box sx={{ display: "flex", gap: 1 }}>
+                              <Button
+                                size="small"
+                                variant="contained"
+                                color="success"
+                                startIcon={<CheckCircle />}
+                                onClick={() => handleApprove(grade.rawRecordId || grade.id)}
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="error"
+                                startIcon={<Cancel />}
+                                onClick={() => openRejectDialog(grade.rawRecordId || grade.id)}
+                              >
+                                Reject
+                              </Button>
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </Paper>
+        </>
+      )}
 
       {/* Tab 0: All Students */}
       {tabValue === 0 && (
@@ -777,6 +898,23 @@ export function SchoolAdminGradesPage() {
               </Typography>
             </Box>
             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
+              <select
+                value={filters.status}
+                onChange={(e) =>
+                  setFilters((p) => ({ ...p, status: e.target.value }))
+                }
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  border: `1px solid ${theme.palette.divider}`,
+                  minWidth: 150,
+                }}
+              >
+                <option value="">All Status</option>
+                <option value="Pending Approval">Pending Approval</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+              </select>
               <select
                 value={filters.grade}
                 onChange={(e) =>
@@ -1025,8 +1163,8 @@ export function SchoolAdminGradesPage() {
         </>
       )}
 
-      {/* Tab 1: Analytics */}
-      {tabValue === 1 && (
+      {/* Tab 2: Analytics */}
+      {tabValue === 2 && (
         <Grid container spacing={3}>
           {/* Class Comparison */}
           <Grid size={{ xs: 12, md: 6 }}>
@@ -1123,8 +1261,8 @@ export function SchoolAdminGradesPage() {
         </Grid>
       )}
 
-      {/* Tab 2: Alerts */}
-      {tabValue === 2 && (
+      {/* Tab 3: Alerts */}
+      {tabValue === 3 && (
         <Paper sx={{ p: 3, borderRadius: 3 }}>
           <Typography variant="h6" fontWeight={600} mb={2}>
             Failing Students Alert
@@ -1308,6 +1446,30 @@ export function SchoolAdminGradesPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setStudentDetailOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Reject Dialog */}
+      <Dialog open={rejectDialogOpen} onClose={() => setRejectDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Reject Grade</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" mb={2}>
+            Please provide a reason for rejecting this grade:
+          </Typography>
+          <TextField
+            fullWidth
+            multiline
+            rows={4}
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            placeholder="Enter rejection reason..."
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setRejectDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleReject}>
+            Reject
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
