@@ -754,15 +754,24 @@ export function SchoolAdminGradesPage() {
         title="School Grades Overview"
         subtitle="Track and analyze all student grades across the school (Read-Only View)"
         action={
-          <Button
-            variant="outlined"
-            startIcon={<Download />}
-            onClick={handleExportGrades}
-            disabled={filteredGrades.length === 0 || exporting}
-            aria-label="Export grades"
-          >
-            {exporting ? "Exporting..." : "Export Grades"}
-          </Button>
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <Button
+              variant="outlined"
+              onClick={handleClearCache}
+              size="small"
+            >
+              Clear Cache
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<Download />}
+              onClick={handleExportGrades}
+              disabled={filteredGrades.length === 0 || exporting}
+              aria-label="Export grades"
+            >
+              {exporting ? "Exporting..." : "Export Grades"}
+            </Button>
+          </Box>
         }
       />
 
