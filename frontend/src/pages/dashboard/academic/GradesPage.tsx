@@ -221,6 +221,8 @@ export function GradesPage() {
   const [formStudentId, setFormStudentId] = useState("");
   const [formSubject, setFormSubject] = useState(defaultTeacherSubject);
   const [formSemester, setFormSemester] = useState("1");
+  const [formGrade, setFormGrade] = useState("");
+  const [formStream, setFormStream] = useState("");
   const [marks, setMarks] = useState<MarksState>(emptyMarks());
   const [submitting, setSubmitting] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -290,6 +292,31 @@ export function GradesPage() {
       });
     });
   }, [allStudents, assignedClasses, isTeacher]);
+
+  // Filter students for the form based on selected grade and stream
+  const formFilteredStudents: any[] = useMemo(() => {
+    if (!formGrade) return [];
+    return scopedStudents.filter((s: any) => {
+      const sGrade = normalizeGradeValue(
+        s?.studentProfile?.grade || s?.grade || "",
+      );
+      const sStream = String(
+        s?.studentProfile?.stream || s?.stream || "",
+      ).trim();
+      
+      if (sGrade !== normalizeGradeValue(formGrade)) return false;
+      
+      if (gradeRequiresStream(formGrade) && formStream) {
+        return normalizeTextValue(sStream) === normalizeTextValue(formStream);
+      }
+      
+      if (gradeRequiresStream(formGrade) && !formStream) {
+        return false;
+      }
+      
+      return true;
+    });
+  }, [scopedStudents, formGrade, formStream]);
 
   const studentLookup = useMemo(() => {
     const lookup = new Map<string, any>();
@@ -690,6 +717,8 @@ export function GradesPage() {
   const openAddDialog = () => {
     setEditMode(false);
     setFormStudentId("");
+    setFormGrade("");
+    setFormStream("");
     setFormSubject(defaultTeacherSubject);
     setFormSemester(
       filters.semester && filters.semester !== "" ? filters.semester : "1",
@@ -697,6 +726,13 @@ export function GradesPage() {
     setMarks(emptyMarks());
     setDialogOpen(true);
   };
+
+  // Reset student selection when grade or stream changes
+  useEffect(() => {
+    if (formGrade || formStream) {
+      setFormStudentId("");
+    }
+  }, [formGrade, formStream]);
 
   const openEditDialog = (grade: Grade) => {
     setEditMode(true);
@@ -1668,6 +1704,62 @@ export function GradesPage() {
 
         <DialogContent sx={{ pt: 3 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+            {/* Grade select */}
+            <FormControl fullWidth size="small">
+              <InputLabel>Grade *</InputLabel>
+              <Select
+                value={formGrade}
+                label="Grade *"
+                onChange={(e) => {
+                  setFormGrade(e.target.value);
+                  setFormStream("");
+                }}
+                disabled={editMode}
+              >
+                <MenuItem value="">Select Grade</MenuItem>
+                {[
+                  ...new Set(
+                    assignedClasses.map((cls) =>
+                      normalizeGradeValue(cls.grade),
+                    ),
+                  ),
+                ].map((gradeOption) => (
+                  <MenuItem key={gradeOption} value={gradeOption}>
+                    Grade {gradeOption}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* Stream select - only for grades 11 and 12 */}
+            {gradeRequiresStream(formGrade) && (
+              <FormControl fullWidth size="small">
+                <InputLabel>Section *</InputLabel>
+                <Select
+                  value={formStream}
+                  label="Section *"
+                  onChange={(e) => setFormStream(e.target.value)}
+                  disabled={editMode}
+                >
+                  <MenuItem value="">Select Section</MenuItem>
+                  {[
+                    ...new Set(
+                      assignedClasses
+                        .filter((c) => 
+                          normalizeGradeValue(c.grade) === normalizeGradeValue(formGrade) && 
+                          c.stream
+                        )
+                        .map((c) => String(c.stream).trim()),
+                    ),
+                  ].map((streamOption) => (
+                    <MenuItem key={streamOption} value={streamOption}>
+                      {streamFilterLabel(streamOption)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+
             {/* Student select */}
             <FormControl fullWidth size="small">
               <InputLabel>{t('common.student')} *</InputLabel>
@@ -1675,27 +1767,32 @@ export function GradesPage() {
                 value={formStudentId}
                 label={t('common.student') + ' *'}
                 onChange={(e) => setFormStudentId(e.target.value)}
-                disabled={editMode}
+                disabled={editMode || !formGrade || (gradeRequiresStream(formGrade) && !formStream)}
               >
-                {scopedStudents.length === 0 && (
+                {!formGrade || (gradeRequiresStream(formGrade) && !formStream) ? (
                   <MenuItem value="" disabled>
-                    No students in your assigned class
+                    Please select grade {gradeRequiresStream(formGrade) ? "and section" : ""} first
                   </MenuItem>
+                ) : formFilteredStudents.length === 0 ? (
+                  <MenuItem value="" disabled>
+                    No students found for selected grade/section
+                  </MenuItem>
+                ) : (
+                  formFilteredStudents.map((s: any) => {
+                    const sid =
+                      s.studentId || s.studentProfile?.studentId || s.id || s._id;
+                    const name =
+                      `${s.firstName || ""} ${s.lastName || ""}`.trim();
+                    const grade = normalizeGradeValue(
+                      s?.studentProfile?.grade || s?.grade || "",
+                    );
+                    return (
+                      <MenuItem key={sid} value={sid}>
+                        {name} — Grade {grade} ({sid})
+                      </MenuItem>
+                    );
+                  })
                 )}
-                {scopedStudents.map((s: any) => {
-                  const sid =
-                    s.studentId || s.studentProfile?.studentId || s.id || s._id;
-                  const name =
-                    `${s.firstName || ""} ${s.lastName || ""}`.trim();
-                  const grade = normalizeGradeValue(
-                    s?.studentProfile?.grade || s?.grade || "",
-                  );
-                  return (
-                    <MenuItem key={sid} value={sid}>
-                      {name} — Grade {grade} ({sid})
-                    </MenuItem>
-                  );
-                })}
               </Select>
             </FormControl>
 
