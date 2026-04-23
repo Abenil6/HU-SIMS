@@ -567,7 +567,7 @@ export function SchoolAdminGradesPage() {
       teacher: string;
     }>();
 
-    filteredGrades.forEach((g: any) => {
+    grades.forEach((g: any) => {
       if (g.studentId !== selectedStudentId) return;
 
       if (!subjectMap.has(g.subject)) {
@@ -602,7 +602,7 @@ export function SchoolAdminGradesPage() {
     });
 
     return Array.from(subjectMap.values()).sort((a, b) => a.subject.localeCompare(b.subject));
-  }, [filteredGrades, filters.selectedStudentId]);
+  }, [grades, selectedStudentId]);
 
   const handleExportGrades = () => {
     if (filteredGrades.length === 0) {
@@ -758,8 +758,6 @@ export function SchoolAdminGradesPage() {
         >
           <Tab label="All Students" />
           <Tab label="Pending Approvals" />
-          <Tab label="Analytics" />
-          <Tab label="Alerts" />
         </Tabs>
       </Paper>
 
@@ -1302,73 +1300,6 @@ export function SchoolAdminGradesPage() {
             </Paper>
           </Grid>
         </Grid>
-      )}
-
-      {/* Tab 3: Alerts */}
-      {tabValue === 3 && (
-        <Paper sx={{ p: 3, borderRadius: 3 }}>
-          <Typography variant="h6" fontWeight={600} mb={2}>
-            Failing Students Alert
-          </Typography>
-          {failingStudents.length === 0 ? (
-            <Alert severity="success">No failing students found. All students are performing well!</Alert>
-          ) : (
-            <>
-              <Alert severity="warning" sx={{ mb: 3 }}>
-                {failingStudents.length} student{failingStudents.length === 1 ? "" : "s"} with failing grades (below 50%)
-              </Alert>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow sx={{ background: alpha(theme.palette.warning.main, 0.05) }}>
-                      <TableCell sx={{ fontWeight: 600 }}>Student Name</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Class</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Overall Average</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Failing Subjects</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Action</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {failingStudents.map((student) => (
-                      <TableRow key={student.studentId}>
-                        <TableCell>
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <Person fontSize="small" color="action" />
-                            {student.studentName}
-                          </Box>
-                        </TableCell>
-                        <TableCell>Grade {student.grade}</TableCell>
-                        <TableCell>
-                          <Chip
-                            label={`${student.average}%`}
-                            color={student.average < 50 ? "error" : "warning"}
-                            size="small"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                            {student.failingSubjects.map((subject) => (
-                              <Chip key={subject} label={subject} size="small" color="error" variant="outlined" />
-                            ))}
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => openStudentDetail(student.studentId)}
-                          >
-                            View Details
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </>
-          )}
-        </Paper>
       )}
 
       {/* Student Detail Dialog */}
