@@ -300,9 +300,8 @@ export function SchoolAdminGradesPage() {
       const finalExam = Number(record?.marks?.finalExam || 0);
       const assignment = Number(record?.marks?.assignment || 0);
       const classQuiz = Number(record?.marks?.classQuiz || 0);
-      const continuousAssessment = Number(record?.marks?.continuousAssessment || 0);
-      const totalScore = midExam + finalExam + assignment + classQuiz + continuousAssessment;
-      const maxScore = 110; // Mid(20) + Final(40) + Quiz(20) + Continuous(10) + Assignment(20)
+      const totalScore = midExam + finalExam + assignment + classQuiz;
+      const maxScore = 100; // Mid(20) + Final(40) + Quiz(20) + Assignment(20)
       const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
 
       return [{
@@ -333,7 +332,6 @@ export function SchoolAdminGradesPage() {
         finalExam,
         assignment,
         classQuiz,
-        continuousAssessment,
       }];
     });
   }, [recordsData, studentLookup]);
@@ -563,7 +561,6 @@ export function SchoolAdminGradesPage() {
       finalExam: number;
       assignment: number;
       quiz: number;
-      continuousAssessment: number;
       total: number;
       percentage: number;
       grade: string;
@@ -580,7 +577,6 @@ export function SchoolAdminGradesPage() {
           finalExam: 0,
           assignment: 0,
           quiz: 0,
-          continuousAssessment: 0,
           total: 0,
           percentage: 0,
           grade: "",
@@ -595,13 +591,12 @@ export function SchoolAdminGradesPage() {
       subject.finalExam = g.finalExam || 0;
       subject.assignment = g.assignment || 0;
       subject.quiz = g.classQuiz || 0;
-      subject.continuousAssessment = g.continuousAssessment || 0;
       subject.teacher = g.enteredBy || "";
     });
 
     subjectMap.forEach((subject) => {
-      subject.total = subject.midExam + subject.finalExam + subject.assignment + subject.quiz + subject.continuousAssessment;
-      const maxScore = 110; // Mid(20) + Final(40) + Quiz(20) + Continuous(10) + Assignment(20)
+      subject.total = subject.midExam + subject.finalExam + subject.assignment + subject.quiz;
+      const maxScore = 100; // Mid(20) + Final(40) + Quiz(20) + Assignment(20)
       subject.percentage = maxScore > 0 ? Math.round((subject.total / maxScore) * 100) : 0;
       subject.grade = getStatus(subject.percentage);
     });
