@@ -1,6 +1,6 @@
 const ContactMessage = require('../models/ContactMessage');
 const User = require('../models/User');
-const { sendVerificationEmail } = require('../utils/emailService');
+const { sendVerificationEmail, sendContactThankYouEmail } = require('../utils/emailService');
 
 /**
  * Submit a contact form message (public endpoint - no auth required)
@@ -65,6 +65,14 @@ exports.submitContactForm = async (req, res) => {
       await contactMessage.save();
     } catch (emailError) {
       console.error('Failed to send contact notification email:', emailError);
+      // Don't fail the request if email fails, just log it
+    }
+
+    // Send thank you email to the submitter
+    try {
+      await sendContactThankYouEmail(contactMessage.email, contactMessage.name, contactMessage.subject);
+    } catch (thankYouEmailError) {
+      console.error('Failed to send thank you email:', thankYouEmailError);
       // Don't fail the request if email fails, just log it
     }
 

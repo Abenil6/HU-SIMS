@@ -232,11 +232,55 @@ const sendAbsenceAlertEmail = async (parent, student, attendance, alert) => {
   }
 };
 
+/**
+ * Send thank you email to contact form submitter
+ * @param {string} email - Submitter's email
+ * @param {string} name - Submitter's name
+ * @param {string} subject - Message subject
+ * @returns {Promise<object>} - Email send result
+ */
+const sendContactThankYouEmail = async (email, name, subject) => {
+  if (isTestEnv) {
+    return { success: true, skipped: true, messageId: 'test-email-skipped' };
+  }
+
+  const mailOptions = {
+    from: process.env.SMTP_FROM || '"School Management System" <noreply@school.edu>',
+    to: email,
+    subject: 'Thank you for contacting us - School Management System',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #1a4a3a;">Thank You for Contacting Us</h2>
+        <p>Dear ${name},</p>
+        <p>Thank you for reaching out to us. We have received your message regarding:</p>
+        <p style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #1a4a3a; margin: 20px 0;">
+          <strong>Subject:</strong> ${subject}
+        </p>
+        <p>Our team will review your message and get back to you within 1-2 business days.</p>
+        <p>If you have any urgent matters, please contact the school directly by phone.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="color: #999; font-size: 12px;">This is an automated confirmation email. Please do not reply to this message.</p>
+      </div>
+    `
+  };
+
+  try {
+    const transporter = createTransporter();
+    const result = await transporter.sendMail(mailOptions);
+    console.log(`Contact thank you email sent to ${email}:`, result.messageId);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('Failed to send contact thank you email:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 module.exports = {
   sendVerificationEmail,
   sendPasswordResetEmail,
   sendLoginVerificationCode,
   sendLoginNotificationEmail,
   sendAbsenceAlertEmail,
+  sendContactThankYouEmail,
   generateToken
 };
