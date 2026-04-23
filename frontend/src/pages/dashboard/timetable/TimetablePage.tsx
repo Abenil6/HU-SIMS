@@ -602,6 +602,21 @@ export function TimetablePage() {
     }
   };
 
+  const unpublishLatestTimetable = async () => {
+    try {
+      if (!latestTimetableMeta?._id && !latestTimetableMeta?.id) {
+        toast.error("No timetable version found to unpublish");
+        return;
+      }
+      const id = latestTimetableMeta._id || latestTimetableMeta.id;
+      await timetableService.unpublishTimetable(id);
+      toast.success("Timetable unpublished and returned to draft");
+      await refetchTimetables();
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to unpublish timetable");
+    }
+  };
+
   const openVersions = async () => {
     try {
       const response = await timetableService.getVersions({
@@ -778,6 +793,11 @@ export function TimetablePage() {
             {!isViewOnly && latestTimetableMeta?.status === "Draft" && (
               <Button variant="contained" color="success" onClick={publishLatestDraft}>
                 {t('common.publishDraft')}
+              </Button>
+            )}
+            {!isViewOnly && latestTimetableMeta?.status === "Published" && (
+              <Button variant="outlined" color="warning" onClick={unpublishLatestTimetable}>
+                {t('common.unpublish')}
               </Button>
             )}
             {!isViewOnly && (

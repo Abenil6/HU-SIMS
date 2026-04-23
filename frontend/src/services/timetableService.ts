@@ -257,6 +257,9 @@ export const timetableService = {
   publishTimetable: async (id: string, lock = true) =>
     apiPost<{ success: boolean; data: Timetable }>(`/timetables/${id}/publish`, { lock }),
 
+  unpublishTimetable: async (id: string) =>
+    apiPost<{ success: boolean; data: Timetable }>(`/timetables/${id}/unpublish`),
+
   setTimetableLock: async (id: string, isLocked: boolean) =>
     apiPost<{ success: boolean; data: Timetable }>(`/timetables/${id}/lock`, { isLocked }),
 

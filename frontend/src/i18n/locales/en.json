@@ -180,6 +180,7 @@
     "generateTimetable": "Generate Timetable",
     "versions": "Versions",
     "publishDraft": "Publish Draft",
+    "unpublish": "Unpublish",
     "addSlot": "Add Slot",
     "createDraft": "Create Draft",
     "version": "Version",

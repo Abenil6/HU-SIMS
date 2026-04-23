@@ -179,6 +179,7 @@
     "generateTimetable": "የጊዜ ሰሌዳ ፍጠር",
     "versions": "እትሞች",
     "publishDraft": "ንቅስ ታትም",
+    "unpublish": "ንቅስ አስወግድ",
     "addSlot": "ቦታ አክል",
     "createDraft": "ንቅስ ፍጠር",
     "version": "እትም",
