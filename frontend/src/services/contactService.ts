@@ -62,7 +62,15 @@ export const contactService = {
 
   // Respond to a contact message (admin only)
   respondToMessage: async (id: string, response: string) => {
-    return apiPost<{ success: boolean; data: ContactMessage }>(`/contact/admin/${id}/respond`, { response });
+    console.log('Sending response to message:', { id, response });
+    try {
+      const result = await apiPost<{ success: boolean; data: ContactMessage }>(`/contact/admin/${id}/respond`, { response });
+      console.log('Response sent successfully:', result);
+      return result;
+    } catch (error: any) {
+      console.error('Failed to send response:', error);
+      throw error;
+    }
   },
 
   // Delete a contact message (admin only)
