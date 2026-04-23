@@ -350,7 +350,7 @@ export function SchoolAdminDashboard() {
 
   // Load contact messages when tab is active
   useEffect(() => {
-    if (activeTab === 5) {
+    if (activeTab === 6) {
       loadContactMessages();
     }
   }, [activeTab, contactStatusFilter]);
