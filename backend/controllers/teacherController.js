@@ -649,19 +649,18 @@ exports.getMyGrades = async (req, res) => {
   try {
     const { status, classGrade, section } = req.query;
 
-    const query = { teacherId: req.user.id };
+    const query = { teacher: req.user.id };
     if (status) query.status = status;
 
     const records = await AcademicRecord.find(query)
-      .populate('studentId', 'firstName lastName email')
-      .populate('subject', 'name code')
+      .populate('student', 'firstName lastName email studentProfile')
       .sort({ createdAt: -1 });
 
     // Filter by class if provided
     let filteredRecords = records;
     if (classGrade) {
       filteredRecords = records.filter(r => {
-        const student = r.studentId;
+        const student = r.student;
         return student && student.studentProfile &&
           student.studentProfile.grade === classGrade &&
           (!section || student.studentProfile.section === section);

@@ -384,6 +384,7 @@ export function SchoolAdminGradesPage() {
         grades: typeof grades;
         totalPercentage: number;
         recordCount: number;
+        statuses: Set<string>;
       }
     >();
 
@@ -398,11 +399,15 @@ export function SchoolAdminGradesPage() {
           grades: [],
           totalPercentage: 0,
           recordCount: 0,
+          statuses: new Set<string>(),
         });
       }
 
       const row = map.get(grade.studentId)!;
       row.subjects.add(grade.subject);
+      if (grade.status) {
+        row.statuses.add(grade.status);
+      }
       row.grades.push(grade);
       row.totalPercentage += grade.percentage || 0;
       row.recordCount += 1;
@@ -412,6 +417,7 @@ export function SchoolAdminGradesPage() {
       .map((row) => ({
         ...row,
         subjectsList: Array.from(row.subjects),
+        statusesList: Array.from(row.statuses),
         average:
           row.recordCount > 0
             ? Math.round(row.totalPercentage / row.recordCount)
@@ -1090,6 +1096,7 @@ export function SchoolAdminGradesPage() {
                     <TableCell sx={{ fontWeight: 600 }}>Class</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Subjects</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Records</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Average</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>View</TableCell>
                   </TableRow>
@@ -1097,13 +1104,13 @@ export function SchoolAdminGradesPage() {
                 <TableBody>
                   {isLoadingRecords ? (
                     <TableRow>
-                      <TableCell colSpan={7} align="center">
+                      <TableCell colSpan={8} align="center">
                         <CircularProgress size={24} />
                       </TableCell>
                     </TableRow>
                   ) : studentRows.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} align="center">
+                      <TableCell colSpan={8} align="center">
                         <Typography color="text.secondary">
                           No grades found for the selected filters.
                         </Typography>
@@ -1134,28 +1141,45 @@ export function SchoolAdminGradesPage() {
                         </TableCell>
                         <TableCell>{row.grades.length}</TableCell>
                         <TableCell>
+                          {row.statusesList && row.statusesList.length > 0 ? (
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                              {row.statusesList.map((status: string, idx: number) => (
+                                <Chip
+                                  key={idx}
+                                  label={status}
+                                  size="small"
+                                  sx={{
+                                    backgroundColor: status === "Approved" ? alpha("#4caf50", 0.1) :
+                                                   status === "Rejected" ? alpha("#f44336", 0.1) :
+                                                   status === "Pending Approval" ? alpha("#ff9800", 0.1) :
+                                                   alpha("#9e9e9e", 0.1),
+                                    color: status === "Approved" ? "#4caf50" :
+                                           status === "Rejected" ? "#f44336" :
+                                           status === "Pending Approval" ? "#ff9800" :
+                                           "#9e9e9e",
+                                    fontWeight: 500,
+                                  }}
+                                />
+                              ))}
+                            </Box>
+                          ) : (
+                            <Typography variant="body2" color="text.secondary">—</Typography>
+                          )}
+                        </TableCell>
+                        <TableCell>
                           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                             <Typography
                               variant="body2"
                               sx={{
+                                color: getGradeColor(row.average),
                                 fontWeight: 600,
-                                color:
-                                  row.average >= 90
-                                    ? theme.palette.success.main
-                                    : row.average >= 80
-                                      ? theme.palette.info.main
-                                      : row.average >= 70
-                                        ? theme.palette.warning.main
-                                        : row.average >= 60
-                                          ? theme.palette.warning.dark
-                                          : theme.palette.error.main,
                               }}
                             >
                               {row.average}%
                             </Typography>
-                            <LinearProgress
-                              variant="determinate"
-                              value={row.average}
+                            <Chip
+                              label={getStatus(row.average)}
+                              size="small"
                               sx={{
                                 width: 60,
                                 height: 6,
