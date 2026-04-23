@@ -112,6 +112,7 @@ router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), time
  */
 router.put('/:id', checkPermission(PERMISSIONS.EDIT, RESOURCES.TIMETABLES), timetableController.updateTimetable);
 router.post('/:id/publish', checkPermission(PERMISSIONS.EDIT, RESOURCES.TIMETABLES), timetableController.publishTimetable);
+router.post('/:id/unpublish', checkPermission(PERMISSIONS.EDIT, RESOURCES.TIMETABLES), timetableController.unpublishTimetable);
 router.post('/:id/lock', checkPermission(PERMISSIONS.EDIT, RESOURCES.TIMETABLES), timetableController.setTimetableLock);
 router.post('/:id/rollback', checkPermission(PERMISSIONS.EDIT, RESOURCES.TIMETABLES), timetableController.rollbackTimetableVersion);
 

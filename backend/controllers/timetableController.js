@@ -915,6 +915,42 @@ exports.setTimetableLock = async (req, res) => {
 };
 
 /**
+ * Unpublish a timetable (change status back to Draft)
+ */
+exports.unpublishTimetable = async (req, res) => {
+  try {
+    const timetable = await Timetable.findById(req.params.id);
+    if (!timetable) {
+      return res.status(404).json({ success: false, message: 'Timetable not found' });
+    }
+
+    if (timetable.status !== 'Published') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only published timetables can be unpublished'
+      });
+    }
+
+    timetable.status = 'Draft';
+    timetable.isLocked = false;
+    timetable.isActive = false;
+    await timetable.save();
+
+    return res.json({
+      success: true,
+      message: 'Timetable unpublished successfully',
+      data: timetable
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to unpublish timetable',
+      error: error.message
+    });
+  }
+};
+
+/**
  * List timetable versions for class-stream-year-semester
  */
 exports.getTimetableVersions = async (req, res) => {
