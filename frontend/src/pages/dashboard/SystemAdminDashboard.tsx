@@ -756,7 +756,7 @@ export function SystemAdminDashboard() {
             iconPosition="start"
           />
           <Tab label="System Health" icon={<Storage />} iconPosition="start" />
-          <Tab label="Contact Messages" icon={<Mail />} iconPosition="start" />
+          <Tab label={t('contactMessages.title')} icon={<Mail />} iconPosition="start" />
         </Tabs>
 
         <Box sx={{ p: 3 }}>
