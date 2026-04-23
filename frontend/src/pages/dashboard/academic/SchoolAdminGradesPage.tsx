@@ -151,6 +151,8 @@ export function SchoolAdminGradesPage() {
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [selectedRecordId, setSelectedRecordId] = useState<string>("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'single' | 'all'; id: string; name: string } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -708,39 +710,48 @@ export function SchoolAdminGradesPage() {
   };
 
   const handleDelete = async (recordId: string) => {
-    if (!window.confirm("Are you sure you want to delete this grade? This action cannot be undone.")) {
-      return;
-    }
-    try {
-      await academicService.deleteAcademicRecord(recordId);
-      toast.success("Grade deleted successfully");
-      refetchGrades();
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Failed to delete grade");
-    }
+    setDeleteTarget({ type: 'single', id: recordId, name: 'this grade' });
+    setDeleteDialogOpen(true);
   };
 
-  const handleDeleteAllStudentGrades = async (studentId: string) => {
+  const handleDeleteAllStudentGrades = async (studentId: string, studentName: string) => {
+    setDeleteTarget({ type: 'all', id: studentId, name: studentName });
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+
     try {
-      // Get all grades for this student
-      const studentGrades = grades.filter((g: any) => g.studentId === studentId);
-      
-      if (studentGrades.length === 0) {
-        toast.error("No grades found for this student");
-        return;
+      if (deleteTarget.type === 'single') {
+        await academicService.deleteAcademicRecord(deleteTarget.id);
+        toast.success("Grade deleted successfully");
+      } else {
+        // Get all grades for this student
+        const studentGrades = grades.filter((g: any) => g.studentId === deleteTarget.id);
+        
+        if (studentGrades.length === 0) {
+          toast.error("No grades found for this student");
+          setDeleteDialogOpen(false);
+          setDeleteTarget(null);
+          return;
+        }
+
+        // Delete each grade
+        await Promise.all(
+          studentGrades.map((g: any) => 
+            academicService.deleteAcademicRecord(g.rawRecordId || g.id)
+          )
+        );
+
+        toast.success(`Deleted ${studentGrades.length} grade(s) for ${deleteTarget.name}`);
       }
-
-      // Delete each grade
-      await Promise.all(
-        studentGrades.map((g: any) => 
-          academicService.deleteAcademicRecord(g.rawRecordId || g.id)
-        )
-      );
-
-      toast.success(`Deleted ${studentGrades.length} grade(s) for this student`);
       refetchGrades();
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Failed to delete grades");
+    } finally {
+      setDeleteDialogOpen(false);
+      setDeleteTarget(null);
     }
   };
 
@@ -1210,11 +1221,7 @@ export function SchoolAdminGradesPage() {
                               size="small"
                               variant="outlined"
                               color="error"
-                              onClick={() => {
-                                if (window.confirm(`Are you sure you want to delete all grades for ${row.studentName}? This action cannot be undone.`)) {
-                                  handleDeleteAllStudentGrades(row.studentId);
-                                }
-                              }}
+                              onClick={() => handleDeleteAllStudentGrades(row.studentId, row.studentName)}
                               aria-label={`Delete all grades for ${row.studentName}`}
                             >
                               Delete All
@@ -1482,6 +1489,37 @@ export function SchoolAdminGradesPage() {
           <Button onClick={() => setRejectDialogOpen(false)}>Cancel</Button>
           <Button variant="contained" color="error" onClick={handleReject}>
             Reject
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setDeleteTarget(null);
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary">
+            {deleteTarget?.type === 'all' 
+              ? `Are you sure you want to delete all grades for ${deleteTarget.name}? This action cannot be undone.`
+              : 'Are you sure you want to delete this grade? This action cannot be undone.'}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            setDeleteDialogOpen(false);
+            setDeleteTarget(null);
+          }}>
+            Cancel
+          </Button>
+          <Button variant="contained" color="error" onClick={confirmDelete}>
+            Delete
           </Button>
         </DialogActions>
       </Dialog>
