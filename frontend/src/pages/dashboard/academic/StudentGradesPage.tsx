@@ -136,10 +136,9 @@ export function StudentGradesPage() {
       ? recordsData
       : [];
 
-    // Filter by status like StudentDashboard does
-    const approvedRecords = records.filter((r: any) => 
-      r?.status === "Approved" || r?.status === "Submitted"
-    );
+    // Show all grades regardless of status (Draft, Submitted, Approved)
+    // Teachers enter grades and students should see them immediately
+    const approvedRecords = records;
 
     // Group by subject directly (like StudentDashboard)
     const subjectMap = new Map<string, {
