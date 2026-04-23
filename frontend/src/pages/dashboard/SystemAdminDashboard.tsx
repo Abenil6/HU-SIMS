@@ -47,12 +47,16 @@ import {
   CheckCircle,
   Lock,
   MoreVert,
+  Mail,
+  Reply,
+  Visibility,
 } from "@mui/icons-material";
 import { userService, type User } from "@/services/userService";
 import { apiDownload, apiGet, apiPost } from "@/services/api";
 import { useToast } from "@/components/ui/Toast";
 import { FormModal } from "@/components/ui/FormModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { contactService, type ContactMessage } from "@/services/contactService";
 
 /**
  * System Admin Dashboard
@@ -201,6 +205,14 @@ export function SystemAdminDashboard() {
   const [logsLoading, setLogsLoading] = useState(false);
   const [settingsBusy, setSettingsBusy] = useState(false);
 
+  // Contact Messages State
+  const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
+  const [contactLoading, setContactLoading] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
+  const [responseText, setResponseText] = useState("");
+  const [contactStatusFilter, setContactStatusFilter] = useState<string>("all");
+
   // Load users and system data on mount and when filters change
   useEffect(() => {
     loadUsers();
@@ -211,6 +223,13 @@ export function SystemAdminDashboard() {
   useEffect(() => {
     loadSettings();
   }, []);
+
+  // Load contact messages when tab is active
+  useEffect(() => {
+    if (activeTab === 5) {
+      loadContactMessages();
+    }
+  }, [activeTab, contactStatusFilter]);
 
   const fmtDate = (value?: string | null) => {
     if (!value) return "Never";
@@ -410,6 +429,67 @@ export function SystemAdminDashboard() {
       setSystemLogs([]);
     } finally {
       setLogsLoading(false);
+    }
+  };
+
+  const loadContactMessages = async () => {
+    setContactLoading(true);
+    try {
+      const params = contactStatusFilter !== "all" ? { status: contactStatusFilter } : {};
+      const response = await contactService.getAllMessages(params);
+      setContactMessages(response?.data || []);
+    } catch (error) {
+      console.error("Failed to load contact messages:", error);
+      toast.error("Failed to load contact messages");
+      setContactMessages([]);
+    } finally {
+      setContactLoading(false);
+    }
+  };
+
+  const handleViewMessage = (message: ContactMessage) => {
+    setSelectedMessage(message);
+    setResponseText(message.adminResponse || "");
+    setMessageDialogOpen(true);
+  };
+
+  const handleSendResponse = async () => {
+    if (!selectedMessage || !responseText.trim()) {
+      toast.error("Please enter a response");
+      return;
+    }
+    try {
+      await contactService.respondToMessage(selectedMessage._id || selectedMessage.id, responseText);
+      toast.success("Response sent successfully");
+      setMessageDialogOpen(false);
+      setSelectedMessage(null);
+      setResponseText("");
+      await loadContactMessages();
+    } catch (error) {
+      console.error("Failed to send response:", error);
+      toast.error("Failed to send response");
+    }
+  };
+
+  const handleUpdateStatus = async (messageId: string, status: 'New' | 'Read' | 'Replied' | 'Archived') => {
+    try {
+      await contactService.updateStatus(messageId, status);
+      toast.success("Status updated successfully");
+      await loadContactMessages();
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      toast.error("Failed to update status");
+    }
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      await contactService.deleteMessage(messageId);
+      toast.success("Message deleted successfully");
+      await loadContactMessages();
+    } catch (error) {
+      console.error("Failed to delete message:", error);
+      toast.error("Failed to delete message");
     }
   };
 
@@ -676,6 +756,7 @@ export function SystemAdminDashboard() {
             iconPosition="start"
           />
           <Tab label="System Health" icon={<Storage />} iconPosition="start" />
+          <Tab label="Contact Messages" icon={<Mail />} iconPosition="start" />
         </Tabs>
 
         <Box sx={{ p: 3 }}>
@@ -1350,6 +1431,133 @@ export function SystemAdminDashboard() {
               </Grid>
             </Grid>
           </TabPanel>
+
+          {/* Contact Messages Tab */}
+          <TabPanel value={activeTab} index={5}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+              }}
+            >
+              <Typography variant="h6" fontWeight={600}>
+                Contact Messages
+              </Typography>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>Status Filter</InputLabel>
+                  <Select
+                    value={contactStatusFilter}
+                    label="Status Filter"
+                    onChange={(e) => setContactStatusFilter(e.target.value)}
+                  >
+                    <MenuItem value="all">All Messages</MenuItem>
+                    <MenuItem value="New">New</MenuItem>
+                    <MenuItem value="Read">Read</MenuItem>
+                    <MenuItem value="Replied">Replied</MenuItem>
+                    <MenuItem value="Archived">Archived</MenuItem>
+                  </Select>
+                </FormControl>
+                <Button
+                  variant="outlined"
+                  startIcon={<Refresh />}
+                  onClick={loadContactMessages}
+                >
+                  Refresh
+                </Button>
+              </Box>
+            </Box>
+            {contactLoading ? (
+              <Box sx={{ py: 4 }}>
+                <LinearProgress />
+              </Box>
+            ) : contactMessages.length === 0 ? (
+              <Paper sx={{ p: 4, textAlign: "center" }}>
+                <Typography variant="body1" color="text.secondary">
+                  No messages found
+                </Typography>
+              </Paper>
+            ) : (
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>From</TableCell>
+                      <TableCell>Email</TableCell>
+                      <TableCell>Subject</TableCell>
+                      <TableCell>Priority</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell>Date</TableCell>
+                      <TableCell align="right">Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {contactMessages.map((message) => (
+                      <TableRow key={message._id || message.id}>
+                        <TableCell>{message.name}</TableCell>
+                        <TableCell>{message.email}</TableCell>
+                        <TableCell>{message.subject}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={message.priority}
+                            size="small"
+                            color={
+                              message.priority === "Urgent"
+                                ? "error"
+                                : message.priority === "High"
+                                  ? "warning"
+                                  : message.priority === "Medium"
+                                    ? "info"
+                                    : "default"
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={message.status}
+                            size="small"
+                            color={
+                              message.status === "New"
+                                ? "error"
+                                : message.status === "Replied"
+                                  ? "success"
+                                  : "default"
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>{fmtDate(message.createdAt)}</TableCell>
+                        <TableCell align="right">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleViewMessage(message)}
+                          >
+                            <Visibility />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleUpdateStatus(
+                              message._id || message.id,
+                              message.status === "New" ? "Read" : "Archived"
+                            )}
+                          >
+                            <CheckCircle />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDeleteMessage(message._id || message.id)}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </TabPanel>
         </Box>
       </Paper>
 
@@ -1612,6 +1820,101 @@ export function SystemAdminDashboard() {
             Please wait while we backup your data
           </Typography>
         </DialogContent>
+      </Dialog>
+
+      {/* Contact Message View/Response Dialog */}
+      <Dialog
+        open={messageDialogOpen}
+        onClose={() => setMessageDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Message Details</DialogTitle>
+        <DialogContent>
+          {selectedMessage && (
+            <Box>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    From
+                  </Typography>
+                  <Typography variant="body1">{selectedMessage.name}</Typography>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Email
+                  </Typography>
+                  <Typography variant="body1">{selectedMessage.email}</Typography>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Subject
+                  </Typography>
+                  <Typography variant="body1">{selectedMessage.subject}</Typography>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Priority
+                  </Typography>
+                  <Chip
+                    label={selectedMessage.priority}
+                    size="small"
+                    color={
+                      selectedMessage.priority === "Urgent"
+                        ? "error"
+                        : selectedMessage.priority === "High"
+                          ? "warning"
+                          : selectedMessage.priority === "Medium"
+                            ? "info"
+                            : "default"
+                    }
+                  />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Message
+                  </Typography>
+                  <Paper sx={{ p: 2, mt: 1, background: alpha(theme.palette.grey[100], 0.5) }}>
+                    <Typography variant="body1">{selectedMessage.message}</Typography>
+                  </Paper>
+                </Grid>
+                {selectedMessage.adminResponse && (
+                  <Grid size={{ xs: 12 }}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Previous Response
+                    </Typography>
+                    <Paper sx={{ p: 2, mt: 1, background: alpha(theme.palette.success.light, 0.2) }}>
+                      <Typography variant="body1">{selectedMessage.adminResponse}</Typography>
+                    </Paper>
+                  </Grid>
+                )}
+              </Grid>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                Your Response
+              </Typography>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                value={responseText}
+                onChange={(e) => setResponseText(e.target.value)}
+                placeholder="Write your response here..."
+              />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setMessageDialogOpen(false)}>Close</Button>
+          <Button
+            variant="contained"
+            startIcon={<Reply />}
+            onClick={handleSendResponse}
+            disabled={!responseText.trim()}
+          >
+            Send Response
+          </Button>
+        </DialogActions>
       </Dialog>
 
     </Box>
