@@ -4,9 +4,9 @@ import { Select, MenuItem, FormControl, Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 const languages = [
-  { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'am', name: 'አማርኛ', flag: '🇪🇹' },
-  { code: 'om', name: 'Afaan Oromoo', flag: '🇪🇹' },
+  { code: 'en', name: 'English', flag: 'gb' },
+  { code: 'am', name: 'አማርኛ', flag: 'et' },
+  { code: 'om', name: 'Afaan Oromoo', flag: 'et' },
 ];
 
 export const LanguageSelector: React.FC = () => {
@@ -30,7 +30,11 @@ export const LanguageSelector: React.FC = () => {
             const lang = languages.find(l => l.code === value);
             return lang ? (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'white' }}>
-                <span>{lang.flag}</span>
+                <img
+                  src={`https://flagcdn.com/w20/${lang.flag}.png`}
+                  alt={lang.name}
+                  style={{ width: 20, height: 15, objectFit: 'cover', borderRadius: 2 }}
+                />
                 <span>{lang.name}</span>
               </Box>
             ) : '';
@@ -62,7 +66,11 @@ export const LanguageSelector: React.FC = () => {
           {languages.map((lang) => (
             <MenuItem key={lang.code} value={lang.code}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <span style={{ fontSize: '20px' }}>{lang.flag}</span>
+                <img
+                  src={`https://flagcdn.com/w20/${lang.flag}.png`}
+                  alt={lang.name}
+                  style={{ width: 20, height: 15, objectFit: 'cover', borderRadius: 2 }}
+                />
                 <span>{lang.name}</span>
               </Box>
             </MenuItem>
