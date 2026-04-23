@@ -509,7 +509,7 @@ export function SchoolAdminDashboard() {
           lastName: teacherForm.lastName,
           phone: teacherForm.phone || undefined,
           subjects: teacherForm.subject ? [teacherForm.subject] : [],
-          classes: teacherForm.classes,
+          classes: teacherForm.classes.map(c => ({ grade: c.grade, section: c.stream || '' })),
         },
       });
       setEditTeacherDialogOpen(false);
@@ -534,7 +534,7 @@ export function SchoolAdminDashboard() {
         subjects: teacherForm.subject ? [teacherForm.subject] : [],
       } as any);
       setCreateTeacherDialogOpen(false);
-      setTeacherForm({ firstName: "", lastName: "", email: "", phone: "", subject: "" });
+      setTeacherForm({ firstName: "", lastName: "", email: "", phone: "", subject: "", classes: [] });
     } catch {
       // error handled by mutation onError
     }
