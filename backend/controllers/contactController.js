@@ -196,6 +196,8 @@ exports.respondToContactMessage = async (req, res) => {
   try {
     const { response } = req.body;
 
+    console.log('Response request body:', { response, messageId: req.params.id });
+
     if (!response || response.trim().length < 5) {
       return res.status(400).json({
         success: false,
@@ -206,22 +208,26 @@ exports.respondToContactMessage = async (req, res) => {
     const message = await ContactMessage.findById(req.params.id);
 
     if (!message) {
+      console.log('Message not found:', req.params.id);
       return res.status(404).json({
         success: false,
         message: 'Contact message not found'
       });
     }
 
+    console.log('Found message, updating...');
     message.adminResponse = response.trim();
     message.respondedBy = req.user.id;
     message.respondedAt = new Date();
     message.status = 'Replied';
 
     await message.save();
+    console.log('Message saved successfully');
 
     // Send response email to the contact form submitter
     try {
       await sendContactResponseEmail(message);
+      console.log('Response email sent successfully');
     } catch (emailError) {
       console.error('Failed to send contact response email:', emailError);
       // Don't fail the request if email fails
@@ -233,6 +239,7 @@ exports.respondToContactMessage = async (req, res) => {
       data: message
     });
   } catch (error) {
+    console.error('Error in respondToContactMessage:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to send response',
