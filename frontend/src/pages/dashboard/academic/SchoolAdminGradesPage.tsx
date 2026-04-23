@@ -331,6 +331,8 @@ export function SchoolAdminGradesPage() {
               : record?.teacher || "Unknown",
           ),
           createdAt: record?.createdAt,
+          status: record?.status || "Draft",
+          rawRecordId: record?._id || record?.id || baseId,
           // Store component scores for detail view
           midExam: component.assessmentType === "mid_exam" ? score : 0,
           finalExam: component.assessmentType === "final_exam" ? score : 0,
