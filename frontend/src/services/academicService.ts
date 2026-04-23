@@ -165,6 +165,9 @@ export const academicService = {
   // Delete grade
   deleteGrade: async (id: string) => apiDelete(`/academic-records/grades/${id}`),
 
+  // Delete academic record (for admins)
+  deleteAcademicRecord: async (id: string) => apiDelete(`/academic-records/${id}`),
+
   // Approve grade
   approveGrade: async (id: string) => apiPost(`/academic-records/${id}/approve`),
 

@@ -42,6 +42,7 @@ import {
   Person,
   CheckCircle,
   Cancel,
+  Delete,
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import { PageHeader, Breadcrumbs } from "@/components/ui/Breadcrumbs";
@@ -722,6 +723,19 @@ export function SchoolAdminGradesPage() {
     setRejectDialogOpen(true);
   };
 
+  const handleDelete = async (recordId: string) => {
+    if (!window.confirm("Are you sure you want to delete this grade? This action cannot be undone.")) {
+      return;
+    }
+    try {
+      await academicService.deleteAcademicRecord(recordId);
+      toast.success("Grade deleted successfully");
+      refetchGrades();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to delete grade");
+    }
+  };
+
   return (
     <Box>
       <Breadcrumbs items={[{ label: "Academic" }, { label: "School Grades" }]} />
@@ -824,6 +838,15 @@ export function SchoolAdminGradesPage() {
                                 onClick={() => openRejectDialog(grade.rawRecordId || grade.id)}
                               >
                                 Reject
+                              </Button>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="error"
+                                startIcon={<Delete />}
+                                onClick={() => handleDelete(grade.rawRecordId || grade.id)}
+                              >
+                                Delete
                               </Button>
                             </Box>
                           </TableCell>
