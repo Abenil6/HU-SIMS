@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -120,6 +121,7 @@ interface BackupSettings {
 export function SystemAdminDashboard() {
   const theme = useTheme();
   const toast = useToast();
+  const { t } = useTranslation();
 
   // Tab state
   const [activeTab, setActiveTab] = useState(0);
