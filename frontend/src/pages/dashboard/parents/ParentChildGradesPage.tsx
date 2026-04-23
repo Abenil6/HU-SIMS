@@ -24,7 +24,7 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import { ArrowBack, TrendingUp, Assessment, CalendarToday } from "@mui/icons-material";
+import { TrendingUp, Assessment, CalendarToday } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "@/services/api";
@@ -161,10 +161,6 @@ export function ParentChildGradesPage() {
     return Array.from(semesters).sort();
   }, [grades]);
 
-  const handleBack = () => {
-    navigate("/parent/dashboard");
-  };
-
   if (isLoadingChild) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
@@ -183,15 +179,6 @@ export function ParentChildGradesPage() {
       <PageHeader
         title={`${child?.firstName || ""} ${child?.lastName || ""} - ${t('parent.academicProgress')}`}
         subtitle={t('parent.trackPerformance', { name: child?.firstName || t('parent.parent') })}
-        action={
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBack />}
-            onClick={handleBack}
-          >
-            {t('parent.backToDashboard')}
-          </Button>
-        }
       />
 
       {/* Child Info Card */}

@@ -23,7 +23,7 @@ import {
   CardContent,
   LinearProgress,
 } from "@mui/material";
-import { ArrowBack, CalendarToday, TrendingUp, Assessment, CheckCircle, Cancel, Schedule } from "@mui/icons-material";
+import { CalendarToday, TrendingUp, Assessment, CheckCircle, Cancel, Schedule } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "@/services/api";
@@ -135,10 +135,6 @@ export function ParentChildAttendancePage() {
     { value: "12", label: t('parent.december') },
   ];
 
-  const handleBack = () => {
-    navigate("/parent/dashboard");
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Present":
@@ -185,17 +181,8 @@ export function ParentChildAttendancePage() {
       ]} />
 
       <PageHeader
-        title={`${child?.firstName || ""} ${child?.lastName || ""} - ${t('parent.attendanceHistory')}`}
+        title={`${child?.firstName || ""} ${child?.lastName || ""} - ${t('parent.attendanceRecord')}`}
         subtitle={t('parent.trackAttendance', { name: child?.firstName || t('parent.parent') })}
-        action={
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBack />}
-            onClick={handleBack}
-          >
-            {t('parent.backToDashboard')}
-          </Button>
-        }
       />
 
       {/* Child Info Card */}
