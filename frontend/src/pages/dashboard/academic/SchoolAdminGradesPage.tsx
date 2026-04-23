@@ -49,6 +49,7 @@ import { PageHeader, Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { StatsCard } from "@/components/ui/StatsCard";
 import { useStudents } from "@/hooks/students/useStudents";
 import { useAcademicRecords } from "@/hooks/academic/useAcademicRecords";
+import { useQueryClient } from "@tanstack/react-query";
 import { getStatus, getGradeColor, academicService } from "@/services/academicService";
 import { academicYearService } from "@/services/academicYearService";
 import { useAuthStore } from "@/stores/authStore";
@@ -127,6 +128,7 @@ const csvEscape = (value: unknown) =>
 export function SchoolAdminGradesPage() {
   const theme = useTheme();
   const { user } = useAuthStore();
+  const queryClient = useQueryClient();
   const [tabValue, setTabValue] = useState(0);
 
   const [filters, setFilters] = useState({
@@ -725,6 +727,12 @@ export function SchoolAdminGradesPage() {
     setRejectDialogOpen(true);
   };
 
+  const handleClearCache = () => {
+    queryClient.clear();
+    refetchGrades();
+    toast.success("Cache cleared and data refreshed");
+  };
+
   const handleDelete = async (recordId: string) => {
     if (!window.confirm("Are you sure you want to delete this grade? This action cannot be undone.")) {
       return;
@@ -776,9 +784,18 @@ export function SchoolAdminGradesPage() {
       {tabValue === 1 && (
         <>
           <Paper sx={{ p: 3, borderRadius: 3, mb: 3 }}>
-            <Typography variant="h6" fontWeight={600} mb={2}>
-              Pending Approvals
-            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" fontWeight={600}>
+                Pending Approvals
+              </Typography>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={handleClearCache}
+              >
+                Clear Cache
+              </Button>
+            </Box>
             <Typography variant="body2" color="text.secondary" mb={3}>
               Review and approve grades entered by teachers
             </Typography>
