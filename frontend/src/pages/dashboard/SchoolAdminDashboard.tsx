@@ -727,7 +727,7 @@ export function SchoolAdminDashboard() {
           <Tab label="Calendar" icon={<CalendarToday />} iconPosition="start" />
           <Tab label={t('pages.dashboard.announcements')} icon={<Announcement />} iconPosition="start" />
           <Tab label={t('pages.dashboard.reports')} icon={<Assessment />} iconPosition="start" />
-          <Tab label={t('common.contactMessages')} icon={<Mail />} iconPosition="start" />
+          <Tab label={t('contactMessages.title')} icon={<Mail />} iconPosition="start" />
         </Tabs>
 
         <Box sx={{ p: 3 }}>
