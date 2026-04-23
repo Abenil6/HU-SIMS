@@ -563,6 +563,7 @@ export function SchoolAdminGradesPage() {
       finalExam: number;
       assignment: number;
       quiz: number;
+      continuousAssessment: number;
       total: number;
       percentage: number;
       grade: string;
@@ -579,6 +580,7 @@ export function SchoolAdminGradesPage() {
           finalExam: 0,
           assignment: 0,
           quiz: 0,
+          continuousAssessment: 0,
           total: 0,
           percentage: 0,
           grade: "",
@@ -588,47 +590,25 @@ export function SchoolAdminGradesPage() {
 
       const subject = subjectMap.get(g.subject)!;
       
-      if (g.assessmentType === "mid_exam") {
-        if (g.score > 0) {
-          subject.midExam = g.score;
-        }
-        if (g.enteredBy && g.enteredBy !== "Unknown") {
-          subject.teacher = g.enteredBy;
-        }
-      } else if (g.assessmentType === "final_exam") {
-        if (g.score > 0) {
-          subject.finalExam = g.score;
-        }
-        if (g.enteredBy && g.enteredBy !== "Unknown") {
-          subject.teacher = g.enteredBy;
-        }
-      } else if (g.assessmentType === "assignment") {
-        if (g.score > 0) {
-          subject.assignment = g.score;
-        }
-        if (g.enteredBy && g.enteredBy !== "Unknown") {
-          subject.teacher = g.enteredBy;
-        }
-      } else if (g.assessmentType === "test" || g.assessmentType === "class_quiz") {
-        if (g.score > 0) {
-          subject.quiz = g.score;
-        }
-        if (g.enteredBy && g.enteredBy !== "Unknown") {
-          subject.teacher = g.enteredBy;
-        }
-      }
+      // Use component scores directly from the grade object
+      subject.midExam = g.midExam || 0;
+      subject.finalExam = g.finalExam || 0;
+      subject.assignment = g.assignment || 0;
+      subject.quiz = g.classQuiz || 0;
+      subject.continuousAssessment = g.continuousAssessment || 0;
+      subject.teacher = g.enteredBy || "";
     });
 
     subjectMap.forEach((subject) => {
-      subject.total = subject.midExam + subject.finalExam + subject.assignment + subject.quiz;
-      subject.percentage = subject.total;
+      subject.total = subject.midExam + subject.finalExam + subject.assignment + subject.quiz + subject.continuousAssessment;
+      const maxScore = 110; // Mid(20) + Final(40) + Quiz(20) + Continuous(10) + Assignment(20)
+      subject.percentage = maxScore > 0 ? Math.round((subject.total / maxScore) * 100) : 0;
       subject.grade = getStatus(subject.percentage);
     });
 
     return Array.from(subjectMap.values()).sort((a, b) => a.subject.localeCompare(b.subject));
-  }, [filteredGrades, selectedStudentId]);
+  }, [filteredGrades, filters.selectedStudentId]);
 
-  // Export grades
   const handleExportGrades = () => {
     if (filteredGrades.length === 0) {
       toast.error("No grades available to export");
