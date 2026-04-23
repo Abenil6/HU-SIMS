@@ -296,6 +296,15 @@ export function SchoolAdminGradesPage() {
       const subject = String(record?.subject || "");
 
       // Group by student and subject - don't flatten by assessment type
+      const midExam = Number(record?.marks?.midExam || 0);
+      const finalExam = Number(record?.marks?.finalExam || 0);
+      const assignment = Number(record?.marks?.assignment || 0);
+      const classQuiz = Number(record?.marks?.classQuiz || 0);
+      const continuousAssessment = Number(record?.marks?.continuousAssessment || 0);
+      const totalScore = midExam + finalExam + assignment + classQuiz + continuousAssessment;
+      const maxScore = 110; // Mid(20) + Final(40) + Quiz(20) + Continuous(10) + Assignment(20)
+      const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
+
       return [{
         id: baseId,
         studentId,
@@ -305,9 +314,9 @@ export function SchoolAdminGradesPage() {
         section: stream,
         subject,
         assessmentType: "overall",
-        score: Number(record?.marks?.midExam || 0) + Number(record?.marks?.finalExam || 0) + Number(record?.marks?.assignment || 0) + Number(record?.marks?.classQuiz || 0),
-        maxScore: 100,
-        percentage: record?.percentage || 0,
+        score: totalScore,
+        maxScore,
+        percentage,
         weight: 1,
         semester,
         academicYear,
@@ -320,10 +329,11 @@ export function SchoolAdminGradesPage() {
         status: record?.status || "Draft",
         rawRecordId: record?._id || record?.id || baseId,
         // Store component scores for detail view
-        midExam: Number(record?.marks?.midExam || 0),
-        finalExam: Number(record?.marks?.finalExam || 0),
-        assignment: Number(record?.marks?.assignment || 0),
-        classQuiz: Number(record?.marks?.classQuiz || 0),
+        midExam,
+        finalExam,
+        assignment,
+        classQuiz,
+        continuousAssessment,
       }];
     });
   }, [recordsData, studentLookup]);
