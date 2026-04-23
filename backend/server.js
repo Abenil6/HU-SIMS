@@ -24,6 +24,7 @@ const academicYearRoutes = require('./routes/academicYearRoutes');
 const systemRoutes = require('./routes/systemRoutes');
 const notificationReadStateRoutes = require('./routes/notificationReadStateRoutes');
 const materialRoutes = require('./routes/materialRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 const { startBackupScheduler } = require('./utils/backupScheduler');
 
 dotenv.config();
@@ -67,6 +68,7 @@ app.use('/api/academic-years', academicYearRoutes);
 app.use('/api/system', systemRoutes);
 app.use('/api/notification-read-states', notificationReadStateRoutes);
 app.use('/api/materials', materialRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Routes placeholder
 app.get('/', (req, res) => res.send('Backend started Running'));

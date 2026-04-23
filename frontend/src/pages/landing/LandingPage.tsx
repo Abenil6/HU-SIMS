@@ -439,24 +439,34 @@ export function LandingPage() {
     setSubmitError("");
     
     try {
-      // Simulate API call - replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+      const baseUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
       
-      console.log("Contact form submitted:", contactForm);
-      
-      // Reset form on success
-      setContactForm({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
+      const response = await axios.post(`${baseUrl}/contact`, {
+        name: contactForm.name,
+        email: contactForm.email,
+        subject: contactForm.subject,
+        message: contactForm.message
       });
-      setSubmitSuccess(true);
       
-      // Hide success message after 5 seconds
-      setTimeout(() => setSubmitSuccess(false), 5000);
-    } catch (error) {
-      setSubmitError("Failed to send message. Please try again.");
+      if (response.data.success) {
+        // Reset form on success
+        setContactForm({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+        setSubmitSuccess(true);
+        
+        // Hide success message after 5 seconds
+        setTimeout(() => setSubmitSuccess(false), 5000);
+      } else {
+        setSubmitError(response.data.message || "Failed to send message. Please try again.");
+      }
+    } catch (error: any) {
+      console.error("Contact form submission error:", error);
+      setSubmitError(error.response?.data?.message || "Failed to send message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

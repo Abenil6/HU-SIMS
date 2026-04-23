@@ -1,0 +1,223 @@
+const express = require('express');
+const router = express.Router();
+const contactController = require('../controllers/contactController');
+const { protect, authorize } = require('../middleware/authMiddleware');
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ContactMessage:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         name:
+ *           type: string
+ *         email:
+ *           type: string
+ *         subject:
+ *           type: string
+ *         message:
+ *           type: string
+ *         status:
+ *           type: string
+ *           enum: [New, Read, Replied, Archived]
+ *         priority:
+ *           type: string
+ *           enum: [Low, Medium, High, Urgent]
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ */
+
+// ==================== PUBLIC CONTACT FORM ====================
+
+/**
+ * @swagger
+ * /api/contact:
+ *   post:
+ *     summary: Submit a contact form message (no auth required)
+ *     tags: [Contact]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - subject
+ *               - message
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               subject:
+ *                 type: string
+ *               message:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Message submitted successfully
+ *       400:
+ *         description: Validation error
+ */
+router.post('/', contactController.submitContactForm);
+
+// ==================== ADMIN CONTACT MANAGEMENT ====================
+
+/**
+ * @swagger
+ * /api/contact/admin:
+ *   get:
+ *     summary: Get all contact messages (Admin only)
+ *     tags: [Contact]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [New, Read, Replied, Archived]
+ *       - in: query
+ *         name: priority
+ *         schema:
+ *           type: string
+ *           enum: [Low, Medium, High, Urgent]
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of contact messages
+ */
+router.get('/admin', protect, authorize('SchoolAdmin', 'SystemAdmin'), contactController.getAllContactMessages);
+
+/**
+ * @swagger
+ * /api/contact/admin/stats:
+ *   get:
+ *     summary: Get contact message statistics (Admin only)
+ *     tags: [Contact]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Contact statistics
+ */
+router.get('/admin/stats', protect, authorize('SchoolAdmin', 'SystemAdmin'), contactController.getContactStats);
+
+/**
+ * @swagger
+ * /api/contact/admin/{id}:
+ *   get:
+ *     summary: Get a single contact message by ID (Admin only)
+ *     tags: [Contact]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Contact message details
+ */
+router.get('/admin/:id', protect, authorize('SchoolAdmin', 'SystemAdmin'), contactController.getContactMessageById);
+
+/**
+ * @swagger
+ * /api/contact/admin/{id}:
+ *   put:
+ *     summary: Update contact message status (Admin only)
+ *     tags: [Contact]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [New, Read, Replied, Archived]
+ *               priority:
+ *                 type: string
+ *                 enum: [Low, Medium, High, Urgent]
+ *     responses:
+ *       200:
+ *         description: Contact message updated
+ */
+router.put('/admin/:id', protect, authorize('SchoolAdmin', 'SystemAdmin'), contactController.updateContactMessageStatus);
+
+/**
+ * @swagger
+ * /api/contact/admin/{id}/respond:
+ *   post:
+ *     summary: Respond to a contact message (Admin only)
+ *     tags: [Contact]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - response
+ *             properties:
+ *               response:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Response sent successfully
+ */
+router.post('/admin/:id/respond', protect, authorize('SchoolAdmin', 'SystemAdmin'), contactController.respondToContactMessage);
+
+/**
+ * @swagger
+ * /api/contact/admin/{id}:
+ *   delete:
+ *     summary: Delete a contact message (Admin only)
+ *     tags: [Contact]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Contact message deleted
+ */
+router.delete('/admin/:id', protect, authorize('SchoolAdmin', 'SystemAdmin'), contactController.deleteContactMessage);
+
+module.exports = router;
