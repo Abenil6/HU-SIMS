@@ -126,9 +126,9 @@ absenceAlertSchema.statics.createFromAttendance = async function(attendance, tea
   // Create alert
   const alert = new this({
     student: attendance.student,
-    academicYear: attendance.academicYear,
-    grade: student.studentProfile?.grade,
-    section: student.studentProfile?.section,
+    academicYear: student.studentProfile?.academicYear || '2024-2025',
+    grade: student.studentProfile?.grade || '9',
+    section: student.studentProfile?.section || student.studentProfile?.stream || 'A',
     date: attendance.date,
     period: attendance.period || 'Full Day',
     subject: attendance.subject,
