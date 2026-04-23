@@ -15,9 +15,8 @@ const absenceAlertSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    section: {
-      type: String,
-      required: true
+    stream: {
+      type: String
     },
     // Absence details
     date: {
@@ -107,7 +106,7 @@ const absenceAlertSchema = new mongoose.Schema(
 
 // Indexes
 absenceAlertSchema.index({ student: 1, date: -1 });
-absenceAlertSchema.index({ academicYear: 1, grade: 1, section: 1 });
+absenceAlertSchema.index({ academicYear: 1, grade: 1, stream: 1 });
 absenceAlertSchema.index({ notificationStatus: 1 });
 absenceAlertSchema.index({ 'parents.parent': 1 });
 absenceAlertSchema.index({ alertType: 1 });
@@ -128,7 +127,7 @@ absenceAlertSchema.statics.createFromAttendance = async function(attendance, tea
     student: attendance.student,
     academicYear: student.studentProfile?.academicYear || '2024-2025',
     grade: student.studentProfile?.grade || '9',
-    section: student.studentProfile?.section || student.studentProfile?.stream || 'A',
+    stream: student.studentProfile?.stream || 'Natural',
     date: attendance.date,
     period: attendance.period || 'Full Day',
     subject: attendance.subject,

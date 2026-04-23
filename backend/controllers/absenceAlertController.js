@@ -68,14 +68,14 @@ exports.createAbsenceAlert = async (req, res) => {
  */
 exports.getAbsenceAlerts = async (req, res) => {
   try {
-    const { academicYear, grade, section, status, page = 1, limit = 20 } = req.query;
+    const { academicYear, grade, stream, status, page = 1, limit = 20 } = req.query;
 
     const query = {};
 
     // Filter by academic year
     if (academicYear) query.academicYear = academicYear;
     if (grade) query.grade = grade;
-    if (section) query.section = section;
+    if (stream) query.stream = stream;
     if (status) query.status = status;
 
     const alerts = await AbsenceAlert.find(query)
@@ -416,7 +416,7 @@ exports.batchCreateAlerts = async (req, res) => {
       });
     }
 
-    const { academicYear, date, grade, section } = req.body;
+    const { academicYear, date, grade, stream } = req.body;
 
     // Find all absent students for the given criteria
     const attendanceQuery = {
@@ -426,7 +426,7 @@ exports.batchCreateAlerts = async (req, res) => {
     };
 
     if (grade) attendanceQuery.grade = grade;
-    if (section) attendanceQuery.section = section;
+    if (stream) attendanceQuery.stream = stream;
 
     const absentRecords = await Attendance.find(attendanceQuery)
       .populate('student', 'firstName lastName studentProfile');
