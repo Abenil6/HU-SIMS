@@ -11,7 +11,7 @@ const mongoose = require('mongoose');
 require('dotenv').config({ path: '.env' });
 
 // Connect to MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGODB_URL || 'mongodb://localhost:27017/hu-sims';
+const MONGODB_URI = process.env.MONGO_URI || process.env.MONGODB_URI || process.env.MONGODB_URL || 'mongodb://localhost:27017/hu-sims';
 
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
