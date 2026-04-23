@@ -295,53 +295,36 @@ export function SchoolAdminGradesPage() {
       const academicYear = String(record?.academicYear || "");
       const subject = String(record?.subject || "");
 
-      return COMPONENTS.flatMap((component) => {
-        const componentField =
-          component.assessmentType === "mid_exam"
-            ? "midExam"
-            : component.assessmentType === "final_exam"
-              ? "finalExam"
-              : component.assessmentType === "assignment"
-                ? "assignment"
-                : "classQuiz";
-        const score = Number(record?.marks?.[componentField] || 0);
-        
-        // Don't filter by submittedComponents - show all grades for admin view
-        if (score === 0) return [];
-
-        return [{
-          id: `${baseId}:${component.assessmentType}`,
-          studentId,
-          studentName,
-          grade,
-          stream,
-          section: stream,
-          subject,
-          assessmentType: component.assessmentType,
-          score,
-          maxScore: component.max,
-          percentage:
-            component.max > 0
-              ? Math.round((score / component.max) * 10000) / 100
-              : 0,
-          weight: component.weight,
-          semester,
-          academicYear,
-          enteredBy: String(
-            record?.teacher?.firstName && record?.teacher?.lastName
-              ? `${record.teacher.firstName} ${record.teacher.lastName}`
-              : record?.teacher || "Unknown",
-          ),
-          createdAt: record?.createdAt,
-          status: record?.status || "Draft",
-          rawRecordId: record?._id || record?.id || baseId,
-          // Store component scores for detail view
-          midExam: component.assessmentType === "mid_exam" ? score : 0,
-          finalExam: component.assessmentType === "final_exam" ? score : 0,
-          assignment: component.assessmentType === "assignment" ? score : 0,
-          classQuiz: component.assessmentType === "test" ? score : 0,
-        }];
-      });
+      // Group by student and subject - don't flatten by assessment type
+      return [{
+        id: baseId,
+        studentId,
+        studentName,
+        grade,
+        stream,
+        section: stream,
+        subject,
+        assessmentType: "overall",
+        score: Number(record?.marks?.midExam || 0) + Number(record?.marks?.finalExam || 0) + Number(record?.marks?.assignment || 0) + Number(record?.marks?.classQuiz || 0),
+        maxScore: 100,
+        percentage: record?.percentage || 0,
+        weight: 1,
+        semester,
+        academicYear,
+        enteredBy: String(
+          record?.teacher?.firstName && record?.teacher?.lastName
+            ? `${record.teacher.firstName} ${record.teacher.lastName}`
+            : record?.teacher || "Unknown",
+        ),
+        createdAt: record?.createdAt,
+        status: record?.status || "Draft",
+        rawRecordId: record?._id || record?.id || baseId,
+        // Store component scores for detail view
+        midExam: Number(record?.marks?.midExam || 0),
+        finalExam: Number(record?.marks?.finalExam || 0),
+        assignment: Number(record?.marks?.assignment || 0),
+        classQuiz: Number(record?.marks?.classQuiz || 0),
+      }];
     });
   }, [recordsData, studentLookup]);
 
