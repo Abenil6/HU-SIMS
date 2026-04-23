@@ -116,6 +116,8 @@ function TeacherAttendanceMarkingPage() {
   const canTakeAttendance = user?.role === "Teacher";
 
   const [selectedDate, setSelectedDate] = useState(toDateInputValue(new Date()));
+  const [selectedGrade, setSelectedGrade] = useState("");
+  const [selectedStream, setSelectedStream] = useState("");
   const [selectedClassKey, setSelectedClassKey] = useState("");
   const [activeClassKey, setActiveClassKey] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -168,10 +170,31 @@ function TeacherAttendanceMarkingPage() {
   );
 
   useEffect(() => {
-    if (!selectedClassKey && teacherAssignments.length > 0) {
-      setSelectedClassKey(teacherAssignments[0].key);
+    if (!selectedGrade && teacherAssignments.length > 0) {
+      setSelectedGrade(teacherAssignments[0].grade);
     }
-  }, [selectedClassKey, teacherAssignments]);
+  }, [selectedGrade, teacherAssignments]);
+
+  useEffect(() => {
+    if (selectedGrade) {
+      const gradeAssignment = teacherAssignments.find(cls => cls.grade === selectedGrade);
+      if (gradeAssignment && gradeAssignment.stream) {
+        setSelectedStream(gradeAssignment.stream);
+      } else {
+        setSelectedStream("");
+      }
+    }
+  }, [selectedGrade, teacherAssignments]);
+
+  useEffect(() => {
+    if (selectedGrade && selectedStream) {
+      const key = `${selectedGrade}:${selectedStream}`;
+      setSelectedClassKey(key);
+    } else if (selectedGrade) {
+      const key = `${selectedGrade}:`;
+      setSelectedClassKey(key);
+    }
+  }, [selectedGrade, selectedStream]);
 
   const studentsQuery = useQuery({
     queryKey: ["attendance", "roster", activeClass?.grade, activeClass?.stream],
@@ -348,12 +371,14 @@ function TeacherAttendanceMarkingPage() {
       return;
     }
 
-    if (!selectedClass) {
-      toast.error("Please select a class");
+    if (!selectedGrade) {
+      toast.error("Please select a grade");
       return;
     }
 
-    setActiveClassKey(selectedClass.key);
+    // Build the class key from grade and stream
+    const key = selectedStream ? `${selectedGrade}:${selectedStream}` : `${selectedGrade}:`;
+    setActiveClassKey(key);
     setSearchQuery("");
     setRosterFilter("all");
   };
@@ -532,29 +557,55 @@ function TeacherAttendanceMarkingPage() {
             size="small"
           />
 
-          <FormControl size="small" sx={{ minWidth: 220 }}>
-            <InputLabel>{t('pages.dashboard.classes')}</InputLabel>
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel>Grade</InputLabel>
             <Select
-              value={selectedClassKey}
-              label={t('pages.dashboard.classes')}
-              onChange={(event) => setSelectedClassKey(String(event.target.value))}
+              value={selectedGrade}
+              label="Grade"
+              onChange={(event) => {
+                setSelectedGrade(String(event.target.value));
+                setSelectedStream("");
+              }}
             >
               {teacherAssignments.length === 0 ? (
                 <MenuItem value="" disabled>
                   No assigned classes
                 </MenuItem>
               ) : (
-                teacherAssignments.map((cls) => (
-                  <MenuItem key={cls.key} value={cls.key}>
-                    {cls.label}
+                Array.from(new Set(teacherAssignments.map(cls => cls.grade))).map(grade => (
+                  <MenuItem key={grade} value={grade}>
+                    Grade {grade}
                   </MenuItem>
                 ))
               )}
             </Select>
           </FormControl>
 
+          {selectedGrade && classRequiresStream(selectedGrade) && (
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <InputLabel>Stream</InputLabel>
+              <Select
+                value={selectedStream}
+                label="Stream"
+                onChange={(event) => setSelectedStream(String(event.target.value))}
+              >
+                <MenuItem value="">All Streams</MenuItem>
+                {Array.from(new Set(
+                  teacherAssignments
+                    .filter(cls => cls.grade === selectedGrade)
+                    .map(cls => cls.stream)
+                    .filter(Boolean)
+                )).map(stream => (
+                  <MenuItem key={stream} value={stream}>
+                    {stream}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+
           <Box sx={{ ml: { md: "auto" }, display: "flex", gap: 1 }}>
-            <Button variant="contained" onClick={handleLoadStudents} disabled={!canTakeAttendance || !selectedClassKey}>
+            <Button variant="contained" onClick={handleLoadStudents} disabled={!canTakeAttendance || !selectedGrade}>
               {t('common.takeAttendance')}
             </Button>
           </Box>
