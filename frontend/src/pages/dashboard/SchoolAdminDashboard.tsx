@@ -43,6 +43,10 @@ import {
   Search,
   Refresh,
   Announcement,
+  Mail,
+  Reply,
+  Visibility,
+  CheckCircle,
 } from "@mui/icons-material";
 import { useStudents, useUpdateStudent, useDeleteStudent } from "@/hooks/students/useStudents";
 import { useTeachers, useCreateTeacher, useUpdateTeacher, useDeleteTeacher } from "@/hooks/teachers/useTeachers";
@@ -50,6 +54,7 @@ import { useAnnouncements } from "@/hooks/announcements/useAnnouncements";
 import { academicYearService } from "@/services/academicYearService";
 import { absenceAlertService } from "@/services/absenceAlertService";
 import { apiGet, apiPost } from "@/services/api";
+import { contactService, type ContactMessage } from "@/services/contactService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { GRADES, STREAMS, getSubjectsForGrade } from "@/constants/academic";
@@ -124,6 +129,14 @@ export function SchoolAdminDashboard() {
     subject: "",
     classes: [] as Array<{ grade: string; stream?: string }>,
   });
+
+  // Contact Messages State
+  const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
+  const [contactLoading, setContactLoading] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
+  const [responseText, setResponseText] = useState("");
+  const [contactStatusFilter, setContactStatusFilter] = useState<string>("all");
 
   // Fetch real data from API
   const {
@@ -265,6 +278,81 @@ export function SchoolAdminDashboard() {
     refetchTeachers();
     refetchClassesAttendance();
   };
+
+  const loadContactMessages = async () => {
+    setContactLoading(true);
+    try {
+      const params = contactStatusFilter !== "all" ? { status: contactStatusFilter } : {};
+      const response = await contactService.getAllMessages(params);
+      setContactMessages(response?.data || []);
+    } catch (error) {
+      console.error("Failed to load contact messages:", error);
+      toast.error("Failed to load contact messages");
+      setContactMessages([]);
+    } finally {
+      setContactLoading(false);
+    }
+  };
+
+  const handleViewMessage = (message: ContactMessage) => {
+    setSelectedMessage(message);
+    setResponseText(message.adminResponse || "");
+    setMessageDialogOpen(true);
+  };
+
+  const handleSendResponse = async () => {
+    if (!selectedMessage || !responseText.trim()) {
+      toast.error("Please enter a response");
+      return;
+    }
+    try {
+      await contactService.respondToMessage(selectedMessage._id || selectedMessage.id, responseText);
+      toast.success("Response sent successfully");
+      setMessageDialogOpen(false);
+      setSelectedMessage(null);
+      setResponseText("");
+      await loadContactMessages();
+    } catch (error) {
+      console.error("Failed to send response:", error);
+      toast.error("Failed to send response");
+    }
+  };
+
+  const handleUpdateStatus = async (messageId: string, status: 'New' | 'Read' | 'Replied' | 'Archived') => {
+    try {
+      await contactService.updateStatus(messageId, status);
+      toast.success("Status updated successfully");
+      await loadContactMessages();
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      toast.error("Failed to update status");
+    }
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      await contactService.deleteMessage(messageId);
+      toast.success("Message deleted successfully");
+      await loadContactMessages();
+    } catch (error) {
+      console.error("Failed to delete message:", error);
+      toast.error("Failed to delete message");
+    }
+  };
+
+  const fmtDate = (value?: string | null) => {
+    if (!value) return "Never";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return String(value);
+    return d.toLocaleString();
+  };
+
+  // Load contact messages when tab is active
+  useEffect(() => {
+    if (activeTab === 5) {
+      loadContactMessages();
+    }
+  }, [activeTab, contactStatusFilter]);
 
   // Calculate stats from real data
   const totalStudents = studentsData?.pagination?.total ?? students.length ?? 0;
@@ -637,12 +725,9 @@ export function SchoolAdminDashboard() {
           <Tab label={t('pages.dashboard.teachers')} icon={<People />} iconPosition="start" />
           <Tab label={t('pages.dashboard.classes')} icon={<Assessment />} iconPosition="start" />
           <Tab label="Calendar" icon={<CalendarToday />} iconPosition="start" />
-          <Tab
-            label={t('pages.dashboard.announcements')}
-            icon={<Announcement />}
-            iconPosition="start"
-          />
+          <Tab label={t('pages.dashboard.announcements')} icon={<Announcement />} iconPosition="start" />
           <Tab label={t('pages.dashboard.reports')} icon={<Assessment />} iconPosition="start" />
+          <Tab label={t('common.contactMessages')} icon={<Mail />} iconPosition="start" />
         </Tabs>
 
         <Box sx={{ p: 3 }}>
@@ -1345,6 +1430,133 @@ export function SchoolAdminDashboard() {
               ))}
             </Grid>
           </TabPanel>
+
+          {/* Contact Messages Tab */}
+          <TabPanel value={activeTab} index={6}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+              }}
+            >
+              <Typography variant="h6" fontWeight={600}>
+                {t('contactMessages.title')}
+              </Typography>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>{t('contactMessages.status')}</InputLabel>
+                  <Select
+                    value={contactStatusFilter}
+                    label={t('contactMessages.status')}
+                    onChange={(e) => setContactStatusFilter(e.target.value)}
+                  >
+                    <MenuItem value="all">{t('contactMessages.allMessages')}</MenuItem>
+                    <MenuItem value="New">{t('contactMessages.newMessages')}</MenuItem>
+                    <MenuItem value="Read">{t('contactMessages.readMessages')}</MenuItem>
+                    <MenuItem value="Replied">{t('contactMessages.repliedMessages')}</MenuItem>
+                    <MenuItem value="Archived">{t('contactMessages.archivedMessages')}</MenuItem>
+                  </Select>
+                </FormControl>
+                <Button
+                  variant="outlined"
+                  startIcon={<Refresh />}
+                  onClick={loadContactMessages}
+                >
+                  {t('common.refresh')}
+                </Button>
+              </Box>
+            </Box>
+            {contactLoading ? (
+              <Box sx={{ py: 4 }}>
+                <LinearProgress />
+              </Box>
+            ) : contactMessages.length === 0 ? (
+              <Paper sx={{ p: 4, textAlign: "center" }}>
+                <Typography variant="body1" color="text.secondary">
+                  {t('contactMessages.noMessages')}
+                </Typography>
+              </Paper>
+            ) : (
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{t('contactMessages.from')}</TableCell>
+                      <TableCell>{t('contactMessages.email')}</TableCell>
+                      <TableCell>{t('contactMessages.subject')}</TableCell>
+                      <TableCell>{t('contactMessages.priority')}</TableCell>
+                      <TableCell>{t('contactMessages.status')}</TableCell>
+                      <TableCell>{t('contactMessages.date')}</TableCell>
+                      <TableCell align="right">{t('common.actions')}</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {contactMessages.map((message) => (
+                      <TableRow key={message._id || message.id}>
+                        <TableCell>{message.name}</TableCell>
+                        <TableCell>{message.email}</TableCell>
+                        <TableCell>{message.subject}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={message.priority}
+                            size="small"
+                            color={
+                              message.priority === "Urgent"
+                                ? "error"
+                                : message.priority === "High"
+                                  ? "warning"
+                                  : message.priority === "Medium"
+                                    ? "info"
+                                    : "default"
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={message.status}
+                            size="small"
+                            color={
+                              message.status === "New"
+                                ? "error"
+                                : message.status === "Replied"
+                                  ? "success"
+                                  : "default"
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>{fmtDate(message.createdAt)}</TableCell>
+                        <TableCell align="right">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleViewMessage(message)}
+                          >
+                            <Visibility />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleUpdateStatus(
+                              message._id || message.id,
+                              message.status === "New" ? "Read" : "Archived"
+                            )}
+                          >
+                            <CheckCircle />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDeleteMessage(message._id || message.id)}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </TabPanel>
         </Box>
       </Paper>
 
@@ -1914,6 +2126,101 @@ export function SchoolAdminDashboard() {
             disabled={deleteTeacherMutation.isPending}
           >
             {deleteTeacherMutation.isPending ? t('common.loading') : t('common.delete')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Contact Message View/Response Dialog */}
+      <Dialog
+        open={messageDialogOpen}
+        onClose={() => setMessageDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>{t('contactMessages.messageDetails')}</DialogTitle>
+        <DialogContent>
+          {selectedMessage && (
+            <Box>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    {t('contactMessages.from')}
+                  </Typography>
+                  <Typography variant="body1">{selectedMessage.name}</Typography>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    {t('contactMessages.email')}
+                  </Typography>
+                  <Typography variant="body1">{selectedMessage.email}</Typography>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    {t('contactMessages.subject')}
+                  </Typography>
+                  <Typography variant="body1">{selectedMessage.subject}</Typography>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    {t('contactMessages.priority')}
+                  </Typography>
+                  <Chip
+                    label={selectedMessage.priority}
+                    size="small"
+                    color={
+                      selectedMessage.priority === "Urgent"
+                        ? "error"
+                        : selectedMessage.priority === "High"
+                          ? "warning"
+                          : selectedMessage.priority === "Medium"
+                            ? "info"
+                            : "default"
+                    }
+                  />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    {t('contactMessages.message')}
+                  </Typography>
+                  <Paper sx={{ p: 2, mt: 1, background: alpha(theme.palette.grey[100], 0.5) }}>
+                    <Typography variant="body1">{selectedMessage.message}</Typography>
+                  </Paper>
+                </Grid>
+                {selectedMessage.adminResponse && (
+                  <Grid size={{ xs: 12 }}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      {t('contactMessages.response')}
+                    </Typography>
+                    <Paper sx={{ p: 2, mt: 1, background: alpha(theme.palette.success.light, 0.2) }}>
+                      <Typography variant="body1">{selectedMessage.adminResponse}</Typography>
+                    </Paper>
+                  </Grid>
+                )}
+              </Grid>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                {t('contactMessages.respondToMessage')}
+              </Typography>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                value={responseText}
+                onChange={(e) => setResponseText(e.target.value)}
+                placeholder={t('contactMessages.writeResponse')}
+              />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setMessageDialogOpen(false)}>{t('contactMessages.close')}</Button>
+          <Button
+            variant="contained"
+            startIcon={<Reply />}
+            onClick={handleSendResponse}
+            disabled={!responseText.trim()}
+          >
+            {t('contactMessages.sendResponse')}
           </Button>
         </DialogActions>
       </Dialog>
