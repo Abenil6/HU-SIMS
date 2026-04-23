@@ -213,7 +213,16 @@
     "activeClasses": "Kilasoota Haawaa",
     "className": "Maqaa Kilasaa",
     "classTeacher": "Barataa Kilasaa",
-    "classDetails": "Xiqqee Kilasaa"
+    "classDetails": "Xiqqee Kilasaa",
+    "deleteMessageConfirm": "Eeggala kana haqachuuf sirrii ta'a?",
+    "create": "Uum",
+    "saving": "Kuusaa...",
+    "regenerating": "Deebi'uumsaa...",
+    "deleteConfirmMessage": "Kun haqachuuf sirrii ta'a?",
+    "natural": "Uumaa",
+    "social": "Sirna",
+    "reset": "Deebi'i",
+    "generate": "Uum"
   },
   "pages": {
     "dashboard": {

@@ -212,7 +212,16 @@
     "activeClasses": "Active Classes",
     "className": "Class Name",
     "classTeacher": "Class Teacher",
-    "classDetails": "Class Details"
+    "classDetails": "Class Details",
+    "deleteMessageConfirm": "Are you sure you want to delete this message?",
+    "create": "Create",
+    "saving": "Saving...",
+    "regenerating": "Regenerating...",
+    "deleteConfirmMessage": "Are you sure you want to delete this item?",
+    "natural": "Natural",
+    "social": "Social",
+    "reset": "Reset",
+    "generate": "Generate"
   },
   "pages": {
     "dashboard": {

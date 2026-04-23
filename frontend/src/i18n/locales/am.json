@@ -212,7 +212,16 @@
     "activeClasses": "ንቁ ክፍሎች",
     "className": "የክፍል ስም",
     "classTeacher": "የክፍል አስተማሪ",
-    "classDetails": "የክፍል ዝርዝሮች"
+    "classDetails": "የክፍል ዝርዝሮች",
+    "deleteMessageConfirm": "ይህን መልእክት ለማጥፋት እርግጠኛ ነዎት?",
+    "create": "ፍጠር",
+    "saving": "በማስቀመጥ ላይ...",
+    "regenerating": "በእንደገና መፍጠር ላይ...",
+    "deleteConfirmMessage": "ይህን እቃ ለማጥፋት እርግጠኛ ነዎት?",
+    "natural": "ተፈጥሯዊ",
+    "social": "ማህበራዊ",
+    "reset": "እንደነበረ አድስ",
+    "generate": "ፍጠር"
   },
   "pages": {
     "dashboard": {
