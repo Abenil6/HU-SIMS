@@ -436,7 +436,8 @@ export function GradesPage() {
         const submittedFlag = record?.submittedComponents?.[componentField];
         const isSubmitted =
           typeof submittedFlag === "boolean" ? submittedFlag : score > 0;
-        if (!isSubmitted) return [];
+        // Always include the component if it has a score, regardless of submitted flag
+        if (score === 0) return [];
 
         return [{
           id: `${baseId}:${component.assessmentType}`,
@@ -644,7 +645,6 @@ export function GradesPage() {
       finalExam: number;
       assignment: number;
       classQuiz: number;
-      continuousAssessment: number;
       total: number;
       percentage: number;
       grade: string;
@@ -658,7 +658,6 @@ export function GradesPage() {
           finalExam: 0,
           assignment: 0,
           classQuiz: 0,
-          continuousAssessment: 0,
           total: 0,
           percentage: 0,
           grade: "",
@@ -677,7 +676,7 @@ export function GradesPage() {
 
     // Calculate totals and percentages for each subject
     subjectMap.forEach((subject) => {
-      subject.total = subject.midExam + subject.finalExam + subject.assignment + subject.classQuiz + subject.continuousAssessment;
+      subject.total = subject.midExam + subject.finalExam + subject.assignment + subject.classQuiz;
       subject.percentage = subject.total; // Total is already out of 100
       subject.grade = getStatus(subject.percentage);
     });
