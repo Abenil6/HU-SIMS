@@ -864,6 +864,57 @@ const buildReportHtml = (report, exportData) => {
     `;
   }
 
+  if (report.reportType === 'AttendanceSummary') {
+    const summary = exportData.data?.summary || {};
+    const monthlyData = exportData.data?.monthlyData || [];
+    
+    // Group by date
+    const groupedByDate = {};
+    monthlyData.forEach(record => {
+      const date = record.date ? new Date(record.date).toLocaleDateString() : 'N/A';
+      if (!groupedByDate[date]) {
+        groupedByDate[date] = [];
+      }
+      groupedByDate[date].push(record);
+    });
+
+    const dateTables = Object.entries(groupedByDate)
+      .map(([date, records]) => `
+        <h3>${escapeHtml(date)}</h3>
+        <table>
+          <thead>
+            <tr><th>Student</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            ${records.map(record => `
+              <tr>
+                <td>${escapeHtml(record.student?.firstName || '')} ${escapeHtml(record.student?.lastName || '')}</td>
+                <td>${escapeHtml(record.status)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `).join('');
+
+    return `
+      <html><head><meta charset="utf-8" />${baseStyles}<title>Attendance Summary</title></head>
+      <body>
+        ${schoolHeader}
+        ${header}
+        <div class="summary">
+          <div class="card"><strong>Total Days</strong><br />${escapeHtml(summary.totalDays || 0)}</div>
+          <div class="card"><strong>Present</strong><br />${escapeHtml(summary.present || 0)}</div>
+          <div class="card"><strong>Absent</strong><br />${escapeHtml(summary.absent || 0)}</div>
+          <div class="card"><strong>Late</strong><br />${escapeHtml(summary.late || 0)}</div>
+          <div class="card"><strong>Excused</strong><br />${escapeHtml(summary.excused || 0)}</div>
+          <div class="card"><strong>Attendance %</strong><br />${escapeHtml(summary.percentage || 0)}%</div>
+        </div>
+        <h2>Daily Attendance Records</h2>
+        ${dateTables || '<p>No attendance records found.</p>'}
+      </body></html>
+    `;
+  }
+
   return `
     <html><head><meta charset="utf-8" />${baseStyles}<title>${escapeHtml(report.reportType)}</title></head>
     <body>
