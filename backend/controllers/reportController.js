@@ -554,13 +554,22 @@ const buildReportCsv = (report, exportData) => {
 };
 
 const renderMetadataBlock = (exportData) => {
-  // For attendance summary, try to get student info from the first record if it's a student report
+  const isClassScopedAttendanceSummary =
+    exportData.reportType === 'AttendanceSummary' && !exportData.student;
+
+  // For attendance summary reports scoped to class, student fields should stay null.
   let studentName = exportData.student?.name || 'N/A';
   let studentGrade = exportData.student?.grade || 'N/A';
   let studentStream = exportData.student?.stream || 'N/A';
 
-  // If no student info in exportData.student, check the data for attendance summary
-  if (studentName === 'N/A' && exportData.data?.monthlyData?.length > 0) {
+  if (isClassScopedAttendanceSummary) {
+    studentName = 'null';
+    studentGrade = 'null';
+    studentStream = 'null';
+  }
+
+  // If no student info in exportData.student, check the data for attendance summary (student-scoped only)
+  if (!isClassScopedAttendanceSummary && studentName === 'N/A' && exportData.data?.monthlyData?.length > 0) {
     const firstRecord = exportData.data.monthlyData[0];
     if (firstRecord.student) {
       studentName = `${firstRecord.student.firstName || ''} ${firstRecord.student.lastName || ''}`.trim() || 'N/A';
