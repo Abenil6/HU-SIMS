@@ -3,13 +3,15 @@ const User = require('../models/User');
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const PERIODS = [
-  { period: 1, startTime: '08:30', endTime: '09:15' },
-  { period: 2, startTime: '09:15', endTime: '10:00' },
-  { period: 3, startTime: '10:00', endTime: '10:45' },
-  { period: 4, startTime: '11:00', endTime: '11:45' },
-  { period: 5, startTime: '11:45', endTime: '12:30' },
-  { period: 6, startTime: '13:30', endTime: '14:15' },
-  { period: 7, startTime: '14:15', endTime: '15:00' }
+  { period: 1, startTime: '08:30', endTime: '09:15', isBreak: false },
+  { period: 2, startTime: '09:15', endTime: '10:00', isBreak: false },
+  { period: 3, startTime: '10:00', endTime: '10:45', isBreak: false },
+  { period: 'TEA', startTime: '10:45', endTime: '11:00', isBreak: true, breakName: 'Tea Break' },
+  { period: 4, startTime: '11:00', endTime: '11:45', isBreak: false },
+  { period: 5, startTime: '11:45', endTime: '12:30', isBreak: false },
+  { period: 'LUNCH', startTime: '12:30', endTime: '13:30', isBreak: true, breakName: 'Lunch Break' },
+  { period: 6, startTime: '13:30', endTime: '14:15', isBreak: false },
+  { period: 7, startTime: '14:15', endTime: '15:00', isBreak: false }
 ];
 
 const SUBJECTS_BY_GRADE = {
@@ -82,6 +84,7 @@ const getTargetWeeklyCounts = (subjects, className) => {
   const gradeNum = parseInt(String(className), 10);
   const isSocialScience11_12 = (gradeNum === 11 || gradeNum === 12) && 
     subjects.includes('Economics'); // Economics is only in social science stream
+  const isGrade9_10 = gradeNum === 9 || gradeNum === 10;
   
   subjects.forEach((subject) => {
     if (subject === 'Mathematics' || subject === 'English') {
@@ -90,10 +93,12 @@ const getTargetWeeklyCounts = (subjects, className) => {
       subject === 'Civics' ||
       subject === 'Information Communication Technology (ICT)' ||
       subject === 'Physical and Health Education (HPE)' ||
-      subject === 'Amharic' ||
+      (!isGrade9_10 && subject === 'Amharic') || // Amharic: 2 periods for 11-12, 3 for 9-10
       (!isSocialScience11_12 && (subject === 'History' || subject === 'Geography'))
     ) {
       counts[subject] = 2;
+    } else if (isGrade9_10 && subject === 'Amharic') {
+      counts[subject] = 3; // Amharic: 3 periods for grades 9-10
     } else {
       counts[subject] = 4;
     }
@@ -717,6 +722,22 @@ exports.generateTimetable = async (req, res) => {
         pointer += 1;
         if (pointer > 500) break;
       }
+    } else if (requiredSlots < availableSlots) {
+      // Fill empty slots by adding extra periods to lower-priority subjects
+      warnings.push(
+        `Total requested periods (${requiredSlots}) less than available periods (${availableSlots}); adding extra periods to fill schedule.`
+      );
+      const adjustableSubjects = sortByLeastCount(targetCounts).filter(
+        (s) => s !== 'Mathematics' && s !== 'English'
+      );
+      let pointer = 0;
+      while (requiredSlots < availableSlots && adjustableSubjects.length) {
+        const subject = adjustableSubjects[pointer % adjustableSubjects.length];
+        targetCounts[subject] += 1;
+        requiredSlots += 1;
+        pointer += 1;
+        if (pointer > 500) break;
+      }
     }
 
     const teachers = await User.find({ role: 'Teacher', status: 'Active' })
@@ -767,17 +788,15 @@ exports.generateTimetable = async (req, res) => {
 
     for (const day of DAYS) {
       for (const periodInfo of PERIODS) {
+        if (periodInfo.isBreak) continue; // Skip break periods
+
         const dayEntries = schedule.filter((e) => e.day === day).sort((a, b) => a.period - b.period);
         const previousSubject = dayEntries.length ? dayEntries[dayEntries.length - 1].subject : null;
         const daySubjects = new Set(dayEntries.map((entry) => entry.subject));
 
         const candidates = Object.keys(targetCounts)
           .filter((subject) => subjectPlacedCount[subject] < targetCounts[subject])
-          .sort((a, b) => {
-            const remA = targetCounts[a] - subjectPlacedCount[a];
-            const remB = targetCounts[b] - subjectPlacedCount[b];
-            return remB - remA;
-          });
+          .sort(() => Math.random() - 0.5); // Randomize subject selection
 
         let picked = null;
         for (const subject of candidates) {
