@@ -650,6 +650,8 @@ export function GradesPage() {
       total: number;
       percentage: number;
       grade: string;
+      status: string;
+      rejectionReason: string;
     }>();
 
     filteredGrades.forEach((g) => {
@@ -663,6 +665,8 @@ export function GradesPage() {
           total: 0,
           percentage: 0,
           grade: "",
+          status: g.status || "Draft",
+          rejectionReason: g.rejectionReason || "",
         });
       }
 
@@ -674,6 +678,16 @@ export function GradesPage() {
       else if (g.assessmentType === "assignment") subject.assignment = g.score;
       else if (g.assessmentType === "test") subject.classQuiz = g.score;
       else if (g.assessmentType === "class_quiz") subject.classQuiz = g.score;
+      
+      // Update status if this grade has a more severe status
+      if (g.status === "Rejected") {
+        subject.status = "Rejected";
+        subject.rejectionReason = g.rejectionReason || "";
+      } else if (g.status === "Pending Approval" && subject.status !== "Rejected") {
+        subject.status = "Pending Approval";
+      } else if (g.status === "Approved" && subject.status !== "Rejected" && subject.status !== "Pending Approval") {
+        subject.status = "Approved";
+      }
     });
 
     // Calculate totals and percentages for each subject
@@ -1368,18 +1382,19 @@ export function GradesPage() {
                     <TableCell sx={{ fontWeight: 600 }} align="center">Total</TableCell>
                     <TableCell sx={{ fontWeight: 600 }} align="center">Percentage</TableCell>
                     <TableCell sx={{ fontWeight: 600 }} align="center">Grade</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }} align="center">Status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {isLoadingRecords ? (
                     <TableRow>
-                      <TableCell colSpan={8} align="center">
+                      <TableCell colSpan={9} align="center">
                         <CircularProgress size={24} />
                       </TableCell>
                     </TableRow>
                   ) : subjectGrades.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} align="center">
+                      <TableCell colSpan={9} align="center">
                         <Typography color="text.secondary">
                           No grades have been entered for this student yet.
                         </Typography>
@@ -1423,6 +1438,24 @@ export function GradesPage() {
                             color={row.grade === "passed" ? "success" : "error"}
                             size="small"
                           />
+                        </TableCell>
+                        <TableCell align="center">
+                          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5, alignItems: "center" }}>
+                            <Chip
+                              label={row.status || "Draft"}
+                              size="small"
+                              color={
+                                row.status === "Approved" ? "success" :
+                                row.status === "Rejected" ? "error" :
+                                row.status === "Pending Approval" ? "warning" : "default"
+                              }
+                            />
+                            {row.status === "Rejected" && row.rejectionReason && (
+                              <Typography variant="caption" color="error" sx={{ fontSize: "0.7rem", textAlign: "center" }}>
+                                {row.rejectionReason}
+                              </Typography>
+                            )}
+                          </Box>
                         </TableCell>
                       </TableRow>
                     ))
