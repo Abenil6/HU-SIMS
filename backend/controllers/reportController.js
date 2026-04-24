@@ -867,6 +867,7 @@ const buildReportHtml = (report, exportData) => {
   if (report.reportType === 'AttendanceSummary') {
     const summary = exportData.data?.summary || {};
     const monthlyData = exportData.data?.monthlyData || [];
+    const isStudentReport = !!exportData.student?.id;
     
     // Group by date
     const groupedByDate = {};
@@ -886,12 +887,17 @@ const buildReportHtml = (report, exportData) => {
             <tr><th>Student</th><th>Status</th></tr>
           </thead>
           <tbody>
-            ${records.map(record => `
-              <tr>
-                <td>${escapeHtml(record.student?.firstName || '')} ${escapeHtml(record.student?.lastName || '')}</td>
-                <td>${escapeHtml(record.status)}</td>
-              </tr>
-            `).join('')}
+            ${records.map(record => {
+              const studentName = record.student 
+                ? `${escapeHtml(record.student.firstName || '')} ${escapeHtml(record.student.lastName || '')}`.trim()
+                : 'Unknown Student';
+              return `
+                <tr>
+                  <td>${studentName}</td>
+                  <td>${escapeHtml(record.status)}</td>
+                </tr>
+              `;
+            }).join('')}
           </tbody>
         </table>
       `).join('');
@@ -909,7 +915,7 @@ const buildReportHtml = (report, exportData) => {
           <div class="card"><strong>Excused</strong><br />${escapeHtml(summary.excused || 0)}</div>
           <div class="card"><strong>Attendance %</strong><br />${escapeHtml(summary.percentage || 0)}%</div>
         </div>
-        <h2>Daily Attendance Records</h2>
+        <h2>${isStudentReport ? 'Student' : 'Class'} Attendance Records</h2>
         ${dateTables || '<p>No attendance records found.</p>'}
       </body></html>
     `;

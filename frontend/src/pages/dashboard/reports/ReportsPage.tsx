@@ -309,15 +309,25 @@ export function ReportsPage() {
         }
       } else if (selectedReportType === "attendance_summary") {
         const month = String(values.month || "01").padStart(2, "0");
-        await reportService.generateAttendanceSummary({
-          academicYear,
-          month,
-          grade,
-          studentId:
-            typeof values.studentId === "string" && values.studentId
-              ? values.studentId
-              : undefined,
-        });
+        const reportScope = String(values.reportScope || "class");
+        
+        if (reportScope === "student") {
+          if (!values.studentId || typeof values.studentId !== "string") {
+            toast.error("Please select a student for individual report");
+            return;
+          }
+          await reportService.generateAttendanceSummary({
+            academicYear,
+            month,
+            studentId: values.studentId,
+          });
+        } else {
+          await reportService.generateAttendanceSummary({
+            academicYear,
+            month,
+            grade,
+          });
+        }
       } else {
         toast.error("This report type is not yet supported");
         return;
@@ -660,6 +670,18 @@ export function ReportsPage() {
               { value: "11", label: "November" },
               { value: "12", label: "December" },
             ],
+            helperText: "Select the month for attendance records.",
+          },
+          {
+            name: "reportScope",
+            label: "Report Scope",
+            type: "select" as const,
+            required: true,
+            options: [
+              { value: "class", label: "Class Report (All Students)" },
+              { value: "student", label: "Student Report (Individual)" },
+            ],
+            helperText: "Choose to generate for entire class or a specific student.",
           },
         ]
       : []),
