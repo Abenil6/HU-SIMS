@@ -10,10 +10,12 @@ import { apiGet, apiPost, apiPut, apiDelete } from "./api";
 // Timetable interfaces
 export interface Period {
   id: string;
-  periodNumber: number;
+  periodNumber: number | string;
   startTime: string; // HH:mm format
   endTime: string;
   duration: number; // in minutes
+  isBreak?: boolean;
+  breakName?: string;
 }
 
 export interface TimeSlot {
@@ -124,13 +126,15 @@ export interface RoomSchedule {
 
 // Default periods configuration
 export const defaultPeriods: Period[] = [
-  { id: "1", periodNumber: 1, startTime: "08:00", endTime: "08:45", duration: 45 },
-  { id: "2", periodNumber: 2, startTime: "08:45", endTime: "09:30", duration: 45 },
-  { id: "3", periodNumber: 3, startTime: "09:30", endTime: "10:15", duration: 45 },
-  { id: "4", periodNumber: 4, startTime: "10:30", endTime: "11:15", duration: 45 },
-  { id: "5", periodNumber: 5, startTime: "11:15", endTime: "12:00", duration: 45 },
-  { id: "6", periodNumber: 6, startTime: "12:00", endTime: "12:45", duration: 45 },
-  { id: "7", periodNumber: 7, startTime: "12:45", endTime: "13:30", duration: 45 },
+  { id: "1", periodNumber: 1, startTime: "08:30", endTime: "09:15", duration: 45 },
+  { id: "2", periodNumber: 2, startTime: "09:15", endTime: "10:00", duration: 45 },
+  { id: "3", periodNumber: 3, startTime: "10:00", endTime: "10:45", duration: 45 },
+  { id: "TEA", periodNumber: "TEA", startTime: "10:45", endTime: "11:00", duration: 15, isBreak: true, breakName: "Tea Break" },
+  { id: "4", periodNumber: 4, startTime: "11:00", endTime: "11:45", duration: 45 },
+  { id: "5", periodNumber: 5, startTime: "11:45", endTime: "12:30", duration: 45 },
+  { id: "LUNCH", periodNumber: "LUNCH", startTime: "12:30", endTime: "13:30", duration: 60, isBreak: true, breakName: "Lunch Break" },
+  { id: "6", periodNumber: 6, startTime: "13:30", endTime: "14:15", duration: 45 },
+  { id: "7", periodNumber: 7, startTime: "14:15", endTime: "15:00", duration: 45 },
 ];
 
 export const daysOfWeek: DayOfWeek[] = [

@@ -476,7 +476,7 @@ export function TimetablePage() {
 
     const scheduleData: TimetableScheduleEntry = {
       day: values.day as DayOfWeek,
-      period: period.periodNumber,
+      period: typeof period.periodNumber === 'number' ? period.periodNumber : 1,
       subject: values.subject as string,
       teacher: values.teacherId as string,
       teacherId: values.teacherId as string,
@@ -706,7 +706,9 @@ export function TimetablePage() {
       .sort((a, b) => {
         const dayDiff = weekDays.indexOf(a.day) - weekDays.indexOf(b.day);
         if (dayDiff !== 0) return dayDiff;
-        return a.period.periodNumber - b.period.periodNumber;
+        const periodA = typeof a.period.periodNumber === 'number' ? a.period.periodNumber : 0;
+        const periodB = typeof b.period.periodNumber === 'number' ? b.period.periodNumber : 0;
+        return periodA - periodB;
       })
       .map((slot) => [
         slot.day,
@@ -997,43 +999,69 @@ export function TimetablePage() {
                   gap: 1,
                   p: 1,
                   borderBottom: `1px solid ${theme.palette.divider}`,
+                  background: period.isBreak ? alpha(theme.palette.warning.main, 0.1) : "transparent",
                 }}
               >
                 <Box sx={{ p: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                  <Typography variant="body2" fontWeight={600}>P{period.periodNumber}</Typography>
+                  <Typography variant="body2" fontWeight={600}>
+                    {period.isBreak ? period.breakName : `P${period.periodNumber}`}
+                  </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {period.startTime} - {period.endTime}
                   </Typography>
                 </Box>
 
-                {weekDays.map((day) => {
-                  const cellSlot = getSlotForCell(day, period);
-                  const isCurrent = cellSlot?.id === currentClass?.id;
-
-                  return (
+                {period.isBreak ? (
+                  // Display break cells across all days
+                  weekDays.map((day) => (
                     <Paper
                       key={`${day}-${period.id}`}
                       sx={{
                         p: 1,
                         minHeight: 90,
                         borderRadius: 1.5,
-                        border: `1px solid ${
-                          cellSlot ? getSubjectColor(cellSlot.subject) : theme.palette.divider
-                        }`,
-                        background: cellSlot
-                          ? alpha(getSubjectColor(cellSlot.subject), isCurrent ? 0.2 : 0.1)
-                          : alpha(theme.palette.grey[200], 0.25),
-                        boxShadow: isCurrent
-                          ? `0 0 0 2px ${alpha(theme.palette.success.main, 0.55)}`
-                          : "none",
-                        transition: "all 0.2s ease",
-                        cursor: isViewOnly ? "default" : "pointer",
-                        "&:hover": {
-                          background: cellSlot
-                            ? alpha(getSubjectColor(cellSlot.subject), isCurrent ? 0.25 : 0.16)
-                            : alpha(theme.palette.grey[300], 0.3),
-                        },
+                        border: `1px solid ${theme.palette.warning.main}`,
+                        background: alpha(theme.palette.warning.main, 0.15),
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
+                    >
+                      <Typography variant="body2" fontWeight={600} color="warning.dark">
+                        {period.breakName}
+                      </Typography>
+                    </Paper>
+                  ))
+                ) : (
+                  // Display subject cells for regular periods
+                  weekDays.map((day) => {
+                    const cellSlot = getSlotForCell(day, period);
+                    const isCurrent = cellSlot?.id === currentClass?.id;
+
+                    return (
+                      <Paper
+                        key={`${day}-${period.id}`}
+                        sx={{
+                          p: 1,
+                          minHeight: 90,
+                          borderRadius: 1.5,
+                          border: `1px solid ${
+                            cellSlot ? getSubjectColor(cellSlot.subject) : theme.palette.divider
+                          }`,
+                          background: cellSlot
+                            ? alpha(getSubjectColor(cellSlot.subject), isCurrent ? 0.2 : 0.1)
+                            : alpha(theme.palette.grey[200], 0.25),
+                          boxShadow: isCurrent
+                            ? `0 0 0 2px ${alpha(theme.palette.success.main, 0.55)}`
+                            : "none",
+                          transition: "all 0.2s ease",
+                          cursor: isViewOnly ? "default" : "pointer",
+                          "&:hover": {
+                            background: cellSlot
+                              ? alpha(getSubjectColor(cellSlot.subject), isCurrent ? 0.25 : 0.16)
+                              : alpha(theme.palette.grey[300], 0.3),
+                          },
+                        }}
                       onClick={() => {
                         if (isViewOnly) return;
                         if (cellSlot) {
@@ -1067,7 +1095,8 @@ export function TimetablePage() {
                       )}
                     </Paper>
                   );
-                })}
+                })
+                )}
               </Box>
             ))}
           </Box>
