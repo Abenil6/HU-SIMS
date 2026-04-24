@@ -753,8 +753,8 @@ export function GradesPage() {
     setEditMode(true);
     setSelectedGrade(grade);
     
-    // If grade is rejected, load all components for resubmission
-    if (grade.status === "Rejected") {
+    // If grade is rejected or marked as subject edit, load all components
+    if (grade.status === "Rejected" || (grade as any).isSubjectEdit) {
       // Find all grades for this student, subject, semester, and academic year
       const allGradesForSubject = filteredGrades.filter(
         (g) => 
@@ -812,8 +812,8 @@ export function GradesPage() {
     setSubmitting(true);
     try {
       if (editMode && selectedGrade) {
-        // If editing a rejected grade, resubmit all components
-        if (selectedGrade.status === "Rejected") {
+        // If editing a rejected grade or subject-level edit, resubmit all components
+        if (selectedGrade.status === "Rejected" || (selectedGrade as any).isSubjectEdit) {
           const acadYear = filters.academicYear?.trim()
             ? filters.academicYear
             : activeAcademicYear;
@@ -849,7 +849,7 @@ export function GradesPage() {
             await createGrade.mutateAsync(data);
           }
           
-          toast.success("Grade resubmitted successfully");
+          toast.success("Grade updated successfully");
         } else {
           // Normal edit: only update the one component shown
           const comp = COMPONENTS.find(
@@ -1526,13 +1526,17 @@ export function GradesPage() {
                             <IconButton
                               size="small"
                               onClick={(e: React.MouseEvent<HTMLElement>) => {
-                                // Find the first grade for this subject to use for editing
-                                const subjectGrade = filteredGrades.find(
+                                // Find all grades for this subject to use for editing
+                                const subjectGrades = filteredGrades.filter(
                                   (g) => g.subject === row.subject
                                 );
-                                if (subjectGrade) {
+                                if (subjectGrades.length > 0) {
+                                  // Use the first grade but mark it for full subject edit
+                                  const firstGrade = subjectGrades[0];
+                                  // Add a flag to indicate this is a subject-level edit
+                                  (firstGrade as any).isSubjectEdit = true;
                                   setAnchorEl(e.currentTarget);
-                                  setSelectedGrade(subjectGrade);
+                                  setSelectedGrade(firstGrade);
                                 }
                               }}
                             >
