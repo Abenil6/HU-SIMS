@@ -553,16 +553,33 @@ const buildReportCsv = (report, exportData) => {
   return rows.map((row) => row.map(quoteCsv).join(',')).join('\n');
 };
 
-const renderMetadataBlock = (exportData) => `
+const renderMetadataBlock = (exportData) => {
+  // For attendance summary, try to get student info from the first record if it's a student report
+  let studentName = exportData.student?.name || 'N/A';
+  let studentGrade = exportData.student?.grade || 'N/A';
+  let studentStream = exportData.student?.stream || 'N/A';
+
+  // If no student info in exportData.student, check the data for attendance summary
+  if (studentName === 'N/A' && exportData.data?.monthlyData?.length > 0) {
+    const firstRecord = exportData.data.monthlyData[0];
+    if (firstRecord.student) {
+      studentName = `${firstRecord.student.firstName || ''} ${firstRecord.student.lastName || ''}`.trim() || 'N/A';
+      studentGrade = firstRecord.student.grade || 'N/A';
+      studentStream = firstRecord.student.stream || 'N/A';
+    }
+  }
+
+  return `
   <div class="meta-grid">
-    <div><strong>Student:</strong> ${escapeHtml(exportData.student?.name || 'N/A')}</div>
-    <div><strong>Grade:</strong> ${escapeHtml(exportData.student?.grade || 'N/A')}</div>
-    <div><strong>Stream/Section:</strong> ${escapeHtml(exportData.student?.stream || 'N/A')}</div>
+    <div><strong>Student:</strong> ${escapeHtml(studentName)}</div>
+    <div><strong>Grade:</strong> ${escapeHtml(studentGrade)}</div>
+    <div><strong>Stream/Section:</strong> ${escapeHtml(studentStream)}</div>
     <div><strong>Academic Year:</strong> ${escapeHtml(exportData.academicYear || 'N/A')}</div>
     <div><strong>Generated:</strong> ${escapeHtml(new Date(exportData.generatedAt).toLocaleString())}</div>
     <div><strong>Status:</strong> ${escapeHtml(exportData.official ? 'Official' : 'Draft')}</div>
   </div>
 `;
+};
 
 const buildReportHtml = (report, exportData) => {
   const baseStyles = `
@@ -1430,6 +1447,17 @@ exports.generateAttendanceSummary = async (req, res) => {
     summary.percentage =
       summary.totalDays > 0 ? roundToTwo((summary.present / summary.totalDays) * 100) : 0;
 
+    // Serialize student data for PDF rendering
+    const serializedRecords = filteredRecords.map(record => ({
+      ...record.toObject(),
+      student: record.student ? {
+        firstName: record.student.firstName,
+        lastName: record.student.lastName,
+        grade: record.student.grade || record.student.studentProfile?.grade,
+        stream: record.student.studentProfile?.stream,
+      } : null,
+    }));
+
     const report = new Report({
       reportType: 'AttendanceSummary',
       student: studentId,
@@ -1437,7 +1465,7 @@ exports.generateAttendanceSummary = async (req, res) => {
       semester: Number(month) <= 6 ? 'Semester 2' : 'Semester 1',
       generatedBy: req.user.id,
       data: {
-        monthlyData: filteredRecords,
+        monthlyData: serializedRecords,
         summary,
       },
     });

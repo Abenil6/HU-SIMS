@@ -683,6 +683,14 @@ export function ReportsPage() {
             ],
             helperText: "Choose to generate for entire class or a specific student.",
           },
+          {
+            name: "studentId",
+            label: "Student",
+            type: "select" as const,
+            required: false,
+            options: studentOptions,
+            helperText: "Required when generating individual student report.",
+          },
         ]
       : []),
     ...(!["student_transcript", "student_report_card"].includes(String(selectedReportType))
