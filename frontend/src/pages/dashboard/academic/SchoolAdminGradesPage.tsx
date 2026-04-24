@@ -124,6 +124,31 @@ const streamFilterLabel = (stream: string) =>
 const csvEscape = (value: unknown) =>
   `"${String(value ?? "").replace(/"/g, '""')}"`;
 
+interface AdminGradeRow {
+  id: string;
+  studentId: string;
+  studentName: string;
+  grade: string;
+  stream: string;
+  section: string;
+  subject: string;
+  assessmentType: string;
+  score: number;
+  maxScore: number;
+  percentage: number;
+  weight: number;
+  semester: string;
+  academicYear: string;
+  enteredBy: string;
+  createdAt?: string;
+  status: string;
+  rawRecordId: string;
+  midExam: number;
+  finalExam: number;
+  assignment: number;
+  classQuiz: number;
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 export function SchoolAdminGradesPage() {
   const theme = useTheme();
@@ -221,7 +246,7 @@ export function SchoolAdminGradesPage() {
   }, [allStudents]);
 
   // Transform records to grades using original GradesPage's flatMap approach
-  const grades = useMemo(() => {
+  const grades = useMemo<AdminGradeRow[]>(() => {
     if (!recordsData) return [];
     const records = Array.isArray(recordsData.data) ? recordsData.data : [];
     
@@ -339,8 +364,8 @@ export function SchoolAdminGradesPage() {
   }, [recordsData, studentLookup]);
 
   // Filter grades
-  const filteredGrades = useMemo(() => {
-    return grades.filter((g: any) => {
+  const filteredGrades = useMemo<AdminGradeRow[]>(() => {
+    return grades.filter((g) => {
       if (filters.selectedStudentId && g.studentId !== filters.selectedStudentId) {
         return false;
       }
@@ -629,7 +654,7 @@ export function SchoolAdminGradesPage() {
         "Entered By",
       ];
 
-      const rows = filteredGrades.map((grade) => [
+      const rows = filteredGrades.map((grade: AdminGradeRow) => [
         grade.studentId,
         grade.studentName,
         grade.grade,

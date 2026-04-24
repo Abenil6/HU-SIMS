@@ -184,7 +184,7 @@ export function ParentChildGradesPage() {
       {/* Child Info Card */}
       <Paper sx={{ p: 3, borderRadius: 3, mb: 3 }}>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" fontWeight={600}>
               {child?.firstName} {child?.lastName}
             </Typography>
@@ -196,7 +196,7 @@ export function ParentChildGradesPage() {
               {t('parent.studentId')}: {child?.studentProfile?.studentId || "N/A"}
             </Typography>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="body2" color="text.secondary">
               {t('parent.academicYear')}: {selectedYear || t('parent.allYears')}
             </Typography>

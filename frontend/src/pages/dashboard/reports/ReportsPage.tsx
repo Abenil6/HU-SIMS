@@ -279,14 +279,22 @@ export function ReportsPage() {
       const semester = values.semester === "2" ? "Semester 2" : "Semester 1";
       const grade = String(values.grade || "10");
 
-      if (selectedReportType === "student_report_card" && values.studentId) {
+      if (selectedReportType === "student_report_card") {
+        if (!values.studentId) {
+          toast.error("Please select a student for report card generation");
+          return;
+        }
         await reportService.generateReportCard({
           studentId: String(values.studentId),
           academicYear,
           semester,
           behaviorGrade: String(values.behaviorGrade || "B") as "A" | "B" | "C",
         });
-      } else if (selectedReportType === "student_transcript" && values.studentId) {
+      } else if (selectedReportType === "student_transcript") {
+        if (!values.studentId) {
+          toast.error("Please select a student for transcript generation");
+          return;
+        }
         await reportService.generateStudentTranscriptOfficial({
           studentId: String(values.studentId),
         });

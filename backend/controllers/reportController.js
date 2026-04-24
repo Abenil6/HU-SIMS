@@ -1137,9 +1137,12 @@ const saveReport = async ({ reportType, student, academicYear, semester = 'Semes
 };
 
 const handleControllerError = (res, error, fallbackMessage) => {
-  res.status(error.statusCode || 500).json({
+  const statusCode = error.statusCode || 500;
+  const clientMessage = statusCode >= 500 ? fallbackMessage : error.message || fallbackMessage;
+
+  res.status(statusCode).json({
     success: false,
-    message: fallbackMessage,
+    message: clientMessage,
     error: error.message,
   });
 };
@@ -1242,6 +1245,14 @@ exports.generateClassProgressReport = async (req, res) => {
     const normalizedClassName = String(className || '')
       .replace(/^Grade\s+/i, '')
       .trim();
+    const normalizedSemester = normalizeSemester(semester);
+
+    if (!normalizedClassName || !academicYear || !normalizedSemester) {
+      return res.status(400).json({
+        success: false,
+        message: 'class, academicYear, and semester are required',
+      });
+    }
 
     const students = await User.find({
       role: 'Student',
@@ -1259,7 +1270,7 @@ exports.generateClassProgressReport = async (req, res) => {
       const records = await AcademicRecord.find({
         student: student._id,
         academicYear,
-        semester: normalizeSemester(semester),
+        semester: normalizedSemester,
         status: 'Approved',
       });
 
@@ -1295,7 +1306,7 @@ exports.generateClassProgressReport = async (req, res) => {
       reportType: 'ClassProgress',
       class: normalizedClassName || className,
       academicYear,
-      semester: normalizeSemester(semester) || 'Semester 1',
+      semester: normalizedSemester,
       generatedBy: req.user.id,
       data: {
         students: classData,
@@ -1327,8 +1338,9 @@ exports.generateAcademicPerformanceReport = async (req, res) => {
     const normalizedGrade = String(grade || '')
       .replace(/^Grade\s+/i, '')
       .trim();
+    const normalizedSemester = normalizeSemester(semester);
 
-    if (!normalizedGrade || !academicYear || !semester) {
+    if (!normalizedGrade || !academicYear || !normalizedSemester) {
       return res.status(400).json({
         success: false,
         message: 'grade, academicYear, and semester are required',
@@ -1349,7 +1361,7 @@ exports.generateAcademicPerformanceReport = async (req, res) => {
       const records = await AcademicRecord.find({
         student: student._id,
         academicYear,
-        semester: normalizeSemester(semester),
+        semester: normalizedSemester,
         status: 'Approved',
       });
 
@@ -1373,7 +1385,7 @@ exports.generateAcademicPerformanceReport = async (req, res) => {
       reportType: 'PerformanceAnalytics',
       class: normalizedGrade,
       academicYear,
-      semester: normalizeSemester(semester),
+      semester: normalizedSemester,
       generatedBy: req.user.id,
       data: buildAcademicPerformanceReportData(classData),
     });
@@ -1393,12 +1405,30 @@ exports.generateAcademicPerformanceReport = async (req, res) => {
 exports.generateAttendanceSummary = async (req, res) => {
   try {
     const { studentId, academicYear, month, grade } = req.body;
+    const normalizedAcademicYear = String(academicYear || '').trim();
+    const normalizedMonth = String(month || '').trim().padStart(2, '0');
+    const academicYearFormat = /^\d{4}-\d{4}$/;
+    const monthFormat = /^(0[1-9]|1[0-2])$/;
 
-    const [startYear, endYear] = academicYear.split('-');
+    if (!normalizedAcademicYear || !academicYearFormat.test(normalizedAcademicYear)) {
+      return res.status(400).json({
+        success: false,
+        message: 'academicYear must be provided in YYYY-YYYY format',
+      });
+    }
+
+    if (!normalizedMonth || !monthFormat.test(normalizedMonth)) {
+      return res.status(400).json({
+        success: false,
+        message: 'month must be provided as 01-12',
+      });
+    }
+
+    const [startYear, endYear] = normalizedAcademicYear.split('-');
     // Academic year spans September to August
     // Months 09-12 use startYear, months 01-08 use endYear
-    const yearToUse = Number(month) >= 9 ? startYear : endYear;
-    const startDate = new Date(`${yearToUse}-${month}-01`);
+    const yearToUse = Number(normalizedMonth) >= 9 ? startYear : endYear;
+    const startDate = new Date(`${yearToUse}-${normalizedMonth}-01`);
     const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
 
     const query = {
@@ -1461,8 +1491,8 @@ exports.generateAttendanceSummary = async (req, res) => {
     const report = new Report({
       reportType: 'AttendanceSummary',
       student: studentId,
-      academicYear,
-      semester: Number(month) <= 6 ? 'Semester 2' : 'Semester 1',
+      academicYear: normalizedAcademicYear,
+      semester: Number(normalizedMonth) <= 6 ? 'Semester 2' : 'Semester 1',
       generatedBy: req.user.id,
       data: {
         monthlyData: serializedRecords,
