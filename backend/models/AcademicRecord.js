@@ -160,12 +160,11 @@ academicRecordSchema.index({ isLocked: 1 });
 
 // Calculate total marks before saving
 academicRecordSchema.pre('save', async function() {
-  // Total marks out of 110: Mid(20) + Final(40) + Quiz(20) + ContinuousAssessment(10) + Assignment(20)
+  // Total marks out of 100: Mid(20) + Final(40) + Quiz(20) + Assignment(20)
   this.totalMarks =
     (this.marks?.midExam || 0) +
     (this.marks?.finalExam || 0) +
     (this.marks?.classQuiz || 0) +
-    (this.marks?.continuousAssessment || 0) +
     (this.marks?.assignment || 0);
 });
 

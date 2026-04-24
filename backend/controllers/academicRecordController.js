@@ -311,7 +311,14 @@ exports.createAcademicRecordFromGrade = async (req, res) => {
       });
     }
 
-    await record.save(); // triggers pre-save hook → totalMarks recalculated
+    // Recalculate total marks manually since we're not calling save()
+    record.totalMarks =
+      (record.marks?.midExam || 0) +
+      (record.marks?.finalExam || 0) +
+      (record.marks?.classQuiz || 0) +
+      (record.marks?.assignment || 0);
+
+    await record.save();
 
     res.status(201).json({
       success: true,
