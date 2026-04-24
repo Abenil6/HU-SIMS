@@ -73,7 +73,7 @@ router.use(protect);
  *       403:
  *         description: Forbidden
  */
-router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.USERS), academicYearController.getAcademicYears);
+router.get('/', academicYearController.getAcademicYears);
 
 /**
  * @swagger
