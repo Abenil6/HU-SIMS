@@ -277,6 +277,7 @@ export function ReportsPage() {
     try {
       const academicYear = String(values.academicYear || "2025-2026");
       const semester = values.semester === "2" ? "Semester 2" : "Semester 1";
+      const grade = String(values.grade || "10");
 
       if (selectedReportType === "student_report_card" && values.studentId) {
         await reportService.generateReportCard({
@@ -293,7 +294,6 @@ export function ReportsPage() {
         selectedReportType === "class_statistics" ||
         selectedReportType === "academic_performance"
       ) {
-        const grade = String(values.grade || "10");
         if (selectedReportType === "class_statistics") {
           await reportService.generateClassProgress({
             grade,
@@ -312,6 +312,7 @@ export function ReportsPage() {
         await reportService.generateAttendanceSummary({
           academicYear,
           month,
+          grade,
           studentId:
             typeof values.studentId === "string" && values.studentId
               ? values.studentId

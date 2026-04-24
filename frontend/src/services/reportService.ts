@@ -120,6 +120,7 @@ export const reportService = {
     studentId?: string;
     academicYear: string;
     month: string;
+    grade?: string;
   }) => apiPost("/reports/attendance-summary", params),
   generateAcademicPerformance: async (params: {
     grade: string;

@@ -1292,7 +1292,7 @@ exports.generateAcademicPerformanceReport = async (req, res) => {
 
 exports.generateAttendanceSummary = async (req, res) => {
   try {
-    const { studentId, academicYear, month } = req.body;
+    const { studentId, academicYear, month, grade } = req.body;
 
     const startDate = new Date(`${academicYear.split('-')[0]}-${month}-01`);
     const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
@@ -1314,20 +1314,28 @@ exports.generateAttendanceSummary = async (req, res) => {
       'firstName lastName email grade studentProfile'
     );
 
+    // Filter by grade if specified (for class-level summaries)
+    let filteredRecords = attendanceRecords;
+    if (grade && !studentId) {
+      filteredRecords = attendanceRecords.filter(
+        (record) => String(record.student?.grade || record.student?.studentProfile?.grade) === String(grade)
+      );
+    }
+
     const studentIds = new Set(
-      attendanceRecords
+      filteredRecords
         .map((record) => record.student?._id?.toString?.() || record.student?.toString?.() || '')
         .filter(Boolean)
     );
-    const uniqueDays = new Set(attendanceRecords.map((record) => record.date.toDateString())).size;
+    const uniqueDays = new Set(filteredRecords.map((record) => record.date.toDateString())).size;
     const totalStudentDays = uniqueDays * Math.max(studentIds.size || (studentId ? 1 : 0), 1);
 
     const summary = {
       totalDays: totalStudentDays,
-      present: attendanceRecords.filter((record) => record.status === 'Present').length,
-      absent: attendanceRecords.filter((record) => record.status === 'Absent').length,
-      late: attendanceRecords.filter((record) => record.status === 'Late').length,
-      excused: attendanceRecords.filter((record) => record.status === 'Excused').length,
+      present: filteredRecords.filter((record) => record.status === 'Present').length,
+      absent: filteredRecords.filter((record) => record.status === 'Absent').length,
+      late: filteredRecords.filter((record) => record.status === 'Late').length,
+      excused: filteredRecords.filter((record) => record.status === 'Excused').length,
       uniqueDays,
       totalStudents: studentIds.size || (studentId ? 1 : 0),
     };
@@ -1342,7 +1350,7 @@ exports.generateAttendanceSummary = async (req, res) => {
       semester: Number(month) <= 6 ? 'Semester 2' : 'Semester 1',
       generatedBy: req.user.id,
       data: {
-        monthlyData: attendanceRecords,
+        monthlyData: filteredRecords,
         summary,
       },
     });
