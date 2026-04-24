@@ -698,7 +698,7 @@ exports.generateTimetable = async (req, res) => {
 
     const subjects = getSubjectsFor(className, stream);
     const targetCounts = getTargetWeeklyCounts(subjects, className);
-    const availableSlots = DAYS.length * PERIODS.length;
+    const availableSlots = DAYS.length * PERIODS.filter(p => !p.isBreak).length; // Exclude breaks
     let requiredSlots = Object.values(targetCounts).reduce((sum, n) => sum + n, 0);
 
     const warnings = [];
