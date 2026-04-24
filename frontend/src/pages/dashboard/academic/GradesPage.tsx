@@ -1055,7 +1055,7 @@ export function GradesPage() {
 
   // Only show edit/open-component single field when editing
   const editComponent =
-    editMode && selectedGrade
+    editMode && selectedGrade && !(selectedGrade.status === "Rejected" || (selectedGrade as any).isSubjectEdit)
       ? COMPONENTS.find(
           (c) => c.assessmentType === selectedGrade.assessmentType,
         )
@@ -1835,10 +1835,12 @@ export function GradesPage() {
         <DialogTitle sx={{ pb: 1 }}>
           <Typography variant="h6" fontWeight={700}>
             {editMode
-              ? `Edit — ${editComponent?.label ?? "Grade"}`
+              ? (selectedGrade?.status === "Rejected" || (selectedGrade as any).isSubjectEdit)
+                ? "Edit Grade"
+                : `Edit — ${editComponent?.label ?? "Grade"}`
               : "Enter Student Grades"}
           </Typography>
-          {!editMode && (
+          {(!editMode || selectedGrade?.status === "Rejected" || (selectedGrade as any).isSubjectEdit) && (
             <Typography variant="body2" color="text.secondary" mt={0.5}>
               Fill all 4 components below. Total marks out of 100.
             </Typography>
@@ -2011,8 +2013,8 @@ export function GradesPage() {
             <Divider />
 
             {/* Marks breakdown */}
-            {editMode && editComponent ? (
-              /* Edit mode: show only the one component */
+            {editMode && editComponent && !(selectedGrade?.status === "Rejected" || (selectedGrade as any).isSubjectEdit) ? (
+              /* Edit mode: show only the one component (for normal component edits) */
               <Box>
                 <Typography
                   variant="subtitle2"
