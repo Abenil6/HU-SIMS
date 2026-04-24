@@ -62,6 +62,9 @@ backend/uploads/
 backups/
 backend/backups/
 
+# Seed scripts
+backend/seed*.js
+
 # Temporary files
 *.tmp
 *.temp
