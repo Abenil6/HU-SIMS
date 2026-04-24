@@ -752,16 +752,37 @@ export function GradesPage() {
   const openEditDialog = (grade: Grade) => {
     setEditMode(true);
     setSelectedGrade(grade);
-    // Pre-fill only the component that matches this record
-    const comp = COMPONENTS.find(
-      (c) => c.assessmentType === grade.assessmentType,
-    );
-    const m = emptyMarks();
-    if (comp) (m as any)[comp.key] = String(grade.score);
+    
+    // If grade is rejected, load all components for resubmission
+    if (grade.status === "Rejected") {
+      // Find all grades for this student, subject, semester, and academic year
+      const allGradesForSubject = filteredGrades.filter(
+        (g) => 
+          g.studentId === grade.studentId &&
+          g.subject === grade.subject &&
+          g.semester === grade.semester &&
+          g.academicYear === grade.academicYear
+      );
+      
+      const m = emptyMarks();
+      allGradesForSubject.forEach((g) => {
+        const comp = COMPONENTS.find((c) => c.assessmentType === g.assessmentType);
+        if (comp) (m as any)[comp.key] = String(g.score);
+      });
+      setMarks(m);
+    } else {
+      // Normal edit: only show the component being edited
+      const comp = COMPONENTS.find(
+        (c) => c.assessmentType === grade.assessmentType,
+      );
+      const m = emptyMarks();
+      if (comp) (m as any)[comp.key] = String(grade.score);
+      setMarks(m);
+    }
+    
     setFormStudentId(grade.studentId);
     setFormSubject(grade.subject);
     setFormSemester(grade.semester);
-    setMarks(m);
     setDialogOpen(true);
   };
 
@@ -791,21 +812,61 @@ export function GradesPage() {
     setSubmitting(true);
     try {
       if (editMode && selectedGrade) {
-        // Edit: only update the one component shown
-        const comp = COMPONENTS.find(
-          (c) => c.assessmentType === selectedGrade.assessmentType,
-        );
-        if (!comp) return;
-        const score = Number(marks[comp.key]) || 0;
-        if (score > comp.max) {
-          toast.error(`${comp.label} max is ${comp.max}`);
-          setSubmitting(false);
-          return;
+        // If editing a rejected grade, resubmit all components
+        if (selectedGrade.status === "Rejected") {
+          const acadYear = filters.academicYear?.trim()
+            ? filters.academicYear
+            : activeAcademicYear;
+          const normalizedSemester = normalizeSemesterValue(formSemester);
+          
+          // Submit all 4 components
+          const creates = COMPONENTS.map((comp) => {
+            const score = Number(marks[comp.key]) || 0;
+            return {
+              studentId: formStudentId,
+              subject,
+              assessmentType: comp.assessmentType as any,
+              score,
+              maxScore: comp.max,
+              weight: comp.weight,
+              semester: normalizedSemester,
+              academicYear: acadYear,
+            };
+          });
+
+          // Validate max scores
+          for (const comp of COMPONENTS) {
+            const score = Number(marks[comp.key]) || 0;
+            if (score > comp.max) {
+              toast.error(`${comp.label} max is ${comp.max} marks`);
+              setSubmitting(false);
+              return;
+            }
+          }
+
+          // Submit components sequentially
+          for (const data of creates) {
+            await createGrade.mutateAsync(data);
+          }
+          
+          toast.success("Grade resubmitted successfully");
+        } else {
+          // Normal edit: only update the one component shown
+          const comp = COMPONENTS.find(
+            (c) => c.assessmentType === selectedGrade.assessmentType,
+          );
+          if (!comp) return;
+          const score = Number(marks[comp.key]) || 0;
+          if (score > comp.max) {
+            toast.error(`${comp.label} max is ${comp.max}`);
+            setSubmitting(false);
+            return;
+          }
+          await updateAcademicRecord.mutateAsync({
+            id: (selectedGrade as any).rawRecordId || selectedGrade.id,
+            data: { score, maxScore: comp.max, weight: comp.weight } as any,
+          });
         }
-        await updateAcademicRecord.mutateAsync({
-          id: (selectedGrade as any).rawRecordId || selectedGrade.id,
-          data: { score, maxScore: comp.max, weight: comp.weight } as any,
-        });
       } else {
         // Create: submit all 4 components
         const acadYear = filters.academicYear?.trim()
