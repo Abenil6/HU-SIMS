@@ -8,8 +8,8 @@ const PERIODS = [
   { period: 3, startTime: '10:00', endTime: '10:45' },
   { period: 4, startTime: '11:00', endTime: '11:45' },
   { period: 5, startTime: '11:45', endTime: '12:30' },
-  { period: 6, startTime: '14:30', endTime: '15:15' },
-  { period: 7, startTime: '15:15', endTime: '16:00' }
+  { period: 6, startTime: '13:30', endTime: '14:15' },
+  { period: 7, startTime: '14:15', endTime: '15:00' }
 ];
 
 const SUBJECTS_BY_GRADE = {
@@ -77,15 +77,21 @@ const getSubjectsFor = (className, stream) => {
   return SUBJECTS_BY_GRADE.common_9_10;
 };
 
-const getTargetWeeklyCounts = (subjects) => {
+const getTargetWeeklyCounts = (subjects, className) => {
   const counts = {};
+  const gradeNum = parseInt(String(className), 10);
+  const isSocialScience11_12 = (gradeNum === 11 || gradeNum === 12) && 
+    subjects.includes('Economics'); // Economics is only in social science stream
+  
   subjects.forEach((subject) => {
     if (subject === 'Mathematics' || subject === 'English') {
       counts[subject] = 5;
     } else if (
       subject === 'Civics' ||
       subject === 'Information Communication Technology (ICT)' ||
-      subject === 'Physical and Health Education (HPE)'
+      subject === 'Physical and Health Education (HPE)' ||
+      subject === 'Amharic' ||
+      (!isSocialScience11_12 && (subject === 'History' || subject === 'Geography'))
     ) {
       counts[subject] = 2;
     } else {
@@ -617,7 +623,7 @@ exports.precheckGeneration = async (req, res) => {
     }
 
     const subjects = getSubjectsFor(className, stream);
-    const targetCounts = getTargetWeeklyCounts(subjects);
+    const targetCounts = getTargetWeeklyCounts(subjects, className);
     const requiredSlots = Object.values(targetCounts).reduce((sum, n) => sum + n, 0);
     const availableSlots = DAYS.length * PERIODS.length;
 
@@ -686,7 +692,7 @@ exports.generateTimetable = async (req, res) => {
     }
 
     const subjects = getSubjectsFor(className, stream);
-    const targetCounts = getTargetWeeklyCounts(subjects);
+    const targetCounts = getTargetWeeklyCounts(subjects, className);
     const availableSlots = DAYS.length * PERIODS.length;
     let requiredSlots = Object.values(targetCounts).reduce((sum, n) => sum + n, 0);
 

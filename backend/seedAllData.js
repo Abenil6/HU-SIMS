@@ -23,8 +23,8 @@ const PERIODS = [
   { period: 3, startTime: '10:00', endTime: '10:45' },
   { period: 4, startTime: '11:00', endTime: '11:45' },
   { period: 5, startTime: '11:45', endTime: '12:30' },
-  { period: 6, startTime: '14:30', endTime: '15:15' },
-  { period: 7, startTime: '15:15', endTime: '16:00' }
+  { period: 6, startTime: '13:30', endTime: '14:15' },
+  { period: 7, startTime: '14:15', endTime: '15:00' }
 ];
 
 const SUBJECTS_BY_GRADE = {
