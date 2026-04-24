@@ -770,6 +770,12 @@ exports.updateAcademicRecord = async (req, res) => {
     }
     if (comments !== undefined) record.comments = comments;
     if (status !== undefined && isAcademicAdmin(req.user.role)) record.status = status;
+    
+    // If teacher edits a rejected grade, change status back to Pending Approval
+    if (req.user.role === 'Teacher' && record.status === 'Rejected') {
+      record.status = 'Pending Approval';
+      record.rejectionReason = undefined;
+    }
 
     record.updatedBy = req.user.id;
     await record.save();

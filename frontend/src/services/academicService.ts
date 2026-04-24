@@ -32,6 +32,8 @@ export interface Grade {
   academicYear: string;
   enteredBy: string;
   createdAt: string;
+  status?: string; // Draft, Pending Approval, Approved, Rejected
+  rejectionReason?: string; // Reason for rejection if status is Rejected
 }
 
 export type AssessmentType = 

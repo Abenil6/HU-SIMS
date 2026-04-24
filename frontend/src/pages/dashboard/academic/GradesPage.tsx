@@ -464,7 +464,9 @@ export function GradesPage() {
           ),
           createdAt: record?.createdAt,
           rawRecordId: baseId,
-        } as Grade & { rawRecordId: string }];
+          status: record?.status || "Draft",
+          rejectionReason: record?.rejectionReason || "",
+        } as Grade & { rawRecordId: string; status: string; rejectionReason: string }];
       });
     });
 
@@ -1580,6 +1582,7 @@ export function GradesPage() {
                   <TableCell sx={{ fontWeight: 600 }}>Component</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Score</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Percentage</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                   {canManageGrades && (
                     <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
                   )}
@@ -1588,7 +1591,7 @@ export function GradesPage() {
               <TableBody>
                 {!selectedStudentGrades ? (
                   <TableRow>
-                    <TableCell colSpan={canManageGrades ? 7 : 6} align="center">
+                    <TableCell colSpan={canManageGrades ? 8 : 7} align="center">
                       <Typography color="text.secondary">
                         Student not found.
                       </Typography>
@@ -1596,7 +1599,7 @@ export function GradesPage() {
                   </TableRow>
                 ) : selectedStudentGrades.grades.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={canManageGrades ? 7 : 6} align="center">
+                    <TableCell colSpan={canManageGrades ? 8 : 7} align="center">
                       <Typography color="text.secondary">
                         No grades available for this student.
                       </Typography>
@@ -1630,6 +1633,24 @@ export function GradesPage() {
                         {grade.score}/{grade.maxScore}
                       </TableCell>
                       <TableCell>{grade.percentage}%</TableCell>
+                      <TableCell>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+                          <Chip
+                            label={grade.status || "Draft"}
+                            size="small"
+                            color={
+                              grade.status === "Approved" ? "success" :
+                              grade.status === "Rejected" ? "error" :
+                              grade.status === "Pending Approval" ? "warning" : "default"
+                            }
+                          />
+                          {grade.status === "Rejected" && grade.rejectionReason && (
+                            <Typography variant="caption" color="error" sx={{ fontSize: "0.7rem" }}>
+                              {grade.rejectionReason}
+                            </Typography>
+                          )}
+                        </Box>
+                      </TableCell>
                       {canManageGrades && (
                         <TableCell>
                           <IconButton
