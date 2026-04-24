@@ -1444,18 +1444,21 @@ export function GradesPage() {
                     <TableCell sx={{ fontWeight: 600 }} align="center">Percentage</TableCell>
                     <TableCell sx={{ fontWeight: 600 }} align="center">Grade</TableCell>
                     <TableCell sx={{ fontWeight: 600 }} align="center">Status</TableCell>
+                    {canManageGrades && (
+                      <TableCell sx={{ fontWeight: 600 }} align="center">Actions</TableCell>
+                    )}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {isLoadingRecords ? (
                     <TableRow>
-                      <TableCell colSpan={9} align="center">
+                      <TableCell colSpan={canManageGrades ? 10 : 9} align="center">
                         <CircularProgress size={24} />
                       </TableCell>
                     </TableRow>
                   ) : subjectGrades.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={9} align="center">
+                      <TableCell colSpan={canManageGrades ? 10 : 9} align="center">
                         <Typography color="text.secondary">
                           No grades have been entered for this student yet.
                         </Typography>
@@ -1518,6 +1521,25 @@ export function GradesPage() {
                             )}
                           </Box>
                         </TableCell>
+                        {canManageGrades && (
+                          <TableCell align="center">
+                            <IconButton
+                              size="small"
+                              onClick={(e: React.MouseEvent<HTMLElement>) => {
+                                // Find the first grade for this subject to use for editing
+                                const subjectGrade = filteredGrades.find(
+                                  (g) => g.subject === row.subject
+                                );
+                                if (subjectGrade) {
+                                  setAnchorEl(e.currentTarget);
+                                  setSelectedGrade(subjectGrade);
+                                }
+                              }}
+                            >
+                              <MoreVert />
+                            </IconButton>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))
                   )}
