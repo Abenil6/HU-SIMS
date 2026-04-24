@@ -268,15 +268,6 @@ exports.createAcademicRecordFromGrade = async (req, res) => {
 
     const submittedField = markConfig.submittedField;
 
-    // Check if component already submitted before any operations
-    const existingRecord = await AcademicRecord.findOne(baseFilter);
-    if (existingRecord?.submittedComponents?.[submittedField]) {
-      return res.status(409).json({
-        success: false,
-        message: `${assessmentType} already submitted for this student, subject, semester, and academic year`,
-      });
-    }
-
     // Ensure base record exists atomically (prevents duplicate records under concurrent requests).
     await AcademicRecord.findOneAndUpdate(
       baseFilter,
