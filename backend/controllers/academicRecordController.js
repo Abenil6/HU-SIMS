@@ -268,8 +268,8 @@ exports.createAcademicRecordFromGrade = async (req, res) => {
 
     const submittedField = markConfig.submittedField;
 
-    // Ensure base record exists atomically (prevents duplicate records under concurrent requests).
-    await AcademicRecord.findOneAndUpdate(
+    // Update the record with the new mark using atomic operations
+    const record = await AcademicRecord.findOneAndUpdate(
       baseFilter,
       {
         $setOnInsert: {
@@ -282,17 +282,6 @@ exports.createAcademicRecordFromGrade = async (req, res) => {
           status: 'Pending Approval',
           createdBy: req.user.id,
         },
-      },
-      { upsert: true, setDefaultsOnInsert: true },
-    );
-
-    // Update the record with the new mark (only if not already submitted)
-    const record = await AcademicRecord.findOneAndUpdate(
-      {
-        ...baseFilter,
-        [`submittedComponents.${submittedField}`]: { $ne: true },
-      },
-      {
         $set: {
           [`marks.${markConfig.field}`]: cappedScore,
           [`submittedComponents.${submittedField}`]: true,
@@ -301,29 +290,28 @@ exports.createAcademicRecordFromGrade = async (req, res) => {
           updatedBy: req.user.id,
         },
       },
-      { new: true },
+      { new: true, upsert: true, setDefaultsOnInsert: true },
     );
 
-    if (!record) {
-      return res.status(409).json({
-        success: false,
-        message: `${assessmentType} already submitted for this student, subject, semester, and academic year`,
-      });
-    }
-
-    // Recalculate total marks manually since we're not calling save()
-    record.totalMarks =
-      (record.marks?.midExam || 0) +
-      (record.marks?.finalExam || 0) +
-      (record.marks?.classQuiz || 0) +
-      (record.marks?.assignment || 0);
-
-    await record.save();
+    // Recalculate total marks and update in one operation
+    const updatedRecord = await AcademicRecord.findOneAndUpdate(
+      baseFilter,
+      {
+        $set: {
+          totalMarks:
+            (record.marks?.midExam || 0) +
+            (record.marks?.finalExam || 0) +
+            (record.marks?.classQuiz || 0) +
+            (record.marks?.assignment || 0),
+        },
+      },
+      { new: true },
+    );
 
     res.status(201).json({
       success: true,
       message: 'Grade created successfully',
-      data: record
+      data: updatedRecord
     });
   } catch (error) {
     if (error?.code === 11000) {
