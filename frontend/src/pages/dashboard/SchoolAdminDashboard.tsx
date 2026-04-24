@@ -139,10 +139,6 @@ export function SchoolAdminDashboard() {
   const [responseText, setResponseText] = useState("");
   const [contactStatusFilter, setContactStatusFilter] = useState<string>("all");
 
-  // Academic Year State
-  const [academicYears, setAcademicYears] = useState<any[]>([]);
-  const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>("");
-
   // Fetch real data from API
   const {
     data: studentsData,
@@ -211,37 +207,13 @@ export function SchoolAdminDashboard() {
   const deleteStudentMutation = useDeleteStudent();
   const deleteTeacherMutation = useDeleteTeacher();
 
-  // Fetch active academic year and all academic years
+  // Fetch active academic year
   useEffect(() => {
     academicYearService
       .getActiveAcademicYear()
       .then(setAcademicYearData)
       .catch(() => setAcademicYearData(null));
-
-    academicYearService
-      .getAcademicYears()
-      .then((res: any) => {
-        const years = res?.data || [];
-        setAcademicYears(years);
-        if (years.length > 0 && !selectedAcademicYear) {
-          setSelectedAcademicYear(years[0]._id || years[0].id);
-        }
-      })
-      .catch(() => setAcademicYears([]));
   }, []);
-
-  // Handle academic year activation
-  const handleActivateAcademicYear = async (id: string) => {
-    try {
-      await academicYearService.setAsActive(id);
-      toast.success("Academic year activated successfully");
-      // Refresh active academic year
-      const activeYear = await academicYearService.getActiveAcademicYear();
-      setAcademicYearData(activeYear);
-    } catch (error: any) {
-      toast.error(error?.message || "Failed to activate academic year");
-    }
-  };
 
   const students = useMemo(() => {
     let filteredStudents = studentsData?.data ?? [];
@@ -1275,35 +1247,9 @@ export function SchoolAdminDashboard() {
           </TabPanel>
 
           <TabPanel value={activeTab} index={3}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-              <Typography variant="h6" fontWeight={600}>
-                {t('pages.dashboard.timetable')}
-              </Typography>
-              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                <FormControl size="small" sx={{ minWidth: 200 }}>
-                  <InputLabel>Select Academic Year</InputLabel>
-                  <Select
-                    value={selectedAcademicYear}
-                    label="Select Academic Year"
-                    onChange={(e) => setSelectedAcademicYear(e.target.value)}
-                  >
-                    {academicYears.map((year: any) => (
-                      <MenuItem key={year._id || year.id} value={year._id || year.id}>
-                        {year.year} {year.isActive ? "(Active)" : ""}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => selectedAcademicYear && handleActivateAcademicYear(selectedAcademicYear)}
-                  disabled={!selectedAcademicYear}
-                >
-                  Activate
-                </Button>
-              </Box>
-            </Box>
+            <Typography variant="h6" fontWeight={600} mb={3}>
+              {t('pages.dashboard.timetable')}
+            </Typography>
             <Paper sx={{ p: 3 }}>
               <Typography variant="subtitle1" fontWeight={600} mb={2}>
                 {academicYearData?.year || t('common.dashboard')}

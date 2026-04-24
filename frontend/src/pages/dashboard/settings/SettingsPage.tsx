@@ -33,6 +33,7 @@ import {
   DEFAULT_APPEARANCE,
   normalizeAppearanceSettings,
 } from "@/lib/appearance";
+import { academicYearService } from "@/services/academicYearService";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -67,6 +68,10 @@ export function SettingsPage() {
     contactEmail: "admin@school.edu",
     contactPhone: "+251-XX-XXX-XXXX",
   });
+
+  // Academic Year State
+  const [academicYears, setAcademicYears] = useState<any[]>([]);
+  const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>("");
 
   // Notification Settings State
   const [notificationSettings, setNotificationSettings] = useState({
@@ -121,11 +126,50 @@ export function SettingsPage() {
         ...appearanceSettings,
         [field]: value,
       } as AppearanceSettings;
-      // Only update local state for preview - don't update store yet
-      // Store will be updated in persistSettings after backend confirms the change
       setAppearanceSettings(nextAppearanceSettings);
       setSaved(false);
     };
+
+  // Fetch academic years on mount
+  useEffect(() => {
+    academicYearService
+      .getAcademicYears()
+      .then((res: any) => {
+        const years = res?.data || [];
+        setAcademicYears(years);
+        if (years.length > 0 && !selectedAcademicYearId) {
+          const activeYear = years.find((y: any) => y.isActive);
+          const defaultYear = activeYear || years[0];
+          setSelectedAcademicYearId(defaultYear._id || defaultYear.id);
+          setSchoolSettings((prev) => ({
+            ...prev,
+            academicYear: defaultYear.year,
+          }));
+        }
+      })
+      .catch(() => setAcademicYears([]));
+  }, []);
+
+  // Handle academic year activation
+  const handleActivateAcademicYear = async (id: string) => {
+    try {
+      await academicYearService.setAsActive(id);
+      toast.success("Academic year activated successfully");
+      // Refresh academic years to update active status
+      const res: any = await academicYearService.getAcademicYears();
+      const years = res?.data || [];
+      setAcademicYears(years);
+      const activeYear = years.find((y: any) => y.isActive);
+      if (activeYear) {
+        setSchoolSettings((prev) => ({
+          ...prev,
+          academicYear: activeYear.year,
+        }));
+      }
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to activate academic year");
+    }
+  };
 
   const applyLoadedSettings = (payload: any) => {
     if (payload?.systemSettings) {
@@ -323,12 +367,42 @@ export function SettingsPage() {
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 6 }}>
-                <TextField
-                  fullWidth
-                  label="Academic Year"
-                  value={schoolSettings.academicYear}
-                  onChange={handleSchoolChange("academicYear")}
-                />
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <FormControl fullWidth>
+                    <InputLabel>Academic Year</InputLabel>
+                    <Select
+                      value={selectedAcademicYearId}
+                      label="Academic Year"
+                      onChange={(e) => {
+                        setSelectedAcademicYearId(e.target.value);
+                        const selectedYear = academicYears.find(
+                          (y: any) => (y._id || y.id) === e.target.value
+                        );
+                        if (selectedYear) {
+                          setSchoolSettings((prev) => ({
+                            ...prev,
+                            academicYear: selectedYear.year,
+                          }));
+                          setSaved(false);
+                        }
+                      }}
+                    >
+                      {academicYears.map((year: any) => (
+                        <MenuItem key={year._id || year.id} value={year._id || year.id}>
+                          {year.year} {year.isActive ? "(Active)" : ""}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Button
+                    variant="contained"
+                    onClick={() => selectedAcademicYearId && handleActivateAcademicYear(selectedAcademicYearId)}
+                    disabled={!selectedAcademicYearId}
+                    sx={{ minWidth: 100 }}
+                  >
+                    Activate
+                  </Button>
+                </Box>
               </Grid>
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
