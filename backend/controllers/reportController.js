@@ -574,7 +574,7 @@ const buildReportHtml = (report, exportData) => {
       .school-info { flex: 1; }
       .school-name { font-size: 28px; font-weight: 700; color: #1f4f82; margin: 0 0 4px; }
       .school-subtitle { font-size: 14px; color: #42576c; margin: 0; }
-      .logo-placeholder { width: 80px; height: 80px; background: #e4eef8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1f4f82; font-weight: 600; }
+      .logo-placeholder { width: 80px; height: 80px; background: #1f4f82; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; font-weight: 700; }
       .header { margin-bottom: 24px; }
       .badge { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #e4eef8; color: #1f4f82; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
       .meta-grid { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 8px 20px; margin: 16px 0 24px; }
@@ -594,7 +594,7 @@ const buildReportHtml = (report, exportData) => {
         <h1 class="school-name">HU Non-Boarding School</h1>
         <p class="school-subtitle">Building a Digital Future</p>
       </div>
-      <div class="logo-placeholder">LOGO</div>
+      <div class="logo-placeholder">HU</div>
     </div>
   `;
 
@@ -1320,7 +1320,11 @@ exports.generateAttendanceSummary = async (req, res) => {
   try {
     const { studentId, academicYear, month, grade } = req.body;
 
-    const startDate = new Date(`${academicYear.split('-')[0]}-${month}-01`);
+    const [startYear, endYear] = academicYear.split('-');
+    // Academic year spans September to August
+    // Months 09-12 use startYear, months 01-08 use endYear
+    const yearToUse = Number(month) >= 9 ? startYear : endYear;
+    const startDate = new Date(`${yearToUse}-${month}-01`);
     const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
 
     const query = {
