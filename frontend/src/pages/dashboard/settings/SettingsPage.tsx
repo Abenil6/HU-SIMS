@@ -16,6 +16,10 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import {
   Save,
@@ -23,6 +27,7 @@ import {
   Notifications,
   Security,
   Palette,
+  Add,
 } from "@mui/icons-material";
 import { apiGet, apiPost } from "@/services/api";
 import toast from "react-hot-toast";
@@ -72,6 +77,12 @@ export function SettingsPage() {
   // Academic Year State
   const [academicYears, setAcademicYears] = useState<any[]>([]);
   const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>("");
+  const [createAcademicYearDialogOpen, setCreateAcademicYearDialogOpen] = useState(false);
+  const [newAcademicYear, setNewAcademicYear] = useState({
+    year: "",
+    startDate: "",
+    endDate: "",
+  });
 
   // Notification Settings State
   const [notificationSettings, setNotificationSettings] = useState({
@@ -135,7 +146,9 @@ export function SettingsPage() {
     academicYearService
       .getAcademicYears()
       .then((res: any) => {
-        const years = res?.data || [];
+        console.log('Academic years response:', res);
+        const years = res?.data || res || [];
+        console.log('Parsed years:', years);
         setAcademicYears(years);
         if (years.length > 0 && !selectedAcademicYearId) {
           const activeYear = years.find((y: any) => y.isActive);
@@ -147,7 +160,10 @@ export function SettingsPage() {
           }));
         }
       })
-      .catch(() => setAcademicYears([]));
+      .catch((err) => {
+        console.error('Failed to fetch academic years:', err);
+        setAcademicYears([]);
+      });
   }, []);
 
   // Handle academic year activation
@@ -168,6 +184,40 @@ export function SettingsPage() {
       }
     } catch (error: any) {
       toast.error(error?.message || "Failed to activate academic year");
+    }
+  };
+
+  // Handle create academic year
+  const handleCreateAcademicYear = async () => {
+    try {
+      await academicYearService.createAcademicYear({
+        year: newAcademicYear.year,
+        startDate: newAcademicYear.startDate,
+        endDate: newAcademicYear.endDate,
+        isActive: false,
+        status: 'Active',
+        semesters: [
+          {
+            name: 'Semester 1',
+            startDate: newAcademicYear.startDate,
+            endDate: new Date(new Date(newAcademicYear.endDate).setMonth(5)).toISOString().split('T')[0],
+          },
+          {
+            name: 'Semester 2',
+            startDate: new Date(new Date(newAcademicYear.startDate).setMonth(6)).toISOString().split('T')[0],
+            endDate: newAcademicYear.endDate,
+          }
+        ]
+      });
+      toast.success("Academic year created successfully");
+      setCreateAcademicYearDialogOpen(false);
+      setNewAcademicYear({ year: "", startDate: "", endDate: "" });
+      // Refresh academic years
+      const res: any = await academicYearService.getAcademicYears();
+      const years = res?.data || [];
+      setAcademicYears(years);
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to create academic year");
     }
   };
 
@@ -401,6 +451,13 @@ export function SettingsPage() {
                     sx={{ minWidth: 100 }}
                   >
                     Activate
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<Add />}
+                    onClick={() => setCreateAcademicYearDialogOpen(true)}
+                  >
+                    New
                   </Button>
                 </Box>
               </Grid>
@@ -695,6 +752,54 @@ export function SettingsPage() {
             </Grid>
           </TabPanel>
         </Box>
+
+        {/* Create Academic Year Dialog */}
+        <Dialog open={createAcademicYearDialogOpen} onClose={() => setCreateAcademicYearDialogOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>Create New Academic Year</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="Academic Year (e.g., 2025-2026)"
+                  value={newAcademicYear.year}
+                  onChange={(e) => setNewAcademicYear({ ...newAcademicYear, year: e.target.value })}
+                  placeholder="2025-2026"
+                />
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="Start Date"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  value={newAcademicYear.startDate}
+                  onChange={(e) => setNewAcademicYear({ ...newAcademicYear, startDate: e.target.value })}
+                />
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="End Date"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  value={newAcademicYear.endDate}
+                  onChange={(e) => setNewAcademicYear({ ...newAcademicYear, endDate: e.target.value })}
+                />
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setCreateAcademicYearDialogOpen(false)}>Cancel</Button>
+            <Button 
+              variant="contained" 
+              onClick={handleCreateAcademicYear}
+              disabled={!newAcademicYear.year || !newAcademicYear.startDate || !newAcademicYear.endDate}
+            >
+              Create
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <Box
           sx={{
