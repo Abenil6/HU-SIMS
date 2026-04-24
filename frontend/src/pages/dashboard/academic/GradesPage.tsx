@@ -821,7 +821,19 @@ export function GradesPage() {
           }
         }
 
-        await Promise.all(creates.map((data) => createGrade.mutateAsync(data)));
+        // Submit components sequentially to avoid race conditions
+        for (const data of creates) {
+          try {
+            await createGrade.mutateAsync(data);
+          } catch (error: any) {
+            // If a component fails, show error but continue with others
+            if (error?.response?.status === 409) {
+              toast.error(`${data.assessmentType} already submitted`);
+            } else {
+              toast.error(`Failed to submit ${data.assessmentType}`);
+            }
+          }
+        }
       }
 
       closeDialog();
