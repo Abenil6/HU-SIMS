@@ -14,10 +14,22 @@ out/
 
 # Environment variables
 .env
+.env.*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+!.env.example
+!.env.sample
+!.env.template
+
+# Monorepo env files
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+!backend/.env.example
+!frontend/.env.example
 
 # Logs
 npm-debug.log*
@@ -44,11 +56,17 @@ Thumbs.db
 
 # Uploads (if storing locally)
 uploads/
+backend/uploads/
+
+# Runtime backups / dumps
+backups/
+backend/backups/
 
 # Temporary files
 *.tmp
 *.temp
 .cache/
+*.tsbuildinfo
 
 # Misc
 .qoder/
