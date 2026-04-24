@@ -286,12 +286,24 @@ exports.createAcademicRecordFromGrade = async (req, res) => {
           [`marks.${markConfig.field}`]: cappedScore,
           [`submittedComponents.${submittedField}`]: true,
           updatedBy: req.user.id,
-          // If teacher is editing and record is rejected, change status back to Pending Approval
-          ...(req.user.role === 'Teacher' ? { status: 'Pending Approval', rejectionReason: undefined } : {}),
         },
       },
       { new: true, upsert: true, setDefaultsOnInsert: true },
     );
+
+    // If teacher is editing, change status back to Pending Approval and clear rejection reason
+    if (req.user.role === 'Teacher' && record.status === 'Rejected') {
+      await AcademicRecord.findOneAndUpdate(
+        baseFilter,
+        {
+          $set: {
+            status: 'Pending Approval',
+            rejectionReason: undefined,
+          },
+        },
+        { new: true },
+      );
+    }
 
     // Recalculate total marks and update in one operation
     const updatedRecord = await AcademicRecord.findOneAndUpdate(
