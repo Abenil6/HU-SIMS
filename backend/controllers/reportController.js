@@ -570,7 +570,12 @@ const buildReportHtml = (report, exportData) => {
       body { font-family: Arial, sans-serif; margin: 32px; color: #10233b; }
       h1, h2, h3 { margin: 0 0 12px; }
       p { margin: 8px 0; }
-      .header { border-bottom: 3px solid #1f4f82; padding-bottom: 16px; margin-bottom: 24px; }
+      .school-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 3px solid #1f4f82; }
+      .school-info { flex: 1; }
+      .school-name { font-size: 28px; font-weight: 700; color: #1f4f82; margin: 0 0 4px; }
+      .school-subtitle { font-size: 14px; color: #42576c; margin: 0; }
+      .logo-placeholder { width: 80px; height: 80px; background: #e4eef8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1f4f82; font-weight: 600; }
+      .header { margin-bottom: 24px; }
       .badge { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #e4eef8; color: #1f4f82; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
       .meta-grid { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 8px 20px; margin: 16px 0 24px; }
       table { width: 100%; border-collapse: collapse; margin: 12px 0 24px; }
@@ -583,16 +588,32 @@ const buildReportHtml = (report, exportData) => {
     </style>
   `;
 
+  const schoolHeader = `
+    <div class="school-header">
+      <div class="school-info">
+        <h1 class="school-name">HU Non-Boarding School</h1>
+        <p class="school-subtitle">Building a Digital Future</p>
+      </div>
+      <div class="logo-placeholder">LOGO</div>
+    </div>
+  `;
+
   const header = `
     <div class="header">
       <span class="badge">${escapeHtml(report.reportType)}</span>
-      <h1>${escapeHtml(
+      <h2>${escapeHtml(
         report.reportType === 'StudentReportCard'
           ? 'Student Report Card'
           : report.reportType === 'StudentTranscript'
             ? 'Student Transcript'
-            : report.reportType
-      )}</h1>
+            : report.reportType === 'ClassProgress'
+              ? 'Class Progress Report'
+              : report.reportType === 'PerformanceAnalytics'
+                ? 'Academic Performance Report'
+                : report.reportType === 'AttendanceSummary'
+                  ? 'Attendance Summary'
+                  : report.reportType
+      )}</h2>
       <p>School academic document prepared for printing, filing, and guardian communication.</p>
       ${renderMetadataBlock(exportData)}
     </div>
@@ -636,6 +657,7 @@ const buildReportHtml = (report, exportData) => {
     return `
       <html><head><meta charset="utf-8" />${baseStyles}<title>${escapeHtml(exportData.student?.name || 'Report Card')}</title></head>
       <body>
+        ${schoolHeader}
         ${header}
         ${semesterTables}
         <h2>Yearly Summary</h2>
@@ -688,6 +710,7 @@ const buildReportHtml = (report, exportData) => {
     return `
       <html><head><meta charset="utf-8" />${baseStyles}<title>${escapeHtml(exportData.student?.name || 'Transcript')}</title></head>
       <body>
+        ${schoolHeader}
         ${header}
         <div class="summary">
           <div class="card"><strong>Cumulative Average</strong><br />${escapeHtml(exportData.data?.cumulativeAverage)}</div>
@@ -793,6 +816,7 @@ const buildReportHtml = (report, exportData) => {
     return `
       <html><head><meta charset="utf-8" />${baseStyles}<title>${escapeHtml(report.class || 'Class Progress')}</title></head>
       <body>
+        ${schoolHeader}
         ${header}
         <div class="summary">
           <div class="card"><strong>Total Students</strong><br />${escapeHtml(exportData.data?.summary?.totalStudents ?? 0)}</div>
@@ -808,6 +832,7 @@ const buildReportHtml = (report, exportData) => {
     return `
       <html><head><meta charset="utf-8" />${baseStyles}<title>${escapeHtml(report.class || 'Academic Performance')}</title></head>
       <body>
+        ${schoolHeader}
         ${header}
         <div class="summary">
           <div class="card"><strong>Total Students</strong><br />${escapeHtml(exportData.data?.summary?.totalStudents ?? 0)}</div>
@@ -842,6 +867,7 @@ const buildReportHtml = (report, exportData) => {
   return `
     <html><head><meta charset="utf-8" />${baseStyles}<title>${escapeHtml(report.reportType)}</title></head>
     <body>
+      ${schoolHeader}
       ${header}
       <pre>${escapeHtml(JSON.stringify(exportData.data, null, 2))}</pre>
     </body></html>
