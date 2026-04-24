@@ -305,16 +305,19 @@ exports.createAcademicRecordFromGrade = async (req, res) => {
       );
     }
 
+    // Fetch the latest record to get updated marks for total calculation
+    const latestRecord = await AcademicRecord.findOne(baseFilter);
+
     // Recalculate total marks and update in one operation
     const updatedRecord = await AcademicRecord.findOneAndUpdate(
       baseFilter,
       {
         $set: {
           totalMarks:
-            (record.marks?.midExam || 0) +
-            (record.marks?.finalExam || 0) +
-            (record.marks?.classQuiz || 0) +
-            (record.marks?.assignment || 0),
+            (latestRecord?.marks?.midExam || 0) +
+            (latestRecord?.marks?.finalExam || 0) +
+            (latestRecord?.marks?.classQuiz || 0) +
+            (latestRecord?.marks?.assignment || 0),
         },
       },
       { new: true },
@@ -778,7 +781,6 @@ exports.updateAcademicRecord = async (req, res) => {
         midExam: marks.midExam ?? record.marks.midExam,
         finalExam: marks.finalExam ?? record.marks.finalExam,
         classQuiz: marks.classQuiz ?? record.marks.classQuiz,
-        continuousAssessment: marks.continuousAssessment ?? record.marks.continuousAssessment,
         assignment: marks.assignment ?? record.marks.assignment
       };
     }
