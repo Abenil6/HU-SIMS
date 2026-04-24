@@ -1525,6 +1525,7 @@ export function GradesPage() {
                           <TableCell align="center">
                             <IconButton
                               size="small"
+                              disabled={row.status === "Approved"}
                               onClick={(e: React.MouseEvent<HTMLElement>) => {
                                 // Find all grades for this subject to use for editing
                                 const subjectGrades = filteredGrades.filter(
@@ -1775,6 +1776,7 @@ export function GradesPage() {
                         <TableCell>
                           <IconButton
                             size="small"
+                            disabled={grade.status === "Approved"}
                             onClick={(e: React.MouseEvent<HTMLElement>) => {
                               setAnchorEl(e.currentTarget);
                               setSelectedGrade(grade);
