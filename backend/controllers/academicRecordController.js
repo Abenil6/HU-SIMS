@@ -285,8 +285,6 @@ exports.createAcademicRecordFromGrade = async (req, res) => {
         $set: {
           [`marks.${markConfig.field}`]: cappedScore,
           [`submittedComponents.${submittedField}`]: true,
-          teacher: req.user.id,
-          gradeLevel,
           updatedBy: req.user.id,
         },
       },
