@@ -38,9 +38,12 @@ export const attendanceService = {
     limit?: number;
   }) => apiGet("/attendance", { ...params, limit: params.limit || 1000 }),
 
-  // Get daily attendance for a class
+  // Get daily attendance report
   getDailyAttendance: async (grade: string, section: string, date: string) =>
-    apiGet(`/attendance/daily/${grade}/${section}/${date}`),
+    apiGet("/attendance/report/daily", {
+      date,
+      className: section ? `Grade ${grade} ${section}` : `Grade ${grade}`,
+    }),
 
   // Mark attendance
   markAttendance: async (data: {
@@ -66,34 +69,44 @@ export const attendanceService = {
   updateAttendance: async (id: string, data: { status: string; remarks?: string }) =>
     apiPut(`/attendance/${id}`, data),
 
-  // Bulk update attendance
-  bulkUpdate: async (data: { ids: string[]; status: string }) =>
-    apiPut("/attendance/bulk", data),
+  // Delete one attendance record
+  deleteAttendance: async (id: string) => apiDelete(`/attendance/${id}`),
 
   // Get student attendance summary
-  getStudentSummary: async (studentId: string, month?: string) =>
-    apiGet(`/attendance/student/${studentId}/summary`, { month }),
+  getStudentSummary: async (studentId: string, academicYear?: string) =>
+    apiGet("/attendance/summary/student", { studentId, academicYear }),
 
   // Get class attendance summary
-  getClassSummary: async (grade: string, section: string, month: string) =>
-    apiGet(`/attendance/class/${grade}/${section}/summary`, { month }),
+  getClassSummary: async (grade: string, section: string, month: string, academicYear?: string) =>
+    apiGet("/attendance/summary/class", {
+      className: section ? `Grade ${grade} ${section}` : `Grade ${grade}`,
+      month,
+      academicYear: academicYear || String(new Date().getFullYear()),
+    }),
 
-  // Get attendance report
+  // Get attendance report (daily endpoint supported by backend)
   getReport: async (params: {
     grade?: string;
     section?: string;
     startDate: string;
     endDate: string;
     type?: "daily" | "monthly" | "summary";
-  }) => apiGet("/attendance/report", params),
+  }) => apiGet("/attendance/report/daily", {
+    date: params.startDate,
+    className: params.section ? `Grade ${params.grade || ""} ${params.section}`.trim() : undefined,
+  }),
 
-  // Export attendance
+  // Export attendance (client-side export uses fetched data where needed)
   exportAttendance: async (params: {
     grade: string;
     section: string;
     month: string;
     format?: "csv" | "pdf";
-  }) => apiGet("/attendance/export", { ...params, responseType: "blob" }),
+  }) => apiGet("/attendance/report/daily", {
+    date: `${new Date().getFullYear()}-${params.month}-01`,
+    className: params.section ? `Grade ${params.grade} ${params.section}` : `Grade ${params.grade}`,
+    responseType: "blob",
+  }),
 };
 
 export default attendanceService;

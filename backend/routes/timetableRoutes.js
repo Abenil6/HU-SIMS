@@ -71,6 +71,11 @@ router.post('/generate/precheck', checkPermission(PERMISSIONS.WRITE, RESOURCES.T
 router.post('/generate', checkPermission(PERMISSIONS.WRITE, RESOURCES.TIMETABLES), timetableController.generateTimetable);
 router.get('/versions', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), timetableController.getTimetableVersions);
 router.post('/versions/compare', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), timetableController.compareTimetableVersions);
+router.get('/schedule/teacher', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), timetableController.getTeacherSchedule);
+router.get('/schedule/class', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), timetableController.getClassSchedule);
+router.post('/check-conflicts', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), timetableController.checkConflicts);
+router.get('/classes', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), timetableController.getClasses);
+router.get('/years', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), timetableController.getAcademicYears);
 
 /**
  * @swagger
@@ -198,7 +203,6 @@ router.delete('/:id/periods', checkPermission(PERMISSIONS.EDIT, RESOURCES.TIMETA
  *       200:
  *         description: Teacher schedule
  */
-router.get('/schedule/teacher', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), timetableController.getTeacherSchedule);
 
 /**
  * @swagger
@@ -226,7 +230,6 @@ router.get('/schedule/teacher', checkPermission(PERMISSIONS.READ, RESOURCES.TIME
  *       200:
  *         description: Class schedule
  */
-router.get('/schedule/class', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), timetableController.getClassSchedule);
 
 /**
  * @swagger
@@ -240,7 +243,6 @@ router.get('/schedule/class', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETA
  *       200:
  *         description: Conflicts check result
  */
-router.post('/check-conflicts', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), timetableController.checkConflicts);
 
 /**
  * @swagger
@@ -254,7 +256,6 @@ router.post('/check-conflicts', checkPermission(PERMISSIONS.READ, RESOURCES.TIME
  *       200:
  *         description: List of classes
  */
-router.get('/classes', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), timetableController.getClasses);
 
 /**
  * @swagger
@@ -268,6 +269,4 @@ router.get('/classes', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), 
  *       200:
  *         description: List of academic years
  */
-router.get('/years', checkPermission(PERMISSIONS.READ, RESOURCES.TIMETABLES), timetableController.getAcademicYears);
-
 module.exports = router;

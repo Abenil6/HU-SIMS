@@ -34,7 +34,7 @@ export const authService = {
   },
 
   logout: async (): Promise<void> => {
-    return apiPost("/auth/logout");
+    return Promise.resolve();
   },
 
   getCurrentUser: async (): Promise<AuthUser> => {
@@ -43,7 +43,7 @@ export const authService = {
   },
 
   refreshToken: async (refreshToken: string): Promise<{ token: string }> => {
-    return apiPost("/auth/refresh", { refreshToken });
+    throw new Error("Refresh token endpoint is not available in the current backend API.");
   },
 
   changePassword: async (data: {

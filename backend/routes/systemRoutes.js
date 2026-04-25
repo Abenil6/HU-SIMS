@@ -460,43 +460,6 @@ router.get('/audit-logs', async (req, res) => {
 
 /**
  * @swagger
- * /api/system/security-alerts:
- *   get:
- *     summary: Get security alerts and critical events
- *     tags: [System Administration]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 100
- *     responses:
- *       200:
- *         description: Security alerts
- */
-router.get('/security-alerts', async (req, res) => {
-  try {
-    const { limit = 100 } = req.query;
-    
-    const alerts = await AuditLog.getSecurityAlerts(parseInt(limit));
-    
-    res.json({
-      success: true,
-      data: alerts
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching security alerts',
-      error: error.message
-    });
-  }
-});
-
-/**
- * @swagger
  * /api/system/user-activity/{userId}:
  *   get:
  *     summary: Get activity for a specific user

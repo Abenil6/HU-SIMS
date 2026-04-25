@@ -26,4 +26,4 @@ services:
       - key: SMTP_FROM
         sync: false
       - key: FRONTEND_URL
-        value: https://hu-sims.vercel.app
+        value: https://hunb-sims.vercel.app

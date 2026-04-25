@@ -380,13 +380,19 @@ export const timetableService = {
     periodId?: string;
     semester?: string;
     academicYear?: string;
-  }) => apiGet("/timetables/check-conflicts", params),
+  }) => apiPost("/timetables/check-conflicts", params),
 
-  addSchedule: async (timetableId: string, schedule: TimetableScheduleEntry) =>
-    apiPost(`/timetables/${timetableId}/schedules`, { schedule }),
+  addSchedule: async (timetableId: string, schedule: TimetableScheduleEntry) => {
+    const current = await apiGet<{ success: boolean; data: Timetable }>(`/timetables/${timetableId}`);
+    const timetable = current?.data || (current as unknown as Timetable);
+    const existingSchedule = Array.isArray(timetable?.schedule) ? timetable.schedule : [];
+    return apiPut(`/timetables/${timetableId}`, {
+      schedule: [...existingSchedule, schedule],
+    });
+  },
 
   getStudentTimetable: async (studentId: string, semester?: string, academicYear?: string) =>
-    apiGet(`/timetables/student/${studentId}`, { semester, academicYear }),
+    apiGet("/students/schedule", { studentId, semester, academicYear }),
 
   // ============ EXPORT ============
   

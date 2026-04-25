@@ -133,6 +133,10 @@ router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), e
  */
 router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), examScheduleController.createExamSchedule);
 
+router.get('/date-range', examScheduleController.getExamsByDateRange);
+router.post('/auto-generate', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), examScheduleController.autoGenerateSchedule);
+router.post('/regenerate', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), examScheduleController.regenerateSchedule);
+
 /**
  * @swagger
  * /api/exam-schedules/{id}:
@@ -272,7 +276,6 @@ router.get('/student/:studentId/upcoming', examScheduleController.getStudentUpco
  *       401:
  *         description: Unauthorized
  */
-router.get('/date-range', examScheduleController.getExamsByDateRange);
 
 /**
  * @swagger
@@ -324,7 +327,6 @@ router.get('/date-range', examScheduleController.getExamsByDateRange);
  *       403:
  *         description: Forbidden
  */
-router.post('/auto-generate', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), examScheduleController.autoGenerateSchedule);
 
 /**
  * @swagger
@@ -376,6 +378,4 @@ router.post('/auto-generate', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADE
  *       403:
  *         description: Forbidden
  */
-router.post('/regenerate', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), examScheduleController.regenerateSchedule);
-
 module.exports = router;

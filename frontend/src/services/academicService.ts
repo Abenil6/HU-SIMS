@@ -180,15 +180,15 @@ export const academicService = {
 
   // Get student result for a subject
   getStudentSubjectResult: async (studentId: string, subject: string, semester: string, academicYear: string) =>
-    apiGet(`/academic-records/student/${studentId}/subject`, { subject, semester, academicYear }),
+    apiGet("/academic-records/grades", { studentId, subject, semester, academicYear, limit: 1000 }),
 
   // Get student overall result
   getStudentOverallResult: async (studentId: string, semester: string, academicYear: string) =>
-    apiGet(`/academic-records/student/${studentId}/overall`, { semester, academicYear }),
+    apiGet("/academic-records/performance/student", { studentId, semester, academicYear }),
 
   // Get class results
   getClassResults: async (grade: string, section: string, semester: string, academicYear: string) =>
-    apiGet(`/academic-records/class/${grade}/${section}/results`, { semester, academicYear }),
+    apiGet("/academic-records/performance/class", { grade, section, semester, academicYear }),
 
   // ============ CALCULATIONS ============
 
@@ -200,11 +200,16 @@ export const academicService = {
     subject?: string;
     semester?: string;
     academicYear?: string;
-  }) => apiGet("/academic-records/calculate/average", params),
+  }) => {
+    if (params.studentId) {
+      return apiGet("/academic-records/performance/student", params);
+    }
+    return apiGet("/academic-records/performance/class", params);
+  },
 
   // Calculate class statistics
   calculateClassStats: async (grade: string, section: string, subject: string, semester: string, academicYear: string) =>
-    apiGet(`/academic-records/stats/${grade}/${section}`, { subject, semester, academicYear }),
+    apiGet("/academic-records/performance/class", { grade, section, subject, semester, academicYear }),
 
   // ============ LISTS ============
 

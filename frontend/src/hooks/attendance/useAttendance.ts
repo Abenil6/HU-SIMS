@@ -89,7 +89,9 @@ export function useDeleteAttendance() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ ids }: { ids: string[] }) => attendanceService.bulkUpdate({ ids, status: 'A' }),
+    mutationFn: async ({ ids }: { ids: string[] }) => {
+      await Promise.all(ids.map((id) => attendanceService.deleteAttendance(id)));
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.attendance.all });
       toast.success('Attendance deleted successfully');
