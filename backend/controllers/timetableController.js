@@ -630,7 +630,7 @@ exports.precheckGeneration = async (req, res) => {
     const subjects = getSubjectsFor(className, stream);
     const targetCounts = getTargetWeeklyCounts(subjects, className);
     const requiredSlots = Object.values(targetCounts).reduce((sum, n) => sum + n, 0);
-    const availableSlots = DAYS.length * PERIODS.length;
+    const availableSlots = DAYS.length * PERIODS.filter((p) => !p.isBreak).length;
 
     const teachers = await User.find({ role: 'Teacher', status: 'Active' })
       .select('firstName lastName teacherProfile.subjects');
