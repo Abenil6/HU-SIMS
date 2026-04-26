@@ -432,6 +432,90 @@ export function SchoolAdminDashboard() {
     }),
     [classesAttendance, theme],
   );
+  const attendanceHeatmapSeries = useMemo(() => {
+    const weekdayOrder = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const byDate = new Map<string, number>();
+
+    classesDailyTrend.forEach((day: any) => {
+      const key = String(day?.date || "");
+      if (!key) return;
+      byDate.set(key, Number(day?.attendanceRate ?? 0));
+    });
+
+    const endDate = new Date();
+    endDate.setHours(0, 0, 0, 0);
+    const startDate = new Date(endDate);
+    startDate.setDate(endDate.getDate() - 29);
+
+    const weekMap = new Map<string, Record<string, number>>();
+    for (let cursor = new Date(startDate); cursor <= endDate; cursor.setDate(cursor.getDate() + 1)) {
+      const iso = cursor.toISOString().split("T")[0];
+      const weekday = weekdayOrder[cursor.getDay()];
+      const weekLabel = `W${Math.ceil((cursor.getDate() + new Date(cursor.getFullYear(), cursor.getMonth(), 1).getDay()) / 7)}`;
+      const value = byDate.has(iso) ? Number(byDate.get(iso)) : -1;
+
+      if (!weekMap.has(weekLabel)) {
+        weekMap.set(weekLabel, {
+          Sun: -1,
+          Mon: -1,
+          Tue: -1,
+          Wed: -1,
+          Thu: -1,
+          Fri: -1,
+          Sat: -1,
+        });
+      }
+      weekMap.get(weekLabel)![weekday] = value;
+    }
+
+    const weekEntries = Array.from(weekMap.entries());
+    return weekdayOrder.map((weekday) => ({
+      name: weekday,
+      data: weekEntries.map(([weekLabel, values]) => ({
+        x: weekLabel,
+        y: values[weekday],
+      })),
+    }));
+  }, [classesDailyTrend]);
+  const attendanceHeatmapOptions = useMemo<ApexOptions>(
+    () => ({
+      chart: {
+        type: "heatmap",
+        toolbar: { show: false },
+      },
+      dataLabels: { enabled: false },
+      stroke: { width: 1, colors: [theme.palette.background.paper] },
+      plotOptions: {
+        heatmap: {
+          radius: 4,
+          colorScale: {
+            ranges: [
+              { from: -1, to: -1, color: theme.palette.grey[300], name: "No Data" },
+              { from: 0, to: 69, color: theme.palette.error.main, name: "<70%" },
+              { from: 70, to: 84, color: theme.palette.warning.main, name: "70-84%" },
+              { from: 85, to: 100, color: theme.palette.success.main, name: "85-100%" },
+            ],
+          },
+        },
+      },
+      xaxis: {
+        title: { text: "Week of Month" },
+      },
+      yaxis: {
+        title: { text: "Day" },
+      },
+      tooltip: {
+        y: {
+          formatter: (value) => (value < 0 ? "No data" : `${value}%`),
+        },
+      },
+      legend: {
+        show: true,
+        position: "bottom",
+      },
+    }),
+    [theme],
+  );
 
   const gradeOptions = [...GRADES];
   const streamOptions = [STREAMS.NATURAL, STREAMS.SOCIAL];
@@ -1186,6 +1270,26 @@ export function SchoolAdminDashboard() {
                 </Paper>
               </Grid>
             </Grid>
+
+            <Paper sx={{ p: 2.5, borderRadius: 2, mb: 3 }}>
+              <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                Attendance Heatmap (Last 30 Days)
+              </Typography>
+              {isLoadingClassesAttendance ? (
+                <LinearProgress />
+              ) : classesDailyTrend.length === 0 ? (
+                <Typography variant="body2" color="text.secondary">
+                  {t('common.noData')}
+                </Typography>
+              ) : (
+                <Chart
+                  options={attendanceHeatmapOptions}
+                  series={attendanceHeatmapSeries}
+                  type="heatmap"
+                  height={280}
+                />
+              )}
+            </Paper>
 
             <Paper sx={{ p: 2.5, borderRadius: 2, mb: 3 }}>
               <Typography variant="subtitle1" fontWeight={600} mb={2}>
