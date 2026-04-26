@@ -457,7 +457,10 @@
     "onlyClassMaterials": "You can only view materials for your class",
     "notAuthorizedSubmissions": "Not authorized to view submissions for this material",
     "notAuthorizedReview": "Not authorized to review this submission",
-    "notAuthorizedDownload": "Not authorized to download this submission"
+    "notAuthorizedDownload": "Not authorized to download this submission",
+    "searchPlaceholder": "Search...",
+    "noDataAvailable": "No data available",
+    "noRecordsToDisplay": "There are no records to display"
   }
 },
   "auth": {

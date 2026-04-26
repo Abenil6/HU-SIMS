@@ -457,7 +457,10 @@
     "onlyClassMaterials": "Qabxiilee kilasii keessanii fayyadami ilaalu danda'a",
     "notAuthorizedSubmissions": "Hojiilee qabxii kanaa ilaaluuf yaada hin qabdu",
     "notAuthorizedReview": "Hojiilee kanaa ilaaluu yaada hin qabdu",
-    "notAuthorizedDownload": "Hojiilee kanaa deebi'uu yaada hin qabdu"
+    "notAuthorizedDownload": "Hojiilee kanaa deebi'uu yaada hin qabdu",
+    "searchPlaceholder": "Barbaadi...",
+    "noDataAvailable": "Deetaa hin jiru",
+    "noRecordsToDisplay": "Ilaaluuf yaaduu deetaa hin jiru"
   },
   "auth": {
     "email": "Imeelii",

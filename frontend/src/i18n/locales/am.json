@@ -458,7 +458,10 @@
     "onlyClassMaterials": "ለክፍልዎ ቁሶችን ብቻ ማየት ይችላሉ",
     "notAuthorizedSubmissions": "ለዚህ ቁስ ስራዎችን ለማየት ፍቃድ የለሎት አይደለም",
     "notAuthorizedReview": "ዚህን ስራ ለመገምገም ፍቃድ የለሎት አይደለም",
-    "notAuthorizedDownload": "ዚህን ስራ ለመውርዝ ፍቃድ የለሎት አይደለም"
+    "notAuthorizedDownload": "ዚህን ስራ ለመውርዝ ፍቃድ የለሎት አይደለም",
+    "searchPlaceholder": "ፈልግ...",
+    "noDataAvailable": "ውሂብ የለም",
+    "noRecordsToDisplay": "ለማሳየት መዝገቦች የሉም"
   },
   "auth": {
     "email": "ኢሜይል",
