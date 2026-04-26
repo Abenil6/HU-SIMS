@@ -330,6 +330,27 @@ const applyGuardianProfileFieldsToStudent = (
   }
 };
 
+const findStudentByFlexibleIdentifier = async (identifier, populate = '') => {
+  const normalized = String(identifier || '').trim();
+  if (!normalized) return null;
+
+  let query = User.findOne({
+    role: 'Student',
+    'studentProfile.studentId': normalized
+  });
+  if (populate) query = query.populate(populate);
+  const byStudentProfileId = await query;
+  if (byStudentProfileId) return byStudentProfileId;
+
+  const byFlexibleUserId = await findUserByFlexibleId(normalized);
+  if (!byFlexibleUserId || byFlexibleUserId.role !== 'Student') return null;
+
+  if (populate) {
+    await byFlexibleUserId.populate(populate);
+  }
+  return byFlexibleUserId;
+};
+
 const ensureStudentParentLink = (student, parentId) => {
   if (!student.studentProfile) student.studentProfile = {};
   if (!Array.isArray(student.studentProfile.linkedParents)) {
@@ -1274,17 +1295,12 @@ exports.getMyReports = async (req, res) => {
 };
 
 /**
- * Download or preview a protected academic document
+ * Get a student by custom student profile ID (STUxxx) with backward-compatible lookup.
  */
-exports.downloadAcademicDocument = async (req, res) => {
+exports.getStudentByStudentId = async (req, res) => {
   try {
-    const { id, documentId } = req.params;
-    const disposition = String(req.query.disposition || 'attachment').toLowerCase();
-    const contentDisposition = disposition === 'inline' ? 'inline' : 'attachment';
-
-    const student = await User.findOne({ _id: id, role: 'Student' }).select(
-      'studentProfile.academicDocuments studentProfile.linkedParents'
-    );
+    const { studentId } = req.params;
+    const student = await findStudentByFlexibleIdentifier(studentId);
 
     if (!student) {
       return res.status(404).json({
@@ -1293,15 +1309,55 @@ exports.downloadAcademicDocument = async (req, res) => {
       });
     }
 
-    if (!canAccessStudentDocuments(req.user, student)) {
+    return res.json({
+      success: true,
+      data: normalizeUserResponse(student.toObject())
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch student',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Download or preview a protected academic document
+ */
+exports.downloadAcademicDocument = async (req, res) => {
+  try {
+    const { id, documentId } = req.params;
+    const disposition = String(req.query.disposition || 'attachment').toLowerCase();
+    const contentDisposition = disposition === 'inline' ? 'inline' : 'attachment';
+
+    const student = await findStudentByFlexibleIdentifier(id);
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    const studentWithDocs = await User.findById(student._id).select(
+      'studentProfile.academicDocuments studentProfile.linkedParents'
+    );
+    if (!studentWithDocs) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    if (!canAccessStudentDocuments(req.user, studentWithDocs)) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to access this academic document'
       });
     }
 
-    const documents = Array.isArray(student.studentProfile?.academicDocuments)
-      ? student.studentProfile.academicDocuments
+    const documents = Array.isArray(studentWithDocs.studentProfile?.academicDocuments)
+      ? studentWithDocs.studentProfile.academicDocuments
       : [];
     const document = documents.find((item) => String(item?._id) === String(documentId));
 
@@ -1414,15 +1470,14 @@ exports.updateStudent = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate ID
-    if (!id || id === 'undefined' || !id.match(/^[0-9a-fA-F]{24}$/)) {
+    if (!id || id === 'undefined') {
       return res.status(400).json({
         success: false,
         message: 'Invalid student ID provided'
       });
     }
 
-    const student = await User.findOne({ _id: id, role: 'Student' });
+    const student = await findStudentByFlexibleIdentifier(id);
     if (!student) {
       return res.status(404).json({
         success: false,
@@ -1594,8 +1649,7 @@ exports.deleteStudent = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate ID format
-    if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+    if (!id || id === 'undefined') {
       return res.status(400).json({
         success: false,
         message: 'Invalid student ID provided'
@@ -1610,7 +1664,7 @@ exports.deleteStudent = async (req, res) => {
       });
     }
 
-    const student = await User.findById(id);
+    const student = await findStudentByFlexibleIdentifier(id);
 
     if (!student) {
       return res.status(404).json({
@@ -1628,18 +1682,18 @@ exports.deleteStudent = async (req, res) => {
     }
 
     // Clean up related records
-    await AcademicRecord.deleteMany({ student: id });
-    await Attendance.deleteMany({ student: id });
-    await Certificate.deleteMany({ student: id });
-    await Report.deleteMany({ student: id });
-    await AbsenceAlert.deleteMany({ student: id });
+    await AcademicRecord.deleteMany({ student: student._id });
+    await Attendance.deleteMany({ student: student._id });
+    await Certificate.deleteMany({ student: student._id });
+    await Report.deleteMany({ student: student._id });
+    await AbsenceAlert.deleteMany({ student: student._id });
 
     // Remove student from messages (delete messages where student is sender or recipient)
     const Message = require('../models/Message');
     await Message.deleteMany({
       $or: [
-        { sender: id },
-        { recipients: id }
+        { sender: student._id },
+        { recipients: student._id }
       ]
     });
 
@@ -1647,12 +1701,12 @@ exports.deleteStudent = async (req, res) => {
     if (student.studentProfile?.linkedParents?.length > 0) {
       await User.updateMany(
         { _id: { $in: student.studentProfile.linkedParents } },
-        { $pull: { 'parentProfile.linkedChildren': id } }
+        { $pull: { 'parentProfile.linkedChildren': student._id } }
       );
     }
 
     // Finally delete the student
-    await User.findByIdAndDelete(id);
+    await User.findByIdAndDelete(student._id);
 
     res.json({
       success: true,
@@ -1674,7 +1728,7 @@ exports.deleteStudent = async (req, res) => {
 exports.linkParent = async (req, res) => {
   try {
     const { parentId } = req.body;
-    const studentId = req.params.id;
+    const studentIdentifier = req.params.id;
 
     if (!parentId) {
       return res.status(400).json({
@@ -1684,7 +1738,7 @@ exports.linkParent = async (req, res) => {
     }
 
     // Find the student
-    const student = await User.findOne({ _id: studentId, role: 'Student' });
+    const student = await findStudentByFlexibleIdentifier(studentIdentifier);
     if (!student) {
       return res.status(404).json({
         success: false,
@@ -1719,7 +1773,7 @@ exports.linkParent = async (req, res) => {
       p => p.toString() === parentId
     );
     const parentAlreadyHasStudent = parent.parentProfile.linkedChildren.some(
-      c => c.toString() === studentId
+      c => c.toString() === student._id.toString()
     );
 
     // Keep link creation idempotent and heal one-sided links if they exist.
@@ -1732,7 +1786,7 @@ exports.linkParent = async (req, res) => {
     }
 
     if (!parentAlreadyHasStudent) {
-      parent.parentProfile.linkedChildren.push(studentId);
+      parent.parentProfile.linkedChildren.push(student._id);
       parentUpdated = true;
     }
 
@@ -1740,7 +1794,7 @@ exports.linkParent = async (req, res) => {
     if (parentUpdated) await parent.save();
 
     // Populate parent details for response
-    const populatedStudent = await User.findById(studentId)
+    const populatedStudent = await User.findById(student._id)
       .populate('studentProfile.linkedParents', 'firstName lastName email phone');
 
     res.json({
@@ -1766,10 +1820,10 @@ exports.linkParent = async (req, res) => {
 exports.unlinkParent = async (req, res) => {
   try {
     const { parentId } = req.params;
-    const studentId = req.params.id;
+    const studentIdentifier = req.params.id;
 
     // Find the student
-    const student = await User.findOne({ _id: studentId, role: 'Student' });
+    const student = await findStudentByFlexibleIdentifier(studentIdentifier);
     if (!student) {
       return res.status(404).json({
         success: false,
@@ -1797,7 +1851,7 @@ exports.unlinkParent = async (req, res) => {
     // Remove student from parent's linked children
     if (parent.parentProfile?.linkedChildren) {
       parent.parentProfile.linkedChildren = parent.parentProfile.linkedChildren.filter(
-        c => c.toString() !== studentId
+        c => c.toString() !== student._id.toString()
       );
       await parent.save();
     }

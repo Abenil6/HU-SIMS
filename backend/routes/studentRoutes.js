@@ -223,6 +223,14 @@ router.get('/certificates', protect, studentController.getMyCertificates);
  */
 router.get('/reports', protect, studentController.getMyReports);
 
+// Get single student by custom student ID (STUxxx) or fallback identifier
+router.get(
+  '/by-student-id/:studentId',
+  protect,
+  authorize('SystemAdmin', 'SchoolAdmin', 'Teacher'),
+  studentController.getStudentByStudentId
+);
+
 // ==================== ADMIN ROUTES ====================
 // Create student (admin only)
 router.post(
