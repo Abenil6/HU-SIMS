@@ -592,6 +592,21 @@ export function SchoolAdminGradesPage() {
           data: topSubjects.map((subject) => perSubject.get(subject)!["<60"]),
         },
       ],
+      passRate: topSubjects.map((subject) => {
+        const subjectBins = perSubject.get(subject)!;
+        const total =
+          subjectBins["90+"] +
+          subjectBins["80-89"] +
+          subjectBins["70-79"] +
+          subjectBins["60-69"] +
+          subjectBins["<60"];
+        const passed =
+          subjectBins["90+"] +
+          subjectBins["80-89"] +
+          subjectBins["70-79"] +
+          subjectBins["60-69"];
+        return total > 0 ? Number(((passed / total) * 100).toFixed(1)) : 0;
+      }),
     };
   }, [filteredGrades]);
   const subjectDistributionOptions = useMemo<ApexOptions>(
@@ -632,9 +647,23 @@ export function SchoolAdminGradesPage() {
           maxHeight: 80,
         },
       },
-      yaxis: {
-        title: { text: "Number of Records" },
-      },
+      yaxis: [
+        {
+          title: { text: "Number of Records" },
+          labels: {
+            formatter: (value) => `${Math.round(value)}`,
+          },
+        },
+        {
+          opposite: true,
+          min: 0,
+          max: 100,
+          title: { text: "Pass Rate (%)" },
+          labels: {
+            formatter: (value) => `${Math.round(value)}%`,
+          },
+        },
+      ],
       legend: {
         position: "top",
       },
@@ -642,7 +671,10 @@ export function SchoolAdminGradesPage() {
       grid: { borderColor: theme.palette.divider },
       tooltip: {
         y: {
-          formatter: (value) => `${value} records`,
+          formatter: (value, ctx) => {
+            const isPassRateSeries = ctx.seriesIndex === 5;
+            return isPassRateSeries ? `${value}% pass rate` : `${value} records`;
+          },
         },
       },
     }),
@@ -1498,8 +1530,15 @@ export function SchoolAdminGradesPage() {
               ) : (
                 <Chart
                   options={subjectDistributionOptions}
-                  series={subjectDistribution.series}
-                  type="bar"
+                  series={[
+                    ...subjectDistribution.series,
+                    {
+                      name: "Pass Rate",
+                      type: "line",
+                      data: subjectDistribution.passRate,
+                    } as any,
+                  ]}
+                  type="line"
                   height={360}
                 />
               )}
