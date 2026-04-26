@@ -5,6 +5,14 @@ const {
   getUsers
 } = require('../controllers/userController');
 const { protect, authorize } = require('../middleware/authMiddleware');
+const { validateBody } = require('../utils/validateInput');
+
+const validateCreateUser = validateBody({
+  username: { required: true, type: 'string', trim: true, minLength: 2, maxLength: 80 },
+  password: { required: true, type: 'string', minLength: 8, maxLength: 256 },
+  role: { required: true, type: 'string', enum: ['SystemAdmin', 'SchoolAdmin', 'Teacher', 'Student', 'Parent'] },
+  email: { required: true, type: 'string', trim: true, format: 'email', maxLength: 120 },
+}, { allowUnknown: true });
 
 /**
  * @swagger
@@ -39,7 +47,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
  *       400:
  *         description: User creation failed
  */
-router.post('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), createUser);
+router.post('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateCreateUser, createUser);
 /**
  * @swagger
  * /api/users:

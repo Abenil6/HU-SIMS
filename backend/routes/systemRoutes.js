@@ -12,6 +12,7 @@ const { protect, authorize, checkIpWhitelist } = require('../middleware/authMidd
 const { logSystemConfigChange } = require('../utils/auditLogger');
 const { loadSystemSettings, saveSystemSettings } = require('../utils/systemSettings');
 const { ACTIONS, RESOURCE_KEYS, ROLE_METADATA, defaultPermissions } = require('../models/Permission');
+const { validateBody, validateParams, validateQuery } = require('../utils/validateInput');
 
 /**
  * @swagger
@@ -101,7 +102,16 @@ router.get('/settings', authorize('SystemAdmin', 'SchoolAdmin'), async (req, res
   }
 });
 
-router.post('/settings', authorize('SystemAdmin', 'SchoolAdmin'), async (req, res) => {
+router.post(
+  '/settings',
+  authorize('SystemAdmin', 'SchoolAdmin'),
+  validateBody({
+    schoolName: { type: 'string', trim: true, maxLength: 200 },
+    email: { type: 'string', trim: true, format: 'email', maxLength: 120 },
+    phone: { type: 'string', trim: true, maxLength: 30 },
+    timezone: { type: 'string', trim: true, maxLength: 60 },
+  }, { allowUnknown: true }),
+  async (req, res) => {
   try {
     const previous = await loadSystemSettings();
     const saved = await saveSystemSettings(req.body || {});
@@ -137,6 +147,62 @@ const DEFAULT_BACKUP_CONFIG = {
   backupFrequency: 'daily',
   retainBackups: 7
 };
+
+const validateAuditLogQuery = validateQuery({
+  page: { type: 'number', min: 1 },
+  limit: { type: 'number', min: 1, max: 500 },
+  action: { type: 'string', trim: true, maxLength: 100 },
+  resourceType: { type: 'string', trim: true, maxLength: 100 },
+  severity: { type: 'string', enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] },
+  status: { type: 'string', enum: ['SUCCESS', 'FAILURE', 'WARNING'] },
+  userId: { type: 'objectId' },
+  startDate: { type: 'date' },
+  endDate: { type: 'date' },
+  search: { type: 'string', trim: true, maxLength: 200 },
+}, { allowUnknown: true });
+
+const validateUserActivityParams = validateParams({
+  userId: { required: true, type: 'objectId' },
+});
+
+const validateLimitQuery = validateQuery({
+  limit: { type: 'number', min: 1, max: 1000 },
+}, { allowUnknown: true });
+
+const validateStatsQuery = validateQuery({
+  timeRange: { type: 'string', enum: ['1h', '24h', '7d', '30d'] },
+}, { allowUnknown: true });
+
+const validateRoleParam = validateParams({
+  role: { required: true, type: 'string', trim: true, minLength: 2, maxLength: 40 },
+});
+
+const validateRolePermissionsBody = validateBody({
+  permissions: { required: true, type: 'object' },
+}, { allowUnknown: true });
+
+const validateBackupConfigBody = validateBody({
+  autoBackup: { type: 'boolean' },
+  backupFrequency: { type: 'string', enum: ['hourly', 'daily', 'weekly', 'monthly'] },
+  retainBackups: { type: 'number', min: 1, max: 100 },
+}, { allowUnknown: true });
+
+const validateBackupFilenameParam = validateParams({
+  filename: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 255 },
+});
+
+const validateBackupRestoreBody = validateBody({
+  filename: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 255 },
+  confirm: { required: true, type: 'string', enum: ['RESTORE'] },
+}, { allowUnknown: true });
+
+const validateExportAuditLogsBody = validateBody({
+  startDate: { type: 'date' },
+  endDate: { type: 'date' },
+  action: { type: 'string', trim: true, maxLength: 100 },
+  resourceType: { type: 'string', trim: true, maxLength: 100 },
+  severity: { type: 'string', enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] },
+}, { allowUnknown: true });
 
 const getClientIp = (req) =>
   req.headers['x-forwarded-for']?.toString()?.split(',')[0]?.trim() ||
@@ -387,7 +453,7 @@ const restoreFromBackupFile = async (fullPath) => {
  *       200:
  *         description: Paginated audit logs
  */
-router.get('/audit-logs', async (req, res) => {
+router.get('/audit-logs', validateAuditLogQuery, async (req, res) => {
   try {
     const {
       page = 1,
@@ -481,7 +547,7 @@ router.get('/audit-logs', async (req, res) => {
  *       200:
  *         description: User activity logs
  */
-router.get('/user-activity/:userId', async (req, res) => {
+router.get('/user-activity/:userId', validateUserActivityParams, validateLimitQuery, async (req, res) => {
   try {
     const { userId } = req.params;
     const { limit = 100 } = req.query;
@@ -559,7 +625,7 @@ router.get('/roles-permissions', async (req, res) => {
   }
 });
 
-router.put('/roles-permissions/:role', async (req, res) => {
+router.put('/roles-permissions/:role', validateRoleParam, validateRolePermissionsBody, async (req, res) => {
   try {
     const { role } = req.params;
     const { permissions } = req.body || {};
@@ -604,7 +670,7 @@ router.put('/roles-permissions/:role', async (req, res) => {
  *       200:
  *         description: System statistics
  */
-router.get('/stats', async (req, res) => {
+router.get('/stats', validateStatsQuery, async (req, res) => {
   try {
     const { timeRange = '24h' } = req.query;
     
@@ -771,7 +837,7 @@ router.get('/stats', async (req, res) => {
  *       200:
  *         description: Security alerts
  */
-router.get('/security-alerts', async (req, res) => {
+router.get('/security-alerts', validateLimitQuery, async (req, res) => {
   try {
     const { limit = 100 } = req.query;
     
@@ -940,7 +1006,7 @@ router.get('/backups', async (req, res) => {
   }
 });
 
-router.post('/backups/config', async (req, res) => {
+router.post('/backups/config', validateBackupConfigBody, async (req, res) => {
   try {
     const { autoBackup, backupFrequency, retainBackups } = req.body || {};
     const config = {
@@ -1009,7 +1075,7 @@ router.post('/backups/run', async (req, res) => {
   }
 });
 
-router.get('/backups/download/:filename', async (req, res) => {
+router.get('/backups/download/:filename', validateBackupFilenameParam, async (req, res) => {
   try {
     const filename = sanitizeBackupFilename(req.params.filename);
     if (!filename) {
@@ -1037,7 +1103,7 @@ router.get('/backups/download/:filename', async (req, res) => {
   }
 });
 
-router.post('/backups/restore', async (req, res) => {
+router.post('/backups/restore', validateBackupRestoreBody, async (req, res) => {
   try {
     const { filename, confirm } = req.body || {};
     if (confirm !== 'RESTORE') {
@@ -1102,7 +1168,7 @@ router.post('/backups/restore', async (req, res) => {
   }
 });
 
-router.post('/export-audit-logs', async (req, res) => {
+router.post('/export-audit-logs', validateExportAuditLogsBody, async (req, res) => {
   try {
     const { startDate, endDate, action, resourceType, severity } = req.body;
     

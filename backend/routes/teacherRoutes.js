@@ -2,6 +2,76 @@ const express = require('express');
 const router = express.Router();
 const teacherController = require('../controllers/teacherController');
 const { protect, authorize } = require('../middleware/authMiddleware');
+const { validateBody, validateParams, validateQuery } = require('../utils/validateInput');
+
+const validateTeacherId = validateParams({
+  id: { required: true, type: 'objectId' },
+});
+
+const validateTeacherClassParams = validateParams({
+  grade: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 20 },
+  section: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 50 },
+});
+
+const validateTeacherCreate = validateBody({
+  firstName: { required: true, type: 'string', trim: true, minLength: 2, maxLength: 100 },
+  lastName: { required: true, type: 'string', trim: true, minLength: 2, maxLength: 100 },
+  email: { required: true, type: 'string', trim: true, format: 'email', maxLength: 120 },
+  qualification: { required: true, type: 'string', trim: true, minLength: 2, maxLength: 200 },
+  phone: { type: 'string', trim: true, maxLength: 30 },
+  gender: { type: 'string', enum: ['Male', 'Female', 'Other'] },
+  specialization: { type: 'string', trim: true, maxLength: 120 },
+  subjects: { type: 'array', maxItems: 50, items: { type: 'string' } },
+  classes: { type: 'array', maxItems: 50 },
+  address: { type: 'object' },
+}, { allowUnknown: true });
+
+const validateTeacherUpdate = validateBody({
+  firstName: { type: 'string', trim: true, minLength: 2, maxLength: 100 },
+  lastName: { type: 'string', trim: true, minLength: 2, maxLength: 100 },
+  email: { type: 'string', trim: true, format: 'email', maxLength: 120 },
+  phone: { type: 'string', trim: true, maxLength: 30 },
+  status: { type: 'string' },
+  teacherProfile: { type: 'object' },
+}, { allowUnknown: true });
+
+const validateTeacherListQuery = validateQuery({
+  page: { type: 'number', min: 1 },
+  limit: { type: 'number', min: 1, max: 200 },
+  search: { type: 'string', trim: true, maxLength: 120 },
+  subject: { type: 'string', trim: true, maxLength: 120 },
+  status: { type: 'string', trim: true, maxLength: 30 },
+}, { allowUnknown: true });
+
+const validateTeacherGradesQuery = validateQuery({
+  status: { type: 'string', trim: true, maxLength: 30 },
+  classGrade: { type: 'string', trim: true, maxLength: 30 },
+  section: { type: 'string', trim: true, maxLength: 30 },
+}, { allowUnknown: true });
+
+const validateAddGrade = validateBody({
+  studentId: { required: true, type: 'objectId' },
+  subject: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 120 },
+  grade: { required: true, type: 'number', min: 0, max: 100 },
+  assessmentType: { type: 'string', trim: true, maxLength: 50 },
+  comments: { type: 'string', trim: true, maxLength: 2000 },
+}, { allowUnknown: true });
+
+const validateBulkAddGrades = validateBody({
+  grades: { required: true, type: 'array', minItems: 1, maxItems: 500 },
+}, { allowUnknown: true });
+
+const validateMarkAttendance = validateBody({
+  class: { type: 'string', trim: true, maxLength: 120 },
+  date: { type: 'date' },
+  records: { type: 'array', minItems: 1, maxItems: 500 },
+}, { allowUnknown: true });
+
+const validateClassReport = validateBody({
+  class: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 120 },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+  semester: { type: 'string', enum: ['Semester 1', 'Semester 2'] },
+}, { allowUnknown: true });
 
 /**
  * @swagger
@@ -51,7 +121,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
  *       400:
  *         description: Email already exists
  */
-router.post('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), teacherController.createTeacher);
+router.post('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateTeacherCreate, teacherController.createTeacher);
 
 /**
  * @swagger
@@ -91,7 +161,7 @@ router.post('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), teacherContro
  *       200:
  *         description: List of teachers
  */
-router.get('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), teacherController.getTeachers);
+router.get('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateTeacherListQuery, teacherController.getTeachers);
 
 /**
  * @swagger
@@ -128,8 +198,8 @@ router.get('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), teacherControl
  *       200:
  *         description: Teacher updated
  */
-router.put('/:id', protect, authorize('SystemAdmin', 'SchoolAdmin'), teacherController.updateTeacher);
-router.delete('/:id', protect, authorize('SystemAdmin', 'SchoolAdmin'), teacherController.deleteTeacher);
+router.put('/:id', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateTeacherId, validateTeacherUpdate, teacherController.updateTeacher);
+router.delete('/:id', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateTeacherId, teacherController.deleteTeacher);
 
 /**
  * @swagger
@@ -198,7 +268,7 @@ router.get('/students', protect, teacherController.getMyStudents);
  *       200:
  *         description: List of students
  */
-router.get('/classes/:grade/:section/students', protect, teacherController.getClassStudents);
+router.get('/classes/:grade/:section/students', protect, validateTeacherClassParams, teacherController.getClassStudents);
 
 /**
  * @swagger
@@ -240,7 +310,7 @@ router.get('/schedule', protect, teacherController.getMySchedule);
  *       200:
  *         description: List of grades
  */
-router.get('/grades', protect, teacherController.getMyGrades);
+router.get('/grades', protect, validateTeacherGradesQuery, teacherController.getMyGrades);
 
 /**
  * @swagger
@@ -275,7 +345,7 @@ router.get('/grades', protect, teacherController.getMyGrades);
  *       201:
  *         description: Grade added
  */
-router.post('/grades', protect, teacherController.addGrade);
+router.post('/grades', protect, validateAddGrade, teacherController.addGrade);
 
 /**
  * @swagger
@@ -289,7 +359,7 @@ router.post('/grades', protect, teacherController.addGrade);
  *       201:
  *         description: Grades added
  */
-router.post('/grades/bulk', protect, teacherController.bulkAddGrades);
+router.post('/grades/bulk', protect, validateBulkAddGrades, teacherController.bulkAddGrades);
 
 /**
  * @swagger
@@ -317,7 +387,7 @@ router.get('/attendance', protect, teacherController.getMyAttendance);
  *       201:
  *         description: Attendance marked
  */
-router.post('/attendance', protect, teacherController.markAttendance);
+router.post('/attendance', protect, validateMarkAttendance, teacherController.markAttendance);
 
 /**
  * @swagger
@@ -331,7 +401,7 @@ router.post('/attendance', protect, teacherController.markAttendance);
  *       201:
  *         description: Report generated
  */
-router.post('/reports/class', protect, teacherController.generateClassReport);
+router.post('/reports/class', protect, validateClassReport, teacherController.generateClassReport);
 
 /**
  * @swagger

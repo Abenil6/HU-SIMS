@@ -2,6 +2,37 @@ const express = require('express');
 const router = express.Router();
 const messageController = require('../controllers/messageController');
 const { protect, checkPermission, PERMISSIONS, RESOURCES } = require('../middleware/authMiddleware');
+const { validateBody, validateParams, validateQuery } = require('../utils/validateInput');
+
+const validateMessageId = validateParams({
+  id: { required: true, type: 'objectId' },
+});
+
+const validateInboxQuery = validateQuery({
+  page: { type: 'number', min: 1 },
+  limit: { type: 'number', min: 1, max: 200 },
+  unreadOnly: { type: 'boolean' },
+}, { allowUnknown: true });
+
+const validateMessageCreate = validateBody({
+  recipient: { required: true, type: 'objectId' },
+  subject: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 250 },
+  body: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 10000 },
+}, { allowUnknown: true });
+
+const validateBroadcastCreate = validateBody({
+  targetRoles: { required: true, type: 'array', minItems: 1, maxItems: 5, items: { type: 'string' } },
+  subject: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 250 },
+  body: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 10000 },
+}, { allowUnknown: true });
+
+const validateMessageReply = validateBody({
+  body: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 10000 },
+}, { allowUnknown: true });
+
+const validateBulkDelete = validateBody({
+  ids: { required: true, type: 'array', minItems: 1, maxItems: 500, items: { type: 'string' } },
+}, { allowUnknown: true });
 
 /**
  * @swagger
@@ -87,7 +118,7 @@ router.use(protect);
  *       403:
  *         description: Forbidden
  */
-router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), messageController.sendDirectMessage);
+router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), validateMessageCreate, messageController.sendDirectMessage);
 
 /**
  * @swagger
@@ -113,7 +144,7 @@ router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), message
  *       403:
  *         description: Forbidden
  */
-router.post('/broadcast', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), messageController.sendBroadcast);
+router.post('/broadcast', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), validateBroadcastCreate, messageController.sendBroadcast);
 
 /**
  * @swagger
@@ -142,7 +173,7 @@ router.post('/broadcast', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES)
  *       401:
  *         description: Unauthorized
  */
-router.get('/', messageController.getInbox);
+router.get('/', validateInboxQuery, messageController.getInbox);
 
 /**
  * @swagger
@@ -167,7 +198,7 @@ router.get('/', messageController.getInbox);
  *       401:
  *         description: Unauthorized
  */
-router.get('/sent', messageController.getSentMessages);
+router.get('/sent', validateInboxQuery, messageController.getSentMessages);
 router.get('/starred', messageController.getStarredMessages);
 router.get('/conversations', messageController.getConversations);
 router.get('/recipients', messageController.getAllowedRecipients);
@@ -187,11 +218,11 @@ router.get('/recipients', messageController.getAllowedRecipients);
  *         description: Unauthorized
  */
 router.get('/unread', messageController.getUnreadCount);
-router.put('/:id/read', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), messageController.markAsRead);
-router.put('/:id/unread', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), messageController.markAsUnread);
-router.put('/:id/star', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), messageController.starMessage);
-router.put('/:id/unstar', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), messageController.unstarMessage);
-router.post('/bulk-delete', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), messageController.bulkDeleteMessages);
+router.put('/:id/read', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), validateMessageId, messageController.markAsRead);
+router.put('/:id/unread', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), validateMessageId, messageController.markAsUnread);
+router.put('/:id/star', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), validateMessageId, messageController.starMessage);
+router.put('/:id/unstar', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), validateMessageId, messageController.unstarMessage);
+router.post('/bulk-delete', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), validateBulkDelete, messageController.bulkDeleteMessages);
 
 /**
  * @swagger
@@ -217,7 +248,7 @@ router.post('/bulk-delete', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGE
  *       404:
  *         description: Message not found
  */
-router.get('/:id', messageController.getMessageById);
+router.get('/:id', validateMessageId, messageController.getMessageById);
 
 /**
  * @swagger
@@ -256,7 +287,7 @@ router.get('/:id', messageController.getMessageById);
  *       404:
  *         description: Message not found
  */
-router.post('/:id/reply', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), messageController.replyToMessage);
+router.post('/:id/reply', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES), validateMessageId, validateMessageReply, messageController.replyToMessage);
 
 /**
  * @swagger
@@ -282,6 +313,6 @@ router.post('/:id/reply', checkPermission(PERMISSIONS.WRITE, RESOURCES.MESSAGES)
  *       404:
  *         description: Message not found
  */
-router.delete('/:id', messageController.deleteMessage);
+router.delete('/:id', validateMessageId, messageController.deleteMessage);
 
 module.exports = router;

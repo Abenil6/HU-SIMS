@@ -2,6 +2,57 @@ const express = require('express');
 const router = express.Router();
 const attendanceController = require('../controllers/attendanceController');
 const { protect, authorize, checkPermission, PERMISSIONS, RESOURCES } = require('../middleware/authMiddleware');
+const { validateBody, validateParams, validateQuery } = require('../utils/validateInput');
+
+const validateAttendanceId = validateParams({
+  id: { required: true, type: 'objectId' },
+});
+
+const validateAttendanceCreate = validateBody({
+  student: { required: true, type: 'objectId' },
+  date: { required: true, type: 'date' },
+  status: { required: true, type: 'string', enum: ['Present', 'Absent', 'Late', 'Excused'] },
+  period: { type: 'number', min: 1, max: 20 },
+  subject: { type: 'string', trim: true, maxLength: 120 },
+  remarks: { type: 'string', trim: true, maxLength: 2000 },
+}, { allowUnknown: true });
+
+const validateBulkAttendance = validateBody({
+  date: { required: true, type: 'date' },
+  period: { type: 'number', min: 1, max: 20 },
+  subject: { type: 'string', trim: true, maxLength: 120 },
+  records: { required: true, type: 'array', minItems: 1, maxItems: 1000 },
+}, { allowUnknown: true });
+
+const validateSyncAttendance = validateBody({
+  offlineRecords: { required: true, type: 'array', minItems: 1, maxItems: 2000 },
+}, { allowUnknown: true });
+
+const validateAttendanceQuery = validateQuery({
+  student: { type: 'objectId' },
+  date: { type: 'date' },
+  period: { type: 'number', min: 1, max: 20 },
+}, { allowUnknown: true });
+
+const validateSummaryStudentQuery = validateQuery({
+  studentId: { type: 'objectId' },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+}, { allowUnknown: true });
+
+const validateSummaryClassQuery = validateQuery({
+  className: { type: 'string', trim: true, maxLength: 120 },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+  month: { type: 'number', min: 1, max: 12 },
+}, { allowUnknown: true });
+
+const validateSummaryClassesQuery = validateQuery({
+  days: { type: 'number', min: 1, max: 3650 },
+}, { allowUnknown: true });
+
+const validateDailyReportQuery = validateQuery({
+  date: { required: true, type: 'date' },
+  className: { type: 'string', trim: true, maxLength: 120 },
+}, { allowUnknown: true });
 
 /**
  * @swagger
@@ -97,7 +148,7 @@ router.use(protect);
  *       201:
  *         description: Attendance marked
  */
-router.post('/mark', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), attendanceController.markAttendance);
+router.post('/mark', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), validateAttendanceCreate, attendanceController.markAttendance);
 
 /**
  * @swagger
@@ -117,7 +168,7 @@ router.post('/mark', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), a
  *       201:
  *         description: Bulk attendance marked
  */
-router.post('/bulk', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), attendanceController.bulkMarkAttendance);
+router.post('/bulk', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), validateBulkAttendance, attendanceController.bulkMarkAttendance);
 
 /**
  * @swagger
@@ -153,7 +204,7 @@ router.post('/bulk', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), a
  *       200:
  *         description: Records synced
  */
-router.post('/sync', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), attendanceController.syncOfflineAttendance);
+router.post('/sync', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), validateSyncAttendance, attendanceController.syncOfflineAttendance);
 
 /**
  * @swagger
@@ -181,7 +232,7 @@ router.post('/sync', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), a
  *       200:
  *         description: List of attendance records
  */
-router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), attendanceController.getAttendanceRecords);
+router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), validateAttendanceQuery, attendanceController.getAttendanceRecords);
 
 /**
  * @swagger
@@ -201,7 +252,7 @@ router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), attenda
  *       200:
  *         description: Attendance record
  */
-router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), attendanceController.getAttendanceRecords);
+router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), validateAttendanceId, attendanceController.getAttendanceRecords);
 
 /**
  * @swagger
@@ -221,7 +272,7 @@ router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), atte
  *       200:
  *         description: Attendance updated
  */
-router.put('/:id', checkPermission(PERMISSIONS.EDIT, RESOURCES.ATTENDANCE), attendanceController.updateAttendance);
+router.put('/:id', checkPermission(PERMISSIONS.EDIT, RESOURCES.ATTENDANCE), validateAttendanceId, validateAttendanceCreate, attendanceController.updateAttendance);
 
 /**
  * @swagger
@@ -241,7 +292,7 @@ router.put('/:id', checkPermission(PERMISSIONS.EDIT, RESOURCES.ATTENDANCE), atte
  *       200:
  *         description: Attendance deleted
  */
-router.delete('/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.ATTENDANCE), attendanceController.deleteAttendance);
+router.delete('/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.ATTENDANCE), validateAttendanceId, attendanceController.deleteAttendance);
 
 /**
  * @swagger
@@ -264,7 +315,7 @@ router.delete('/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.ATTENDANCE),
  *       200:
  *         description: Student attendance statistics
  */
-router.get('/summary/student', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), attendanceController.getStudentAttendanceSummary);
+router.get('/summary/student', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), validateSummaryStudentQuery, attendanceController.getStudentAttendanceSummary);
 
 /**
  * @swagger
@@ -300,7 +351,7 @@ router.get('/summary/at-risk-trend', checkPermission(PERMISSIONS.READ, RESOURCES
  *       200:
  *         description: Class attendance analytics
  */
-router.get('/summary/classes', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), attendanceController.getClassesAttendanceAnalytics);
+router.get('/summary/classes', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), validateSummaryClassesQuery, attendanceController.getClassesAttendanceAnalytics);
 
 /**
  * @swagger
@@ -327,7 +378,7 @@ router.get('/summary/classes', checkPermission(PERMISSIONS.READ, RESOURCES.ATTEN
  *       200:
  *         description: Class attendance statistics
  */
-router.get('/summary/class', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), attendanceController.getClassAttendanceSummary);
+router.get('/summary/class', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), validateSummaryClassQuery, attendanceController.getClassAttendanceSummary);
 
 /**
  * @swagger
@@ -352,7 +403,7 @@ router.get('/summary/class', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDA
  *       200:
  *         description: Daily attendance summary
  */
-router.get('/report/daily', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), attendanceController.getDailyReport);
+router.get('/report/daily', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), validateDailyReportQuery, attendanceController.getDailyReport);
 
 /**
  * @swagger

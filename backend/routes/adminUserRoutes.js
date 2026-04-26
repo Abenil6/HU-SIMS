@@ -2,6 +2,64 @@ const express = require('express');
 const router = express.Router();
 const adminUserController = require('../controllers/adminUserController');
 const { protect, authorize } = require('../middleware/authMiddleware');
+const { validateBody, validateParams, validateQuery } = require('../utils/validateInput');
+
+const validateUserId = validateParams({
+  id: { required: true, type: 'objectId' },
+});
+
+const validateStudentId = validateParams({
+  id: { required: true, type: 'objectId' },
+});
+
+const validateUsersQuery = validateQuery({
+  role: { type: 'string', enum: ['SystemAdmin', 'SchoolAdmin', 'Teacher', 'Student', 'Parent'] },
+  status: { type: 'string', trim: true, maxLength: 30 },
+  page: { type: 'number', min: 1 },
+  limit: { type: 'number', min: 1, max: 500 },
+  search: { type: 'string', trim: true, maxLength: 120 },
+  grade: { type: 'string', trim: true, maxLength: 30 },
+  stream: { type: 'string', trim: true, maxLength: 30 },
+  section: { type: 'string', trim: true, maxLength: 30 },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+}, { allowUnknown: true });
+
+const validateCreateUser = validateBody({
+  email: { required: true, type: 'string', trim: true, format: 'email', maxLength: 120 },
+  username: { required: true, type: 'string', trim: true, minLength: 2, maxLength: 80 },
+  role: { required: true, type: 'string', enum: ['SystemAdmin', 'SchoolAdmin', 'Teacher', 'Student', 'Parent'] },
+  firstName: { type: 'string', trim: true, maxLength: 100 },
+  lastName: { type: 'string', trim: true, maxLength: 100 },
+  phone: { type: 'string', trim: true, maxLength: 30 },
+  grade: { type: 'string', trim: true, maxLength: 30 },
+  section: { type: 'string', trim: true, maxLength: 30 },
+  stream: { type: 'string', trim: true, maxLength: 30 },
+  subject: { type: 'string', trim: true, maxLength: 120 },
+}, { allowUnknown: true });
+
+const validateBulkCreateStudents = validateBody({
+  students: { required: true, type: 'array', minItems: 1, maxItems: 5000 },
+  defaultGrade: { type: 'string', trim: true, maxLength: 30 },
+  defaultSection: { type: 'string', trim: true, maxLength: 30 },
+}, { allowUnknown: true });
+
+const validateUpdateUser = validateBody({
+  email: { type: 'string', trim: true, format: 'email', maxLength: 120 },
+  username: { type: 'string', trim: true, minLength: 2, maxLength: 80 },
+  firstName: { type: 'string', trim: true, maxLength: 100 },
+  lastName: { type: 'string', trim: true, maxLength: 100 },
+  status: { type: 'string', trim: true, maxLength: 30 },
+  role: { type: 'string', enum: ['SystemAdmin', 'SchoolAdmin', 'Teacher', 'Student', 'Parent'] },
+}, { allowUnknown: true });
+
+const validateRequestLink = validateBody({
+  studentId: { required: true, type: 'objectId' },
+}, { allowUnknown: true });
+
+const validateManageLink = validateBody({
+  parentId: { required: true, type: 'objectId' },
+  action: { required: true, type: 'string', enum: ['approve', 'reject'] },
+}, { allowUnknown: true });
 
 /**
  * @swagger
@@ -107,7 +165,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
  *                   items:
  *                     $ref: '#/components/schemas/User'
  */
-router.get('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUserController.getAllUsers);
+router.get('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateUsersQuery, adminUserController.getAllUsers);
 
 /**
  * @swagger
@@ -127,7 +185,7 @@ router.get('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUserContr
  *       201:
  *         description: User created successfully
  */
-router.post('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUserController.createUser);
+router.post('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateCreateUser, adminUserController.createUser);
 
 /**
  * @swagger
@@ -159,7 +217,7 @@ router.post('/', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUserCont
  *       200:
  *         description: Bulk upload result
  */
-router.post('/bulk', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUserController.bulkCreateStudents);
+router.post('/bulk', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateBulkCreateStudents, adminUserController.bulkCreateStudents);
 
 // ==================== STUDENT MANAGEMENT ====================
 
@@ -206,7 +264,7 @@ router.post('/bulk', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUser
  *       200:
  *         description: List of students
  */
-router.get('/students', protect, authorize('SystemAdmin', 'SchoolAdmin', 'Teacher'), adminUserController.getStudents);
+router.get('/students', protect, authorize('SystemAdmin', 'SchoolAdmin', 'Teacher'), validateUsersQuery, adminUserController.getStudents);
 
 /**
  * @swagger
@@ -235,7 +293,7 @@ router.get('/students', protect, authorize('SystemAdmin', 'SchoolAdmin', 'Teache
  *       200:
  *         description: List of students
  */
-router.get('/students-by-class', protect, authorize('SystemAdmin', 'SchoolAdmin', 'Teacher'), adminUserController.getStudentsByClass);
+router.get('/students-by-class', protect, authorize('SystemAdmin', 'SchoolAdmin', 'Teacher'), validateUsersQuery, adminUserController.getStudentsByClass);
 
 // ==================== USER BY ID ====================
 
@@ -257,7 +315,7 @@ router.get('/students-by-class', protect, authorize('SystemAdmin', 'SchoolAdmin'
  *       200:
  *         description: User details
  */
-router.get('/:id', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUserController.getUserById);
+router.get('/:id', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateUserId, adminUserController.getUserById);
 
 /**
  * @swagger
@@ -292,7 +350,7 @@ router.get('/:id', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUserCo
  *       200:
  *         description: User updated successfully
  */
-router.put('/:id', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUserController.updateUser);
+router.put('/:id', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateUserId, validateUpdateUser, adminUserController.updateUser);
 
 /**
  * @swagger
@@ -312,7 +370,7 @@ router.put('/:id', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUserCo
  *       200:
  *         description: User deleted successfully
  */
-router.delete('/:id', protect, authorize('SystemAdmin'), adminUserController.deleteUser);
+router.delete('/:id', protect, authorize('SystemAdmin'), validateUserId, adminUserController.deleteUser);
 
 /**
  * @swagger
@@ -332,7 +390,7 @@ router.delete('/:id', protect, authorize('SystemAdmin'), adminUserController.del
  *       200:
  *         description: Verification email sent
  */
-router.post('/:id/resend-verify', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUserController.resendVerification);
+router.post('/:id/resend-verify', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateUserId, adminUserController.resendVerification);
 
 /**
  * @swagger
@@ -352,7 +410,7 @@ router.post('/:id/resend-verify', protect, authorize('SystemAdmin', 'SchoolAdmin
  *       200:
  *         description: User deactivated
  */
-router.post('/:id/deactivate', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUserController.deactivateUser);
+router.post('/:id/deactivate', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateUserId, adminUserController.deactivateUser);
 
 /**
  * @swagger
@@ -372,7 +430,7 @@ router.post('/:id/deactivate', protect, authorize('SystemAdmin', 'SchoolAdmin'),
  *       200:
  *         description: User activated
  */
-router.post('/:id/activate', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUserController.activateUser);
+router.post('/:id/activate', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateUserId, adminUserController.activateUser);
 
 /**
  * @swagger
@@ -392,7 +450,7 @@ router.post('/:id/activate', protect, authorize('SystemAdmin', 'SchoolAdmin'), a
  *       200:
  *         description: Password reset email sent
  */
-router.post('/:id/reset-password', protect, authorize('SystemAdmin', 'SchoolAdmin'), adminUserController.resetUserPassword);
+router.post('/:id/reset-password', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateUserId, adminUserController.resetUserPassword);
 
 // ==================== PARENT-STUDENT LINKING ====================
 
@@ -424,7 +482,7 @@ router.post('/:id/reset-password', protect, authorize('SystemAdmin', 'SchoolAdmi
  *       200:
  *         description: Link request sent
  */
-router.post('/:id/request-link', protect, authorize('Parent', 'SystemAdmin', 'SchoolAdmin'), adminUserController.requestParentLink);
+router.post('/:id/request-link', protect, authorize('Parent', 'SystemAdmin', 'SchoolAdmin'), validateUserId, validateRequestLink, adminUserController.requestParentLink);
 
 /**
  * @swagger
@@ -457,7 +515,7 @@ router.post('/:id/request-link', protect, authorize('Parent', 'SystemAdmin', 'Sc
  *       200:
  *         description: Request processed
  */
-router.post('/students/:id/manage-link', protect, authorize('SystemAdmin', 'SchoolAdmin', 'Student'), adminUserController.manageParentLink);
+router.post('/students/:id/manage-link', protect, authorize('SystemAdmin', 'SchoolAdmin', 'Student'), validateStudentId, validateManageLink, adminUserController.manageParentLink);
 
 /**
  * @swagger
@@ -478,7 +536,7 @@ router.post('/students/:id/manage-link', protect, authorize('SystemAdmin', 'Scho
  *       200:
  *         description: List of pending requests
  */
-router.get('/students/:id/parent-requests', protect, authorize('SystemAdmin', 'SchoolAdmin', 'Student'), adminUserController.getParentLinkRequests);
+router.get('/students/:id/parent-requests', protect, authorize('SystemAdmin', 'SchoolAdmin', 'Student'), validateStudentId, adminUserController.getParentLinkRequests);
 
 /**
  * @swagger
@@ -499,6 +557,6 @@ router.get('/students/:id/parent-requests', protect, authorize('SystemAdmin', 'S
  *       200:
  *         description: List of linked parents
  */
-router.get('/students/:id/parent-links', protect, authorize('SystemAdmin', 'SchoolAdmin', 'Student', 'Parent'), adminUserController.getStudentParentLinks);
+router.get('/students/:id/parent-links', protect, authorize('SystemAdmin', 'SchoolAdmin', 'Student', 'Parent'), validateStudentId, adminUserController.getStudentParentLinks);
 
 module.exports = router;

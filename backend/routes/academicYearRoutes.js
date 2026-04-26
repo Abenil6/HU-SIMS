@@ -2,6 +2,29 @@ const express = require('express');
 const router = express.Router();
 const academicYearController = require('../controllers/academicYearController');
 const { protect, authorize, checkPermission, PERMISSIONS, RESOURCES } = require('../middleware/authMiddleware');
+const { validateBody, validateParams } = require('../utils/validateInput');
+
+const validateAcademicYearId = validateParams({
+  id: { required: true, type: 'objectId' },
+});
+
+const validateAcademicYearSemesterParams = validateParams({
+  id: { required: true, type: 'objectId' },
+  semesterName: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 50 },
+});
+
+const validateAcademicYearBody = validateBody({
+  year: { required: true, type: 'string', trim: true, minLength: 4, maxLength: 30 },
+  startDate: { required: true, type: 'date' },
+  endDate: { required: true, type: 'date' },
+  isActive: { type: 'boolean' },
+  semesters: { type: 'array', maxItems: 10 },
+}, { allowUnknown: true });
+
+const validateAcademicYearSemesterBody = validateBody({
+  startDate: { type: 'date' },
+  endDate: { type: 'date' },
+}, { allowUnknown: true });
 
 /**
  * @swagger
@@ -99,7 +122,7 @@ router.get('/', academicYearController.getAcademicYears);
  *       403:
  *         description: Forbidden
  */
-router.post('/', authorize(['SystemAdmin', 'SchoolAdmin']), academicYearController.createAcademicYear);
+router.post('/', authorize(['SystemAdmin', 'SchoolAdmin']), validateAcademicYearBody, academicYearController.createAcademicYear);
 
 /**
  * @swagger
@@ -143,7 +166,7 @@ router.get('/active', academicYearController.getActiveAcademicYear);
  *       404:
  *         description: Academic year not found
  */
-router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.USERS), academicYearController.getAcademicYearById);
+router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.USERS), validateAcademicYearId, academicYearController.getAcademicYearById);
 
 /**
  * @swagger
@@ -177,7 +200,7 @@ router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.USERS), academicY
  *       404:
  *         description: Academic year not found
  */
-router.put('/:id', authorize(['SystemAdmin', 'SchoolAdmin']), academicYearController.updateAcademicYear);
+router.put('/:id', authorize(['SystemAdmin', 'SchoolAdmin']), validateAcademicYearId, validateAcademicYearBody, academicYearController.updateAcademicYear);
 
 /**
  * @swagger
@@ -203,7 +226,7 @@ router.put('/:id', authorize(['SystemAdmin', 'SchoolAdmin']), academicYearContro
  *       404:
  *         description: Academic year not found
  */
-router.delete('/:id', authorize(['SystemAdmin', 'SchoolAdmin']), academicYearController.deleteAcademicYear);
+router.delete('/:id', authorize(['SystemAdmin', 'SchoolAdmin']), validateAcademicYearId, academicYearController.deleteAcademicYear);
 
 /**
  * @swagger
@@ -229,7 +252,7 @@ router.delete('/:id', authorize(['SystemAdmin', 'SchoolAdmin']), academicYearCon
  *       404:
  *         description: Academic year not found
  */
-router.put('/:id/activate', authorize(['SystemAdmin', 'SchoolAdmin']), academicYearController.setAsActive);
+router.put('/:id/activate', authorize(['SystemAdmin', 'SchoolAdmin']), validateAcademicYearId, academicYearController.setAsActive);
 
 /**
  * @swagger
@@ -275,6 +298,6 @@ router.put('/:id/activate', authorize(['SystemAdmin', 'SchoolAdmin']), academicY
  *       404:
  *         description: Academic year or semester not found
  */
-router.put('/:id/semester/:semesterName', authorize(['SystemAdmin', 'SchoolAdmin']), academicYearController.updateSemester);
+router.put('/:id/semester/:semesterName', authorize(['SystemAdmin', 'SchoolAdmin']), validateAcademicYearSemesterParams, validateAcademicYearSemesterBody, academicYearController.updateSemester);
 
 module.exports = router;

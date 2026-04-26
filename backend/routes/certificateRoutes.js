@@ -2,6 +2,39 @@ const express = require('express');
 const router = express.Router();
 const certificateController = require('../controllers/certificateController');
 const { protect, authorize, checkPermission, PERMISSIONS, RESOURCES } = require('../middleware/authMiddleware');
+const { validateBody, validateParams, validateQuery } = require('../utils/validateInput');
+
+const validateCertificateId = validateParams({
+  id: { required: true, type: 'objectId' },
+});
+
+const validateCertificateQuery = validateQuery({
+  studentId: { type: 'objectId' },
+  certificateType: { type: 'string', enum: ['Completion', 'Transfer', 'Character', 'Bonafide'] },
+  status: { type: 'string', enum: ['Draft', 'Issued', 'Cancelled', 'Replaced'] },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+}, { allowUnknown: true });
+
+const validateCertificateCreate = validateBody({
+  certificateType: { required: true, type: 'string', enum: ['Completion', 'Transfer', 'Character', 'Bonafide'] },
+  studentId: { required: true, type: 'objectId' },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+  title: { type: 'string', trim: true, maxLength: 200 },
+  recipientName: { type: 'string', trim: true, maxLength: 150 },
+  notes: { type: 'string', trim: true, maxLength: 5000 },
+}, { allowUnknown: true });
+
+const validateGenerateCertificate = validateBody({
+  studentId: { required: true, type: 'objectId' },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+  signerName: { type: 'string', trim: true, maxLength: 120 },
+  signerTitle: { type: 'string', trim: true, maxLength: 120 },
+  transferTo: { type: 'string', trim: true, maxLength: 200 },
+}, { allowUnknown: true });
+
+const validateVerifyCertificate = validateBody({
+  certificateNumber: { required: true, type: 'string', trim: true, minLength: 2, maxLength: 120 },
+}, { allowUnknown: true });
 
 /**
  * @swagger
@@ -75,7 +108,7 @@ router.use(protect);
  *       403:
  *         description: Forbidden
  */
-router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.CERTIFICATES), certificateController.createCertificate);
+router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.CERTIFICATES), validateCertificateCreate, certificateController.createCertificate);
 
 /**
  * @swagger
@@ -110,7 +143,7 @@ router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.CERTIFICATES), cer
  *       403:
  *         description: Forbidden
  */
-router.post('/generate-completion', checkPermission(PERMISSIONS.WRITE, RESOURCES.CERTIFICATES), certificateController.generateCompletionCertificate);
+router.post('/generate-completion', checkPermission(PERMISSIONS.WRITE, RESOURCES.CERTIFICATES), validateGenerateCertificate, certificateController.generateCompletionCertificate);
 
 /**
  * @swagger
@@ -143,7 +176,7 @@ router.post('/generate-completion', checkPermission(PERMISSIONS.WRITE, RESOURCES
  *       403:
  *         description: Forbidden
  */
-router.post('/generate-transfer', checkPermission(PERMISSIONS.WRITE, RESOURCES.CERTIFICATES), certificateController.generateTransferCertificate);
+router.post('/generate-transfer', checkPermission(PERMISSIONS.WRITE, RESOURCES.CERTIFICATES), validateGenerateCertificate, certificateController.generateTransferCertificate);
 
 /**
  * @swagger
@@ -178,7 +211,7 @@ router.post('/generate-transfer', checkPermission(PERMISSIONS.WRITE, RESOURCES.C
  *       403:
  *         description: Forbidden
  */
-router.post('/generate-character', checkPermission(PERMISSIONS.WRITE, RESOURCES.CERTIFICATES), certificateController.generateCharacterCertificate);
+router.post('/generate-character', checkPermission(PERMISSIONS.WRITE, RESOURCES.CERTIFICATES), validateGenerateCertificate, certificateController.generateCharacterCertificate);
 
 /**
  * @swagger
@@ -213,7 +246,7 @@ router.post('/generate-character', checkPermission(PERMISSIONS.WRITE, RESOURCES.
  *       403:
  *         description: Forbidden
  */
-router.post('/generate-bonafide', checkPermission(PERMISSIONS.WRITE, RESOURCES.CERTIFICATES), certificateController.generateBonafideCertificate);
+router.post('/generate-bonafide', checkPermission(PERMISSIONS.WRITE, RESOURCES.CERTIFICATES), validateGenerateCertificate, certificateController.generateBonafideCertificate);
 
 /**
  * @swagger
@@ -251,7 +284,7 @@ router.post('/generate-bonafide', checkPermission(PERMISSIONS.WRITE, RESOURCES.C
  *       403:
  *         description: Forbidden
  */
-router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.CERTIFICATES), certificateController.getCertificates);
+router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.CERTIFICATES), validateCertificateQuery, certificateController.getCertificates);
 
 /**
  * @swagger
@@ -277,7 +310,7 @@ router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.CERTIFICATES), certi
  *       404:
  *         description: Certificate not found
  */
-router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.CERTIFICATES), certificateController.getCertificateById);
+router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.CERTIFICATES), validateCertificateId, certificateController.getCertificateById);
 
 /**
  * @swagger
@@ -303,7 +336,7 @@ router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.CERTIFICATES), ce
  *       404:
  *         description: Certificate not found
  */
-router.post('/:id/issue', authorize('SchoolAdmin'), certificateController.issueCertificate);
+router.post('/:id/issue', validateCertificateId, authorize('SchoolAdmin'), certificateController.issueCertificate);
 
 /**
  * @swagger
@@ -329,7 +362,7 @@ router.post('/:id/issue', authorize('SchoolAdmin'), certificateController.issueC
  *       404:
  *         description: Certificate not found
  */
-router.post('/:id/cancel', authorize('SchoolAdmin'), certificateController.cancelCertificate);
+router.post('/:id/cancel', validateCertificateId, authorize('SchoolAdmin'), certificateController.cancelCertificate);
 
 /**
  * @swagger
@@ -356,7 +389,7 @@ router.post('/:id/cancel', authorize('SchoolAdmin'), certificateController.cance
  *       404:
  *         description: Certificate not found
  */
-router.post('/verify', certificateController.verifyCertificate);
+router.post('/verify', validateVerifyCertificate, certificateController.verifyCertificate);
 
 /**
  * @swagger
@@ -382,6 +415,6 @@ router.post('/verify', certificateController.verifyCertificate);
  *       404:
  *         description: Certificate not found
  */
-router.get('/:id/export', checkPermission(PERMISSIONS.READ, RESOURCES.CERTIFICATES), certificateController.exportCertificate);
+router.get('/:id/export', checkPermission(PERMISSIONS.READ, RESOURCES.CERTIFICATES), validateCertificateId, certificateController.exportCertificate);
 
 module.exports = router;

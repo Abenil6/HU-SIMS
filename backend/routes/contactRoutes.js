@@ -2,6 +2,34 @@ const express = require('express');
 const router = express.Router();
 const contactController = require('../controllers/contactController');
 const { protect, authorize } = require('../middleware/authMiddleware');
+const { validateBody, validateParams, validateQuery } = require('../utils/validateInput');
+
+const validateContactMessageId = validateParams({
+  id: { required: true, type: 'objectId' },
+});
+
+const validatePublicContactForm = validateBody({
+  name: { required: true, type: 'string', trim: true, minLength: 2, maxLength: 120 },
+  email: { required: true, type: 'string', trim: true, format: 'email', maxLength: 120 },
+  subject: { required: true, type: 'string', trim: true, minLength: 2, maxLength: 200 },
+  message: { required: true, type: 'string', trim: true, minLength: 5, maxLength: 5000 },
+}, { allowUnknown: true });
+
+const validateContactAdminQuery = validateQuery({
+  status: { type: 'string', enum: ['New', 'Read', 'Replied', 'Archived'] },
+  priority: { type: 'string', enum: ['Low', 'Medium', 'High', 'Urgent'] },
+  page: { type: 'number', min: 1 },
+  limit: { type: 'number', min: 1, max: 200 },
+}, { allowUnknown: true });
+
+const validateContactStatusUpdate = validateBody({
+  status: { type: 'string', enum: ['New', 'Read', 'Replied', 'Archived'] },
+  priority: { type: 'string', enum: ['Low', 'Medium', 'High', 'Urgent'] },
+}, { allowUnknown: true });
+
+const validateContactResponse = validateBody({
+  response: { required: true, type: 'string', trim: true, minLength: 2, maxLength: 10000 },
+}, { allowUnknown: true });
 
 /**
  * @swagger
@@ -65,7 +93,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
  *       400:
  *         description: Validation error
  */
-router.post('/', contactController.submitContactForm);
+router.post('/', validatePublicContactForm, contactController.submitContactForm);
 
 // ==================== ADMIN CONTACT MANAGEMENT ====================
 
@@ -100,7 +128,7 @@ router.post('/', contactController.submitContactForm);
  *       200:
  *         description: List of contact messages
  */
-router.get('/admin', protect, authorize('SchoolAdmin', 'SystemAdmin'), contactController.getAllContactMessages);
+router.get('/admin', protect, authorize('SchoolAdmin', 'SystemAdmin'), validateContactAdminQuery, contactController.getAllContactMessages);
 
 /**
  * @swagger
@@ -134,7 +162,7 @@ router.get('/admin/stats', protect, authorize('SchoolAdmin', 'SystemAdmin'), con
  *       200:
  *         description: Contact message details
  */
-router.get('/admin/:id', protect, authorize('SchoolAdmin', 'SystemAdmin'), contactController.getContactMessageById);
+router.get('/admin/:id', protect, authorize('SchoolAdmin', 'SystemAdmin'), validateContactMessageId, contactController.getContactMessageById);
 
 /**
  * @swagger
@@ -167,7 +195,7 @@ router.get('/admin/:id', protect, authorize('SchoolAdmin', 'SystemAdmin'), conta
  *       200:
  *         description: Contact message updated
  */
-router.put('/admin/:id', protect, authorize('SchoolAdmin', 'SystemAdmin'), contactController.updateContactMessageStatus);
+router.put('/admin/:id', protect, authorize('SchoolAdmin', 'SystemAdmin'), validateContactMessageId, validateContactStatusUpdate, contactController.updateContactMessageStatus);
 
 /**
  * @swagger
@@ -198,7 +226,7 @@ router.put('/admin/:id', protect, authorize('SchoolAdmin', 'SystemAdmin'), conta
  *       200:
  *         description: Response sent successfully
  */
-router.post('/admin/:id/respond', protect, authorize('SchoolAdmin', 'SystemAdmin'), contactController.respondToContactMessage);
+router.post('/admin/:id/respond', protect, authorize('SchoolAdmin', 'SystemAdmin'), validateContactMessageId, validateContactResponse, contactController.respondToContactMessage);
 
 /**
  * @swagger
@@ -218,6 +246,6 @@ router.post('/admin/:id/respond', protect, authorize('SchoolAdmin', 'SystemAdmin
  *       200:
  *         description: Contact message deleted
  */
-router.delete('/admin/:id', protect, authorize('SchoolAdmin', 'SystemAdmin'), contactController.deleteContactMessage);
+router.delete('/admin/:id', protect, authorize('SchoolAdmin', 'SystemAdmin'), validateContactMessageId, contactController.deleteContactMessage);
 
 module.exports = router;

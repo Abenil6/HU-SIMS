@@ -2,6 +2,46 @@ const express = require('express');
 const router = express.Router();
 const examScheduleController = require('../controllers/examScheduleController');
 const { protect, authorize, checkPermission, PERMISSIONS, RESOURCES } = require('../middleware/authMiddleware');
+const { validateBody, validateParams, validateQuery } = require('../utils/validateInput');
+
+const validateExamScheduleId = validateParams({
+  id: { required: true, type: 'objectId' },
+});
+
+const validateStudentParam = validateParams({
+  studentId: { required: true, type: 'objectId' },
+});
+
+const validateExamQuery = validateQuery({
+  grade: { type: 'string', trim: true, maxLength: 20 },
+  section: { type: 'string', trim: true, maxLength: 60 },
+  subject: { type: 'string', trim: true, maxLength: 120 },
+  examType: { type: 'string', enum: ['Midterm', 'Final'] },
+  startDate: { type: 'date' },
+  endDate: { type: 'date' },
+}, { allowUnknown: true });
+
+const validateExamScheduleCreate = validateBody({
+  subject: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 120 },
+  grade: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 20 },
+  section: { type: 'string', trim: true, maxLength: 60 },
+  examType: { required: true, type: 'string', enum: ['Midterm', 'Final'] },
+  date: { required: true, type: 'date' },
+  startTime: { required: true, type: 'string', trim: true, maxLength: 20 },
+  endTime: { required: true, type: 'string', trim: true, maxLength: 20 },
+  duration: { type: 'number', min: 1, max: 600 },
+  room: { type: 'string', trim: true, maxLength: 120 },
+}, { allowUnknown: true });
+
+const validateAutoGenerate = validateBody({
+  grade: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 20 },
+  section: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 60 },
+  academicYear: { required: true, type: 'string', trim: true, maxLength: 30 },
+  semester: { required: true, type: 'string', enum: ['Semester 1', 'Semester 2'] },
+  examType: { required: true, type: 'string', enum: ['Midterm', 'Final'] },
+  startDate: { required: true, type: 'date' },
+  endDate: { required: true, type: 'date' },
+}, { allowUnknown: true });
 
 /**
  * @swagger
@@ -105,7 +145,7 @@ router.use(protect);
  *       403:
  *         description: Forbidden
  */
-router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), examScheduleController.getExamSchedules);
+router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), validateExamQuery, examScheduleController.getExamSchedules);
 
 /**
  * @swagger
@@ -131,11 +171,11 @@ router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), e
  *       403:
  *         description: Forbidden
  */
-router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), examScheduleController.createExamSchedule);
+router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), validateExamScheduleCreate, examScheduleController.createExamSchedule);
 
-router.get('/date-range', examScheduleController.getExamsByDateRange);
-router.post('/auto-generate', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), examScheduleController.autoGenerateSchedule);
-router.post('/regenerate', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), examScheduleController.regenerateSchedule);
+router.get('/date-range', validateExamQuery, examScheduleController.getExamsByDateRange);
+router.post('/auto-generate', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), validateAutoGenerate, examScheduleController.autoGenerateSchedule);
+router.post('/regenerate', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), validateAutoGenerate, examScheduleController.regenerateSchedule);
 
 /**
  * @swagger
@@ -161,7 +201,7 @@ router.post('/regenerate', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC
  *       404:
  *         description: Exam schedule not found
  */
-router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), examScheduleController.getExamScheduleById);
+router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), validateExamScheduleId, examScheduleController.getExamScheduleById);
 
 /**
  * @swagger
@@ -195,7 +235,7 @@ router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS)
  *       404:
  *         description: Exam schedule not found
  */
-router.put('/:id', checkPermission(PERMISSIONS.EDIT, RESOURCES.ACADEMIC_RECORDS), examScheduleController.updateExamSchedule);
+router.put('/:id', checkPermission(PERMISSIONS.EDIT, RESOURCES.ACADEMIC_RECORDS), validateExamScheduleId, validateExamScheduleCreate, examScheduleController.updateExamSchedule);
 
 /**
  * @swagger
@@ -221,7 +261,7 @@ router.put('/:id', checkPermission(PERMISSIONS.EDIT, RESOURCES.ACADEMIC_RECORDS)
  *       404:
  *         description: Exam schedule not found
  */
-router.delete('/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.ACADEMIC_RECORDS), examScheduleController.deleteExamSchedule);
+router.delete('/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.ACADEMIC_RECORDS), validateExamScheduleId, examScheduleController.deleteExamSchedule);
 
 /**
  * @swagger
@@ -245,7 +285,7 @@ router.delete('/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.ACADEMIC_REC
  *       404:
  *         description: Student not found
  */
-router.get('/student/:studentId/upcoming', examScheduleController.getStudentUpcomingExams);
+router.get('/student/:studentId/upcoming', validateStudentParam, examScheduleController.getStudentUpcomingExams);
 
 /**
  * @swagger

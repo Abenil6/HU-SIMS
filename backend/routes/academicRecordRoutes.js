@@ -2,6 +2,71 @@ const express = require('express');
 const router = express.Router();
 const academicRecordController = require('../controllers/academicRecordController');
 const { protect, authorize, checkPermission, PERMISSIONS, RESOURCES } = require('../middleware/authMiddleware');
+const { validateBody, validateParams, validateQuery } = require('../utils/validateInput');
+
+const validateAcademicRecordId = validateParams({
+  id: { required: true, type: 'objectId' },
+});
+
+const validateRecordsQuery = validateQuery({
+  student: { type: 'objectId' },
+  studentId: { type: 'objectId' },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+  semester: { type: 'string', enum: ['Semester 1', 'Semester 2'] },
+  status: { type: 'string', trim: true, maxLength: 40 },
+  grade: { type: 'string', trim: true, maxLength: 30 },
+  subject: { type: 'string', trim: true, maxLength: 120 },
+  page: { type: 'number', min: 1 },
+  limit: { type: 'number', min: 1, max: 200 },
+}, { allowUnknown: true });
+
+const validateAcademicRecordCreate = validateBody({
+  student: { required: true, type: 'objectId' },
+  subject: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 120 },
+  academicYear: { required: true, type: 'string', trim: true, maxLength: 30 },
+  semester: { required: true, type: 'string', enum: ['Semester 1', 'Semester 2'] },
+  marks: { type: 'object' },
+  comments: { type: 'string', trim: true, maxLength: 2000 },
+}, { allowUnknown: true });
+
+const validateGradeCreate = validateBody({
+  studentId: { required: true, type: 'objectId' },
+  subject: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 120 },
+  score: { required: true, type: 'number', min: 0, max: 1000 },
+  maxScore: { type: 'number', min: 1, max: 1000 },
+  percentage: { type: 'number', min: 0, max: 100 },
+  weight: { type: 'number', min: 0, max: 100 },
+  semester: { type: 'string', enum: ['Semester 1', 'Semester 2'] },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+}, { allowUnknown: true });
+
+const validateGradeBulkCreate = validateBody({
+  grades: { required: true, type: 'array', minItems: 1, maxItems: 2000 },
+}, { allowUnknown: true });
+
+const validateRecordUpdate = validateBody({
+  marks: { type: 'object' },
+  comments: { type: 'string', trim: true, maxLength: 2000 },
+  score: { type: 'number', min: 0, max: 1000 },
+  maxScore: { type: 'number', min: 1, max: 1000 },
+  weight: { type: 'number', min: 0, max: 100 },
+}, { allowUnknown: true });
+
+const validateRejectBody = validateBody({
+  reason: { required: true, type: 'string', trim: true, minLength: 2, maxLength: 2000 },
+}, { allowUnknown: true });
+
+const validateHonorRollUpdate = validateBody({
+  academicYear: { required: true, type: 'string', trim: true, maxLength: 30 },
+  semester: { required: true, type: 'string', enum: ['Semester 1', 'Semester 2'] },
+}, { allowUnknown: true });
+
+const validatePerformanceQuery = validateQuery({
+  studentId: { type: 'objectId' },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+  semester: { type: 'string', enum: ['Semester 1', 'Semester 2'] },
+  honorRollType: { type: 'string', trim: true, maxLength: 40 },
+}, { allowUnknown: true });
 
 /**
  * @swagger
@@ -92,7 +157,7 @@ router.use(protect);
  *       200:
  *         description: List of academic records
  */
-router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), academicRecordController.getAcademicRecords);
+router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), validateRecordsQuery, academicRecordController.getAcademicRecords);
 
 /**
  * @swagger
@@ -112,7 +177,7 @@ router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), a
  *       201:
  *         description: Academic record created
  */
-router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), academicRecordController.createAcademicRecord);
+router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), validateAcademicRecordCreate, academicRecordController.createAcademicRecord);
 
 // ==================== GRADES ENDPOINTS (Alias for Academic Records) ====================
 
@@ -157,7 +222,7 @@ router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS),
  *       200:
  *         description: List of grades
  */
-router.get('/grades', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), academicRecordController.getAcademicRecords);
+router.get('/grades', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), validateRecordsQuery, academicRecordController.getAcademicRecords);
 
 /**
  * @swagger
@@ -194,7 +259,7 @@ router.get('/grades', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECOR
  *       201:
  *         description: Grade created successfully
  */
-router.post('/grades', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), academicRecordController.createAcademicRecordFromGrade);
+router.post('/grades', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), validateGradeCreate, academicRecordController.createAcademicRecordFromGrade);
 
 /**
  * @swagger
@@ -236,7 +301,7 @@ router.post('/grades', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_REC
  *       201:
  *         description: Grades created successfully
  */
-router.post('/grades/bulk', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), academicRecordController.bulkCreateGrades);
+router.post('/grades/bulk', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), validateGradeBulkCreate, academicRecordController.bulkCreateGrades);
 
 /**
  * @swagger
@@ -269,7 +334,7 @@ router.post('/grades/bulk', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMI
  *       200:
  *         description: Grade updated successfully
  */
-router.put('/grades/:id', checkPermission(PERMISSIONS.EDIT, RESOURCES.ACADEMIC_RECORDS), academicRecordController.updateAcademicRecord);
+router.put('/grades/:id', checkPermission(PERMISSIONS.EDIT, RESOURCES.ACADEMIC_RECORDS), validateAcademicRecordId, validateRecordUpdate, academicRecordController.updateAcademicRecord);
 
 /**
  * @swagger
@@ -289,7 +354,7 @@ router.put('/grades/:id', checkPermission(PERMISSIONS.EDIT, RESOURCES.ACADEMIC_R
  *       200:
  *         description: Grade deleted successfully
  */
-router.delete('/grades/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.ACADEMIC_RECORDS), academicRecordController.deleteAcademicRecord);
+router.delete('/grades/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.ACADEMIC_RECORDS), validateAcademicRecordId, academicRecordController.deleteAcademicRecord);
 
 /**
  * @swagger
@@ -309,7 +374,7 @@ router.delete('/grades/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.ACADE
  *       200:
  *         description: Academic record details
  */
-router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), academicRecordController.getAcademicRecordById);
+router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), validateAcademicRecordId, academicRecordController.getAcademicRecordById);
 
 /**
  * @swagger
@@ -340,7 +405,7 @@ router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS)
  *       200:
  *         description: Academic record updated
  */
-router.put('/:id', checkPermission(PERMISSIONS.EDIT, RESOURCES.ACADEMIC_RECORDS), academicRecordController.updateAcademicRecord);
+router.put('/:id', checkPermission(PERMISSIONS.EDIT, RESOURCES.ACADEMIC_RECORDS), validateAcademicRecordId, validateRecordUpdate, academicRecordController.updateAcademicRecord);
 
 /**
  * @swagger
@@ -360,7 +425,7 @@ router.put('/:id', checkPermission(PERMISSIONS.EDIT, RESOURCES.ACADEMIC_RECORDS)
  *       200:
  *         description: Academic record deleted
  */
-router.delete('/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.ACADEMIC_RECORDS), academicRecordController.deleteAcademicRecord);
+router.delete('/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.ACADEMIC_RECORDS), validateAcademicRecordId, academicRecordController.deleteAcademicRecord);
 
 /**
  * @swagger
@@ -380,7 +445,7 @@ router.delete('/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.ACADEMIC_REC
  *       200:
  *         description: Grade submitted
  */
-router.post('/:id/submit', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), academicRecordController.submitForApproval);
+router.post('/:id/submit', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC_RECORDS), validateAcademicRecordId, academicRecordController.submitForApproval);
 
 /**
  * @swagger
@@ -400,7 +465,7 @@ router.post('/:id/submit', checkPermission(PERMISSIONS.WRITE, RESOURCES.ACADEMIC
  *       200:
  *         description: Grade approved
  */
-router.post('/:id/approve', checkPermission(PERMISSIONS.APPROVE, RESOURCES.ACADEMIC_RECORDS), academicRecordController.approveGrade);
+router.post('/:id/approve', checkPermission(PERMISSIONS.APPROVE, RESOURCES.ACADEMIC_RECORDS), validateAcademicRecordId, academicRecordController.approveGrade);
 
 /**
  * @swagger
@@ -429,7 +494,7 @@ router.post('/:id/approve', checkPermission(PERMISSIONS.APPROVE, RESOURCES.ACADE
  *       200:
  *         description: Grade rejected
  */
-router.post('/:id/reject', checkPermission(PERMISSIONS.APPROVE, RESOURCES.ACADEMIC_RECORDS), academicRecordController.rejectGrade);
+router.post('/:id/reject', checkPermission(PERMISSIONS.APPROVE, RESOURCES.ACADEMIC_RECORDS), validateAcademicRecordId, validateRejectBody, academicRecordController.rejectGrade);
 
 /**
  * @swagger
@@ -449,7 +514,7 @@ router.post('/:id/reject', checkPermission(PERMISSIONS.APPROVE, RESOURCES.ACADEM
  *       200:
  *         description: Grade unlocked
  */
-router.post('/:id/unlock', authorize('SchoolAdmin'), academicRecordController.unlockGrade);
+router.post('/:id/unlock', authorize('SchoolAdmin'), validateAcademicRecordId, academicRecordController.unlockGrade);
 
 /**
  * @swagger
@@ -469,7 +534,7 @@ router.post('/:id/unlock', authorize('SchoolAdmin'), academicRecordController.un
  *       200:
  *         description: Grade locked
  */
-router.post('/:id/lock', authorize('SchoolAdmin'), academicRecordController.lockGrade);
+router.post('/:id/lock', authorize('SchoolAdmin'), validateAcademicRecordId, academicRecordController.lockGrade);
 
 /**
  * @swagger
@@ -506,7 +571,7 @@ router.get('/approvals/pending', authorize('SchoolAdmin'), academicRecordControl
  *       200:
  *         description: Student performance data
  */
-router.get('/performance/student', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), academicRecordController.getStudentPerformance);
+router.get('/performance/student', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), validatePerformanceQuery, academicRecordController.getStudentPerformance);
 
 /**
  * @swagger
@@ -530,7 +595,7 @@ router.get('/performance/student', checkPermission(PERMISSIONS.READ, RESOURCES.A
  *       200:
  *         description: Class performance statistics
  */
-router.get('/performance/class', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), academicRecordController.getClassPerformance);
+router.get('/performance/class', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), validatePerformanceQuery, academicRecordController.getClassPerformance);
 
 /**
  * @swagger
@@ -557,7 +622,7 @@ router.get('/performance/class', checkPermission(PERMISSIONS.READ, RESOURCES.ACA
  *       200:
  *         description: Honor roll status
  */
-router.get('/honor-roll/status', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), academicRecordController.getHonorRollStatus);
+router.get('/honor-roll/status', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), validatePerformanceQuery, academicRecordController.getHonorRollStatus);
 
 /**
  * @swagger
@@ -582,7 +647,7 @@ router.get('/honor-roll/status', checkPermission(PERMISSIONS.READ, RESOURCES.ACA
  *       200:
  *         description: Honor roll status updated
  */
-router.post('/honor-roll/update', authorize(['SchoolAdmin', 'Teacher']), academicRecordController.updateHonorRollStatus);
+router.post('/honor-roll/update', authorize(['SchoolAdmin', 'Teacher']), validateHonorRollUpdate, academicRecordController.updateHonorRollStatus);
 
 /**
  * @swagger
@@ -609,6 +674,6 @@ router.post('/honor-roll/update', authorize(['SchoolAdmin', 'Teacher']), academi
  *       200:
  *         description: Honor roll list
  */
-router.get('/honor-roll/list', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), academicRecordController.getHonorRollList);
+router.get('/honor-roll/list', checkPermission(PERMISSIONS.READ, RESOURCES.ACADEMIC_RECORDS), validatePerformanceQuery, academicRecordController.getHonorRollList);
 
 module.exports = router;

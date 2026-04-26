@@ -2,6 +2,41 @@ const express = require('express');
 const router = express.Router();
 const absenceAlertController = require('../controllers/absenceAlertController');
 const { protect, authorize, checkPermission, PERMISSIONS, RESOURCES } = require('../middleware/authMiddleware');
+const { validateBody, validateParams, validateQuery } = require('../utils/validateInput');
+
+const validateAlertId = validateParams({
+  id: { required: true, type: 'objectId' },
+});
+
+const validateAlertsQuery = validateQuery({
+  student: { type: 'objectId' },
+  status: { type: 'string', enum: ['Pending', 'Acknowledged', 'Resolved'] },
+  startDate: { type: 'date' },
+  endDate: { type: 'date' },
+}, { allowUnknown: true });
+
+const validateAlertStatsQuery = validateQuery({
+  startDate: { type: 'date' },
+  endDate: { type: 'date' },
+}, { allowUnknown: true });
+
+const validateCreateAlert = validateBody({
+  student: { required: true, type: 'objectId' },
+  date: { required: true, type: 'date' },
+  reason: { type: 'string', trim: true, maxLength: 2000 },
+}, { allowUnknown: true });
+
+const validateBatchCreate = validateBody({
+  alerts: { required: true, type: 'array', minItems: 1, maxItems: 2000 },
+}, { allowUnknown: true });
+
+const validateParentResponse = validateBody({
+  response: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 5000 },
+}, { allowUnknown: true });
+
+const validateResolution = validateBody({
+  resolution: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 5000 },
+}, { allowUnknown: true });
 
 /**
  * @swagger
@@ -88,7 +123,7 @@ router.get('/parent', absenceAlertController.getParentAlerts);
  *       404:
  *         description: Alert not found
  */
-router.post('/:id/read', absenceAlertController.markAsRead);
+router.post('/:id/read', validateAlertId, absenceAlertController.markAsRead);
 
 /**
  * @swagger
@@ -119,7 +154,7 @@ router.post('/:id/read', absenceAlertController.markAsRead);
  *       401:
  *         description: Unauthorized
  */
-router.post('/:id/respond', absenceAlertController.respondToAlert);
+router.post('/:id/respond', validateAlertId, validateParentResponse, absenceAlertController.respondToAlert);
 
 /**
  * @swagger
@@ -172,7 +207,7 @@ router.get('/student', absenceAlertController.getStudentAlerts);
  *       403:
  *         description: Forbidden
  */
-router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), absenceAlertController.getAbsenceAlerts);
+router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), validateAlertsQuery, absenceAlertController.getAbsenceAlerts);
 
 /**
  * @swagger
@@ -198,7 +233,7 @@ router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), absence
  *       403:
  *         description: Forbidden
  */
-router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), absenceAlertController.createAbsenceAlert);
+router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), validateCreateAlert, absenceAlertController.createAbsenceAlert);
 
 /**
  * @swagger
@@ -229,7 +264,7 @@ router.post('/', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), absen
  *       403:
  *         description: Forbidden
  */
-router.post('/batch', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), absenceAlertController.batchCreateAlerts);
+router.post('/batch', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), validateBatchCreate, absenceAlertController.batchCreateAlerts);
 
 /**
  * @swagger
@@ -255,7 +290,7 @@ router.post('/batch', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), 
  *       404:
  *         description: Alert not found
  */
-router.post('/:id/notify', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), absenceAlertController.sendNotification);
+router.post('/:id/notify', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), validateAlertId, absenceAlertController.sendNotification);
 
 /**
  * @swagger
@@ -290,7 +325,7 @@ router.post('/:id/notify', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDAN
  *       404:
  *         description: Alert not found
  */
-router.post('/:id/resolve', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), absenceAlertController.resolveAlert);
+router.post('/:id/resolve', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDANCE), validateAlertId, validateResolution, absenceAlertController.resolveAlert);
 
 /**
  * @swagger
@@ -319,6 +354,6 @@ router.post('/:id/resolve', checkPermission(PERMISSIONS.WRITE, RESOURCES.ATTENDA
  *       403:
  *         description: Forbidden
  */
-router.get('/stats', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), absenceAlertController.getAlertStats);
+router.get('/stats', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), validateAlertStatsQuery, absenceAlertController.getAlertStats);
 
 module.exports = router;
