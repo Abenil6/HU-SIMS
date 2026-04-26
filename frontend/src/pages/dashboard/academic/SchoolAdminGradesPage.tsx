@@ -53,6 +53,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getStatus, getGradeColor, academicService } from "@/services/academicService";
 import { academicYearService } from "@/services/academicYearService";
 import { useAuthStore } from "@/stores/authStore";
+import type { ApexOptions } from "apexcharts";
+import Chart from "react-apexcharts";
 
 // ─── marks breakdown configuration ─────────────────────────────────────────
 const COMPONENTS = [
@@ -528,6 +530,111 @@ export function SchoolAdminGradesPage() {
       count: data.count,
     })).sort((a, b) => b.average - a.average);
   }, [filteredGrades]);
+  const subjectDistribution = useMemo(() => {
+    const bins = [
+      { key: "90+", min: 90, max: 100 },
+      { key: "80-89", min: 80, max: 89 },
+      { key: "70-79", min: 70, max: 79 },
+      { key: "60-69", min: 60, max: 69 },
+      { key: "<60", min: -1, max: 59 },
+    ];
+
+    const perSubject = new Map<string, Record<string, number>>();
+
+    filteredGrades.forEach((g: any) => {
+      const subject = String(g.subject || "Unknown").trim() || "Unknown";
+      if (!perSubject.has(subject)) {
+        perSubject.set(subject, {
+          "90+": 0,
+          "80-89": 0,
+          "70-79": 0,
+          "60-69": 0,
+          "<60": 0,
+        });
+      }
+
+      const value = Number(g.percentage || 0);
+      const bucket =
+        bins.find((bin) =>
+          bin.key === "<60" ? value <= bin.max : value >= bin.min && value <= bin.max,
+        )?.key || "<60";
+
+      perSubject.get(subject)![bucket] += 1;
+    });
+
+    const subjects = Array.from(perSubject.keys()).sort((a, b) => a.localeCompare(b));
+    const topSubjects = subjects.slice(0, 10);
+
+    return {
+      subjects: topSubjects,
+      series: [
+        {
+          name: "90+",
+          data: topSubjects.map((subject) => perSubject.get(subject)!["90+"]),
+        },
+        {
+          name: "80-89",
+          data: topSubjects.map((subject) => perSubject.get(subject)!["80-89"]),
+        },
+        {
+          name: "70-79",
+          data: topSubjects.map((subject) => perSubject.get(subject)!["70-79"]),
+        },
+        {
+          name: "60-69",
+          data: topSubjects.map((subject) => perSubject.get(subject)!["60-69"]),
+        },
+        {
+          name: "<60",
+          data: topSubjects.map((subject) => perSubject.get(subject)!["<60"]),
+        },
+      ],
+    };
+  }, [filteredGrades]);
+  const subjectDistributionOptions = useMemo<ApexOptions>(
+    () => ({
+      chart: {
+        type: "bar",
+        stacked: true,
+        toolbar: { show: false },
+      },
+      colors: [
+        theme.palette.success.main,
+        theme.palette.info.main,
+        "#7CB342",
+        theme.palette.warning.main,
+        theme.palette.error.main,
+      ],
+      plotOptions: {
+        bar: {
+          borderRadius: 4,
+          columnWidth: "52%",
+        },
+      },
+      xaxis: {
+        categories: subjectDistribution.subjects,
+        labels: {
+          rotate: -35,
+          trim: true,
+          maxHeight: 80,
+        },
+      },
+      yaxis: {
+        title: { text: "Number of Records" },
+      },
+      legend: {
+        position: "top",
+      },
+      dataLabels: { enabled: false },
+      grid: { borderColor: theme.palette.divider },
+      tooltip: {
+        y: {
+          formatter: (value) => `${value} records`,
+        },
+      },
+    }),
+    [subjectDistribution.subjects, theme],
+  );
 
   // Grade distribution
   const gradeDistribution = useMemo(() => {
@@ -818,6 +925,7 @@ export function SchoolAdminGradesPage() {
         >
           <Tab label="All Students" />
           <Tab label="Pending Approvals" />
+          <Tab label="Analytics" />
         </Tabs>
       </Paper>
 
@@ -1342,6 +1450,28 @@ export function SchoolAdminGradesPage() {
                     />
                   </Box>
                 ))
+              )}
+            </Paper>
+          </Grid>
+
+          {/* Subject Performance Distribution */}
+          <Grid size={{ xs: 12 }}>
+            <Paper sx={{ p: 3, borderRadius: 3 }}>
+              <Typography variant="h6" fontWeight={600} mb={1}>
+                Subject Performance Distribution
+              </Typography>
+              <Typography variant="body2" color="text.secondary" mb={2}>
+                Score-band distribution across subjects (top 10 subjects by name)
+              </Typography>
+              {subjectDistribution.subjects.length === 0 ? (
+                <Typography color="text.secondary">No data available</Typography>
+              ) : (
+                <Chart
+                  options={subjectDistributionOptions}
+                  series={subjectDistribution.series}
+                  type="bar"
+                  height={360}
+                />
               )}
             </Paper>
           </Grid>
