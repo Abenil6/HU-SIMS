@@ -1,4 +1,5 @@
 import { apiGet, apiPost, apiPut, apiDelete } from "./api";
+import { captureAnalyticsEvent } from "@/lib/analytics";
 
 export interface AttendanceRecord {
   id: string;
@@ -53,7 +54,15 @@ export const attendanceService = {
     period?: number;
     subject?: string;
     remarks?: string;
-  }) => apiPost("/attendance/mark", data),
+  }) => {
+    const response = await apiPost("/attendance/mark", data);
+    captureAnalyticsEvent("attendance_marked", {
+      status: data.status,
+      has_period: Boolean(data.period),
+      has_subject: Boolean(data.subject),
+    });
+    return response;
+  },
 
   // Bulk mark attendance for selected class
   bulkMarkAttendance: async (data: {
@@ -63,7 +72,15 @@ export const attendanceService = {
     period?: number;
     subject?: string;
     records: Array<{ student: string; status: "Present" | "Absent" | "Late" | "Excused"; remarks?: string }>;
-  }) => apiPost("/attendance/bulk", data),
+  }) => {
+    const response = await apiPost("/attendance/bulk", data);
+    captureAnalyticsEvent("attendance_bulk_marked", {
+      class_grade: data.classGrade,
+      has_stream: Boolean(data.classStream),
+      records_count: data.records.length,
+    });
+    return response;
+  },
 
   // Update single record
   updateAttendance: async (id: string, data: { status: string; remarks?: string }) =>
@@ -102,11 +119,19 @@ export const attendanceService = {
     section: string;
     month: string;
     format?: "csv" | "pdf";
-  }) => apiGet("/attendance/report/daily", {
-    date: `${new Date().getFullYear()}-${params.month}-01`,
-    className: params.section ? `Grade ${params.grade} ${params.section}` : `Grade ${params.grade}`,
-    responseType: "blob",
-  }),
+  }) => {
+    const response = await apiGet("/attendance/report/daily", {
+      date: `${new Date().getFullYear()}-${params.month}-01`,
+      className: params.section ? `Grade ${params.grade} ${params.section}` : `Grade ${params.grade}`,
+      responseType: "blob",
+    });
+    captureAnalyticsEvent("attendance_export_requested", {
+      grade: params.grade,
+      has_section: Boolean(params.section),
+      format: params.format || "csv",
+    });
+    return response;
+  },
 };
 
 export default attendanceService;

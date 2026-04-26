@@ -1,9 +1,10 @@
-import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense, useEffect, useRef } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { ToasterProvider } from "@/components/ui/Toast";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { captureAnalyticsEvent, identifyAnalyticsUser } from "@/lib/analytics";
 
 const LandingPage = lazy(() =>
   import("@/pages/landing/LandingPage").then((module) => ({ default: module.LandingPage })),
@@ -190,10 +191,42 @@ function ProtectedRoute({
   return <>{children}</>;
 }
 
+function AnalyticsRouteTracker() {
+  const location = useLocation();
+  const lastTrackedPathRef = useRef<string>("");
+
+  useEffect(() => {
+    const path = `${location.pathname}${location.search}`;
+    if (lastTrackedPathRef.current === path) return;
+
+    captureAnalyticsEvent("page_viewed", {
+      path: location.pathname,
+      search: location.search,
+    });
+    lastTrackedPathRef.current = path;
+  }, [location.pathname, location.search]);
+
+  return null;
+}
+
 function App() {
+  const user = useAuthStore((state) => state.user);
+
+  useEffect(() => {
+    if (!user) return;
+    identifyAnalyticsUser({
+      id: user.id || user._id,
+      email: user.email,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    });
+  }, [user]);
+
   return (
     <BrowserRouter>
       <ToasterProvider />
+      <AnalyticsRouteTracker />
       <Suspense fallback={null}>
         <Routes>
         <Route path="/" element={<LandingPage />} />

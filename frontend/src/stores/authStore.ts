@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { type User } from '@/types/user';
+import {
+  captureAnalyticsEvent,
+  identifyAnalyticsUser,
+  resetAnalytics,
+} from '@/lib/analytics';
 
 const normalizeAuthUser = (user: User): User => ({
   ...user,
@@ -88,6 +93,17 @@ export const useAuthStore = create<AuthState>()(
           });
           // Keep compatibility with modules that still read localStorage token directly.
           localStorage.setItem('token', data.token);
+          identifyAnalyticsUser({
+            id: fullUser.id || fullUser._id,
+            email: fullUser.email,
+            role: fullUser.role,
+            firstName: fullUser.firstName,
+            lastName: fullUser.lastName,
+          });
+          captureAnalyticsEvent('auth_login_success', {
+            role: fullUser.role,
+            two_factor: false,
+          });
           return {};
         } catch (error) {
           set({ isLoading: false });
@@ -140,6 +156,17 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
           });
           localStorage.setItem('token', data.token);
+          identifyAnalyticsUser({
+            id: fullUser.id || fullUser._id,
+            email: fullUser.email,
+            role: fullUser.role,
+            firstName: fullUser.firstName,
+            lastName: fullUser.lastName,
+          });
+          captureAnalyticsEvent('auth_login_success', {
+            role: fullUser.role,
+            two_factor: true,
+          });
         } catch (error) {
           set({ isLoading: false });
           throw error;
@@ -154,6 +181,11 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
+        const currentUser = get().user;
+        captureAnalyticsEvent('auth_logout', {
+          role: currentUser?.role,
+        });
+        resetAnalytics();
         set({
           user: null,
           token: null,
@@ -266,6 +298,18 @@ export const useAuthStore = create<AuthState>()(
             user,
             token: 'demo-token',
             isAuthenticated: true,
+          });
+          identifyAnalyticsUser({
+            id: user.id || user._id,
+            email: user.email,
+            role: user.role,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          });
+          captureAnalyticsEvent('auth_login_success', {
+            role: user.role,
+            demo: true,
+            two_factor: false,
           });
         }
       },

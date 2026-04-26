@@ -1,4 +1,5 @@
 import { apiGet, apiGetBlob, apiPost } from "./api";
+import { captureAnalyticsEvent } from "@/lib/analytics";
 
 /**
  * Reports Management System
@@ -112,31 +113,72 @@ export const reportService = {
     academicYear: string;
     semester?: string;
     behaviorGrade?: "A" | "B" | "C";
-  }) => apiPost("/reports/report-card", params),
+  }) => {
+    const response = await apiPost("/reports/report-card", params);
+    captureAnalyticsEvent("report_generated", {
+      report_type: "student_report_card",
+      academic_year: params.academicYear,
+      has_semester: Boolean(params.semester),
+    });
+    return response;
+  },
   generateStudentTranscriptOfficial: async (params: {
     studentId: string;
-  }) => apiPost("/reports/transcript", params),
+  }) => {
+    const response = await apiPost("/reports/transcript", params);
+    captureAnalyticsEvent("report_generated", {
+      report_type: "student_transcript",
+    });
+    return response;
+  },
   generateAttendanceSummary: async (params: {
     studentId?: string;
     academicYear: string;
     month: string;
     grade?: string;
-  }) => apiPost("/reports/attendance-summary", params),
+  }) => {
+    const response = await apiPost("/reports/attendance-summary", params);
+    captureAnalyticsEvent("report_generated", {
+      report_type: "attendance_summary",
+      academic_year: params.academicYear,
+      month: params.month,
+      has_grade: Boolean(params.grade),
+      is_student_specific: Boolean(params.studentId),
+    });
+    return response;
+  },
   generateAcademicPerformance: async (params: {
     grade: string;
     semester: string;
     academicYear: string;
-  }) => apiPost("/reports/academic-performance", params),
+  }) => {
+    const response = await apiPost("/reports/academic-performance", params);
+    captureAnalyticsEvent("report_generated", {
+      report_type: "academic_performance",
+      grade: params.grade,
+      semester: params.semester,
+      academic_year: params.academicYear,
+    });
+    return response;
+  },
   generateClassProgress: async (params: {
     grade: string;
     semester: string;
     academicYear: string;
-  }) =>
-    apiPost("/reports/class-progress", {
+  }) => {
+    const response = await apiPost("/reports/class-progress", {
       class: `Grade ${params.grade}`,
       semester: params.semester,
       academicYear: params.academicYear,
-    }),
+    });
+    captureAnalyticsEvent("report_generated", {
+      report_type: "class_progress",
+      grade: params.grade,
+      semester: params.semester,
+      academic_year: params.academicYear,
+    });
+    return response;
+  },
 };
 
 export default reportService;
