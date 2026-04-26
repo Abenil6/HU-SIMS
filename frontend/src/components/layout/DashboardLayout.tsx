@@ -247,7 +247,6 @@ const getSchoolAdminNavigation = (t: any) => [
   { text: t('dashboard.parents'), icon: <People />, path: "parents" },
   { text: t('dashboard.attendance'), icon: <Event />, path: "attendance" },
   { text: t('dashboard.grades'), icon: <Assessment />, path: "grades" },
-  { text: t('dashboard.materials'), icon: <LibraryBooks />, path: "materials" },
   { text: t('dashboard.timetable'), icon: <Schedule />, path: "timetable" },
   { text: t('dashboard.messages'), icon: <Message />, path: "messages" },
   { text: t('dashboard.announcements'), icon: <Announcement />, path: "announcements" },
