@@ -448,6 +448,68 @@ export function SchoolAdminDashboard() {
     }),
     [classesAttendance, theme],
   );
+  const classStatusMixOptions = useMemo<ApexOptions>(
+    () => ({
+      chart: { type: "bar", stacked: true, toolbar: { show: false } },
+      colors: [
+        theme.palette.success.main,
+        theme.palette.warning.main,
+        theme.palette.error.main,
+        theme.palette.info.main,
+      ],
+      plotOptions: {
+        bar: {
+          borderRadius: 4,
+          columnWidth: "55%",
+        },
+      },
+      xaxis: {
+        categories: classesAttendance.map((entry: any) => entry.classLabel),
+      },
+      yaxis: {
+        max: 100,
+        labels: {
+          formatter: (value) => `${Math.round(value)}%`,
+        },
+      },
+      legend: {
+        position: "top",
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      grid: {
+        borderColor: theme.palette.divider,
+      },
+      tooltip: {
+        y: {
+          formatter: (value) => `${value}%`,
+        },
+      },
+    }),
+    [classesAttendance, theme],
+  );
+  const classStatusMixSeries = useMemo(() => {
+    const toPercent = (part: number, total: number) => (total > 0 ? Number(((part / total) * 100).toFixed(1)) : 0);
+    return [
+      {
+        name: "Present",
+        data: classesAttendance.map((entry: any) => toPercent(entry.present || 0, entry.total || 0)),
+      },
+      {
+        name: "Late",
+        data: classesAttendance.map((entry: any) => toPercent(entry.late || 0, entry.total || 0)),
+      },
+      {
+        name: "Absent",
+        data: classesAttendance.map((entry: any) => toPercent(entry.absent || 0, entry.total || 0)),
+      },
+      {
+        name: "Excused",
+        data: classesAttendance.map((entry: any) => toPercent(entry.excused || 0, entry.total || 0)),
+      },
+    ];
+  }, [classesAttendance]);
   const attendanceHeatmapSeries = useMemo(() => {
     const weekdayOrder = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const byDate = new Map<string, number>();
@@ -1405,6 +1467,26 @@ export function SchoolAdminDashboard() {
                   series={[{ name: t("pages.dashboard.attendanceRate"), data: classesAttendance.map((entry: any) => entry.attendanceRate) }]}
                   type="bar"
                   height={Math.max(260, classesAttendance.length * 48)}
+                />
+              )}
+            </Paper>
+
+            <Paper sx={{ p: 2.5, borderRadius: 2, mb: 3 }}>
+              <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                Class Status Mix (Present / Late / Absent / Excused)
+              </Typography>
+              {isLoadingClassesAttendance ? (
+                <LinearProgress />
+              ) : classesAttendance.length === 0 ? (
+                <Typography variant="body2" color="text.secondary">
+                  {t('pages.dashboard.noClassAttendanceData')}
+                </Typography>
+              ) : (
+                <Chart
+                  options={classStatusMixOptions}
+                  series={classStatusMixSeries}
+                  type="bar"
+                  height={320}
                 />
               )}
             </Paper>
