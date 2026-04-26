@@ -180,6 +180,9 @@ export function SchoolAdminGradesPage() {
   const [selectedRecordId, setSelectedRecordId] = useState<string>("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'single' | 'all'; id: string; name: string } | null>(null);
+  const [distributionDrilldownOpen, setDistributionDrilldownOpen] = useState(false);
+  const [selectedDistributionSubject, setSelectedDistributionSubject] = useState("");
+  const [selectedDistributionBand, setSelectedDistributionBand] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -597,6 +600,16 @@ export function SchoolAdminGradesPage() {
         type: "bar",
         stacked: true,
         toolbar: { show: false },
+        events: {
+          dataPointSelection: (_event, _chart, config) => {
+            const subject = subjectDistribution.subjects[config.dataPointIndex];
+            const band = subjectDistribution.series[config.seriesIndex]?.name;
+            if (!subject || !band) return;
+            setSelectedDistributionSubject(subject);
+            setSelectedDistributionBand(band);
+            setDistributionDrilldownOpen(true);
+          },
+        },
       },
       colors: [
         theme.palette.success.main,
@@ -635,6 +648,23 @@ export function SchoolAdminGradesPage() {
     }),
     [subjectDistribution.subjects, theme],
   );
+  const distributionDrilldownRows = useMemo(() => {
+    const inBand = (percentage: number, band: string) => {
+      if (band === "90+") return percentage >= 90;
+      if (band === "80-89") return percentage >= 80 && percentage <= 89;
+      if (band === "70-79") return percentage >= 70 && percentage <= 79;
+      if (band === "60-69") return percentage >= 60 && percentage <= 69;
+      return percentage < 60;
+    };
+
+    return filteredGrades
+      .filter(
+        (grade) =>
+          String(grade.subject || "").trim() === selectedDistributionSubject &&
+          inBand(Number(grade.percentage || 0), selectedDistributionBand),
+      )
+      .sort((a, b) => b.percentage - a.percentage || a.studentName.localeCompare(b.studentName));
+  }, [filteredGrades, selectedDistributionBand, selectedDistributionSubject]);
 
   // Grade distribution
   const gradeDistribution = useMemo(() => {
@@ -1621,6 +1651,89 @@ export function SchoolAdminGradesPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setStudentDetailOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Subject Distribution Drilldown Dialog */}
+      <Dialog
+        open={distributionDrilldownOpen}
+        onClose={() => setDistributionDrilldownOpen(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle sx={{ pb: 1 }}>
+          <Typography variant="h6" fontWeight={700}>
+            {selectedDistributionSubject || "Subject"} — {selectedDistributionBand || "Band"} Drilldown
+          </Typography>
+          <Typography variant="body2" color="text.secondary" mt={0.5}>
+            {distributionDrilldownRows.length} record(s) matched
+          </Typography>
+        </DialogTitle>
+        <Divider />
+        <DialogContent sx={{ pt: 2 }}>
+          {distributionDrilldownRows.length === 0 ? (
+            <Typography color="text.secondary">No records found.</Typography>
+          ) : (
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow sx={{ background: alpha(theme.palette.primary.main, 0.05) }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Student</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Student ID</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Class</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Score</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Semester</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Academic Year</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {distributionDrilldownRows.map((row) => (
+                    <TableRow key={`${row.id}-${row.studentId}`} hover>
+                      <TableCell>{row.studentName}</TableCell>
+                      <TableCell>{row.studentId}</TableCell>
+                      <TableCell>
+                        {gradeRequiresStream(row.grade) && row.stream
+                          ? `Grade ${row.grade} – ${streamFilterLabel(row.stream)}`
+                          : `Grade ${row.grade}`}
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 600,
+                            color: getGradeColor(row.percentage),
+                          }}
+                        >
+                          {row.percentage}%
+                        </Typography>
+                      </TableCell>
+                      <TableCell>{normalizeSemesterValue(row.semester)}</TableCell>
+                      <TableCell>{row.academicYear || "-"}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={row.status || "Draft"}
+                          size="small"
+                          color={
+                            row.status === "Approved"
+                              ? "success"
+                              : row.status === "Rejected"
+                                ? "error"
+                                : row.status === "Pending Approval"
+                                  ? "warning"
+                                  : "default"
+                          }
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDistributionDrilldownOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
 
