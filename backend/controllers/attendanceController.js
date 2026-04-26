@@ -1060,6 +1060,107 @@ exports.getClassesAttendanceAnalytics = async (req, res) => {
 };
 
 /**
+ * Get at-risk students trend (Absent/Late) for the last N days (Admin)
+ */
+exports.getAtRiskStudentsTrend = async (req, res) => {
+  try {
+    const days = Math.min(Math.max(parseInt(req.query.days, 10) || 30, 7), 120);
+
+    const endDate = new Date();
+    endDate.setHours(23, 59, 59, 999);
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - (days - 1));
+    startDate.setHours(0, 0, 0, 0);
+
+    const trendRows = await Attendance.aggregate([
+      {
+        $match: {
+          date: { $gte: startDate, $lte: endDate },
+          status: { $in: ['Absent', 'Late'] },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$date' },
+            month: { $month: '$date' },
+            day: { $dayOfMonth: '$date' },
+          },
+          students: { $addToSet: '$student' },
+          absentCount: { $sum: { $cond: [{ $eq: ['$status', 'Absent'] }, 1, 0] } },
+          lateCount: { $sum: { $cond: [{ $eq: ['$status', 'Late'] }, 1, 0] } },
+        },
+      },
+      { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } },
+    ]);
+
+    const trendMap = new Map(
+      trendRows.map((row) => {
+        const date = new Date(row._id.year, row._id.month - 1, row._id.day);
+        const key = date.toISOString().split('T')[0];
+        return [
+          key,
+          {
+            atRiskStudents: Array.isArray(row.students) ? row.students.length : 0,
+            absentCount: row.absentCount || 0,
+            lateCount: row.lateCount || 0,
+          },
+        ];
+      }),
+    );
+
+    const dailyTrend = [];
+    for (const cursor = new Date(startDate); cursor <= endDate; cursor.setDate(cursor.getDate() + 1)) {
+      const key = cursor.toISOString().split('T')[0];
+      const data = trendMap.get(key) || { atRiskStudents: 0, absentCount: 0, lateCount: 0 };
+      dailyTrend.push({
+        date: key,
+        atRiskStudents: data.atRiskStudents,
+        absentCount: data.absentCount,
+        lateCount: data.lateCount,
+      });
+    }
+
+    const peak = dailyTrend.reduce(
+      (best, entry) => (entry.atRiskStudents > best.atRiskStudents ? entry : best),
+      { date: null, atRiskStudents: 0, absentCount: 0, lateCount: 0 },
+    );
+
+    const averageAtRiskStudents = dailyTrend.length
+      ? Number(
+          (
+            dailyTrend.reduce((acc, entry) => acc + entry.atRiskStudents, 0) /
+            dailyTrend.length
+          ).toFixed(1),
+        )
+      : 0;
+
+    res.json({
+      success: true,
+      data: {
+        window: {
+          days,
+          startDate: startDate.toISOString().split('T')[0],
+          endDate: endDate.toISOString().split('T')[0],
+        },
+        summary: {
+          averageAtRiskStudents,
+          peakAtRiskStudents: peak.atRiskStudents,
+          peakDate: peak.date,
+        },
+        dailyTrend,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get at-risk students trend',
+      error: error.message,
+    });
+  }
+};
+
+/**
  * Get class attendance summary
  */
 exports.getClassAttendanceSummary = async (req, res) => {

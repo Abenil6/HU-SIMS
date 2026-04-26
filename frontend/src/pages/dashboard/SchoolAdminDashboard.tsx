@@ -175,6 +175,15 @@ export function SchoolAdminDashboard() {
     queryFn: () => apiGet<any>("/attendance/summary/classes", { days: 30 }),
     staleTime: 5 * 60 * 1000,
   });
+  const {
+    data: atRiskTrendData,
+    isLoading: isLoadingAtRiskTrend,
+    refetch: refetchAtRiskTrend,
+  } = useQuery({
+    queryKey: ["attendance", "summary", "at-risk-trend", 30],
+    queryFn: () => apiGet<any>("/attendance/summary/at-risk-trend", { days: 30 }),
+    staleTime: 5 * 60 * 1000,
+  });
 
   // Fetch pending absence alerts count
   const { data: alertStatsData } = useQuery({
@@ -281,6 +290,7 @@ export function SchoolAdminDashboard() {
     refetchStudents();
     refetchTeachers();
     refetchClassesAttendance();
+    refetchAtRiskTrend();
   };
 
   const loadContactMessages = async () => {
@@ -366,6 +376,12 @@ export function SchoolAdminDashboard() {
   const classesAttendanceOverview = (classesAttendanceData as any)?.data?.overview ?? {};
   const classesDailyTrend = (classesAttendanceData as any)?.data?.dailyTrend ?? [];
   const lowAttendanceClasses = (classesAttendanceData as any)?.data?.lowClasses ?? [];
+  const atRiskDailyTrend = (atRiskTrendData as any)?.data?.dailyTrend ?? [];
+  const atRiskSummary = (atRiskTrendData as any)?.data?.summary ?? {
+    averageAtRiskStudents: 0,
+    peakAtRiskStudents: 0,
+    peakDate: null,
+  };
   const classesTrendChartOptions = useMemo<ApexOptions>(
     () => ({
       chart: {
@@ -515,6 +531,47 @@ export function SchoolAdminDashboard() {
       },
     }),
     [theme],
+  );
+  const atRiskTrendOptions = useMemo<ApexOptions>(
+    () => ({
+      chart: {
+        type: "area",
+        toolbar: { show: false },
+        zoom: { enabled: false },
+      },
+      colors: [theme.palette.error.main],
+      stroke: { curve: "smooth", width: 3 },
+      fill: {
+        type: "gradient",
+        gradient: {
+          shadeIntensity: 0.4,
+          opacityFrom: 0.35,
+          opacityTo: 0.06,
+          stops: [0, 90, 100],
+        },
+      },
+      markers: { size: 3 },
+      xaxis: {
+        categories: atRiskDailyTrend.map((entry: any) =>
+          new Date(entry.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        ),
+      },
+      yaxis: {
+        labels: {
+          formatter: (value) => `${Math.round(value)}`,
+        },
+      },
+      dataLabels: { enabled: false },
+      grid: {
+        borderColor: theme.palette.divider,
+      },
+      tooltip: {
+        y: {
+          formatter: (value) => `${value} students`,
+        },
+      },
+    }),
+    [atRiskDailyTrend, theme],
   );
 
   const gradeOptions = [...GRADES];
@@ -1270,6 +1327,47 @@ export function SchoolAdminDashboard() {
                 </Paper>
               </Grid>
             </Grid>
+
+            <Paper sx={{ p: 2.5, borderRadius: 2, mb: 3 }}>
+              <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                At-Risk Students Trend (Absent/Late)
+              </Typography>
+              {isLoadingAtRiskTrend ? (
+                <LinearProgress />
+              ) : atRiskDailyTrend.length === 0 ? (
+                <Typography variant="body2" color="text.secondary">
+                  {t('common.noData')}
+                </Typography>
+              ) : (
+                <>
+                  <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mb: 1.5 }}>
+                    <Chip
+                      label={`Avg: ${atRiskSummary.averageAtRiskStudents} students/day`}
+                      color="warning"
+                      variant="outlined"
+                      size="small"
+                    />
+                    <Chip
+                      label={`Peak: ${atRiskSummary.peakAtRiskStudents} (${atRiskSummary.peakDate || "-"})`}
+                      color="error"
+                      variant="outlined"
+                      size="small"
+                    />
+                  </Box>
+                  <Chart
+                    options={atRiskTrendOptions}
+                    series={[
+                      {
+                        name: "At-Risk Students",
+                        data: atRiskDailyTrend.map((entry: any) => entry.atRiskStudents),
+                      },
+                    ]}
+                    type="area"
+                    height={260}
+                  />
+                </>
+              )}
+            </Paper>
 
             <Paper sx={{ p: 2.5, borderRadius: 2, mb: 3 }}>
               <Typography variant="subtitle1" fontWeight={600} mb={2}>

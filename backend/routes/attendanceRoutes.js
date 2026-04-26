@@ -280,6 +280,7 @@ router.get('/summary/student', checkPermission(PERMISSIONS.READ, RESOURCES.ATTEN
  */
 router.get('/summary/school', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), attendanceController.getSchoolAttendanceSummary);
 router.get('/summary/school-admin-dashboard', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), attendanceController.getSchoolAdminAttendanceDashboard);
+router.get('/summary/at-risk-trend', checkPermission(PERMISSIONS.READ, RESOURCES.ATTENDANCE), attendanceController.getAtRiskStudentsTrend);
 
 /**
  * @swagger
