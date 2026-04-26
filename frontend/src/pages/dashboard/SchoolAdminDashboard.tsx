@@ -59,6 +59,8 @@ import { contactService, type ContactMessage } from "@/services/contactService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { GRADES, STREAMS, getSubjectsForGrade } from "@/constants/academic";
+import type { ApexOptions } from "apexcharts";
+import Chart from "react-apexcharts";
 import toast from "react-hot-toast";
 
 interface TabPanelProps {
@@ -364,6 +366,72 @@ export function SchoolAdminDashboard() {
   const classesAttendanceOverview = (classesAttendanceData as any)?.data?.overview ?? {};
   const classesDailyTrend = (classesAttendanceData as any)?.data?.dailyTrend ?? [];
   const lowAttendanceClasses = (classesAttendanceData as any)?.data?.lowClasses ?? [];
+  const classesTrendChartOptions = useMemo<ApexOptions>(
+    () => ({
+      chart: {
+        type: "line",
+        toolbar: { show: false },
+        zoom: { enabled: false },
+      },
+      colors: [theme.palette.primary.main],
+      stroke: { curve: "smooth", width: 3 },
+      markers: { size: 4 },
+      xaxis: {
+        categories: classesDailyTrend.slice(-7).map((day: any) =>
+          new Date(day.date).toLocaleDateString("en-US", { weekday: "short" }),
+        ),
+      },
+      yaxis: {
+        max: 100,
+        labels: {
+          formatter: (value) => `${Math.round(value)}%`,
+        },
+      },
+      dataLabels: { enabled: false },
+      grid: {
+        borderColor: theme.palette.divider,
+      },
+      tooltip: {
+        y: {
+          formatter: (value) => `${value}%`,
+        },
+      },
+    }),
+    [classesDailyTrend, theme],
+  );
+  const classRateBarOptions = useMemo<ApexOptions>(
+    () => ({
+      chart: { type: "bar", toolbar: { show: false } },
+      plotOptions: {
+        bar: {
+          horizontal: true,
+          borderRadius: 5,
+          barHeight: "60%",
+        },
+      },
+      colors: [theme.palette.info.main],
+      xaxis: {
+        max: 100,
+        categories: classesAttendance.map((entry: any) => entry.classLabel),
+        labels: {
+          formatter: (value) => `${Math.round(Number(value))}%`,
+        },
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: (value) => `${Math.round(Number(value))}%`,
+      },
+      grid: {
+        borderColor: theme.palette.divider,
+      },
+      tooltip: {
+        y: {
+          formatter: (value) => `${value}%`,
+        },
+      },
+    }),
+    [classesAttendance, theme],
+  );
 
   const gradeOptions = [...GRADES];
   const streamOptions = [STREAMS.NATURAL, STREAMS.SOCIAL];
@@ -1073,30 +1141,17 @@ export function SchoolAdminDashboard() {
                       {t('common.noData')}
                     </Typography>
                   ) : (
-                    <Box sx={{ display: "flex", alignItems: "end", gap: 1, height: 180 }}>
-                      {classesDailyTrend.slice(-7).map((day: any) => (
-                        <Box key={day.date} sx={{ flex: 1, minWidth: 0, textAlign: "center" }}>
-                          <Box
-                            sx={{
-                              height: `${Math.max(8, Math.round((day.attendanceRate / 100) * 140))}px`,
-                              borderRadius: 1.5,
-                              background:
-                                day.attendanceRate >= 90
-                                  ? theme.palette.success.main
-                                  : day.attendanceRate >= 80
-                                    ? theme.palette.warning.main
-                                    : theme.palette.error.main,
-                            }}
-                          />
-                          <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
-                            {new Date(day.date).toLocaleDateString("en-US", { weekday: "short" })}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {day.attendanceRate}%
-                          </Typography>
-                        </Box>
-                      ))}
-                    </Box>
+                    <Chart
+                      options={classesTrendChartOptions}
+                      series={[
+                        {
+                          name: t("pages.dashboard.attendanceRate"),
+                          data: classesDailyTrend.slice(-7).map((day: any) => day.attendanceRate),
+                        },
+                      ]}
+                      type="line"
+                      height={240}
+                    />
                   )}
                 </Paper>
               </Grid>
@@ -1143,44 +1198,12 @@ export function SchoolAdminDashboard() {
                   {t('pages.dashboard.noClassAttendanceData')}
                 </Typography>
               ) : (
-                <TableContainer>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>{t('pages.dashboard.class')}</TableCell>
-                        <TableCell align="right">{t('pages.dashboard.attendanceRate')}</TableCell>
-                        <TableCell align="right">{t('pages.dashboard.present')}</TableCell>
-                        <TableCell align="right">{t('pages.dashboard.late')}</TableCell>
-                        <TableCell align="right">{t('pages.dashboard.absent')}</TableCell>
-                        <TableCell align="right">Total</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {classesAttendance.map((entry: any) => (
-                        <TableRow key={entry.classLabel} hover>
-                          <TableCell>{entry.classLabel}</TableCell>
-                          <TableCell align="right">
-                            <Chip
-                              label={`${entry.attendanceRate}%`}
-                              size="small"
-                              color={
-                                entry.attendanceRate >= 90
-                                  ? "success"
-                                  : entry.attendanceRate >= 80
-                                    ? "warning"
-                                    : "error"
-                              }
-                            />
-                          </TableCell>
-                          <TableCell align="right">{entry.present}</TableCell>
-                          <TableCell align="right">{entry.late}</TableCell>
-                          <TableCell align="right">{entry.absent}</TableCell>
-                          <TableCell align="right">{entry.total}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                <Chart
+                  options={classRateBarOptions}
+                  series={[{ name: t("pages.dashboard.attendanceRate"), data: classesAttendance.map((entry: any) => entry.attendanceRate) }]}
+                  type="bar"
+                  height={Math.max(260, classesAttendance.length * 48)}
+                />
               )}
             </Paper>
 

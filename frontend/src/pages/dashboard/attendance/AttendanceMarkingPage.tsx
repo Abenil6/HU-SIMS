@@ -25,9 +25,12 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { Check, Close, Download, Refresh, Save, Warning } from "@mui/icons-material";
 import { useQuery } from "@tanstack/react-query";
+import type { ApexOptions } from "apexcharts";
+import Chart from "react-apexcharts";
 import toast from "react-hot-toast";
 import { Breadcrumbs, PageHeader } from "@/components/ui/Breadcrumbs";
 import { StatsCard } from "@/components/ui/StatsCard";
@@ -910,6 +913,7 @@ function TeacherAttendanceMarkingPage() {
 
 function SchoolAdminAttendanceDashboard() {
   const { t } = useTranslation();
+  const theme = useTheme();
   const [selectedGrade, setSelectedGrade] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [page, setPage] = useState(0);
@@ -973,6 +977,121 @@ function SchoolAdminAttendanceDashboard() {
     total: 0,
     pages: 0,
   };
+  const statusSeries = [summary.present, summary.late, summary.absent, summary.excused];
+
+  const statusChartOptions = useMemo<ApexOptions>(
+    () => ({
+      chart: { type: "donut", toolbar: { show: false } },
+      labels: [
+        t("pages.dashboard.present"),
+        t("pages.dashboard.late"),
+        t("pages.dashboard.absent"),
+        t("common.excused"),
+      ],
+      legend: { position: "bottom", fontSize: "12px" },
+      colors: [
+        theme.palette.success.main,
+        theme.palette.warning.main,
+        theme.palette.error.main,
+        theme.palette.info.main,
+      ],
+      dataLabels: { enabled: true },
+      stroke: { width: 0 },
+      plotOptions: { pie: { donut: { size: "65%" } } },
+      tooltip: {
+        y: {
+          formatter: (value) => `${value} records`,
+        },
+      },
+    }),
+    [t, theme],
+  );
+
+  const gradeRateChartOptions = useMemo<ApexOptions>(
+    () => ({
+      chart: { type: "bar", toolbar: { show: false } },
+      plotOptions: {
+        bar: {
+          borderRadius: 6,
+          columnWidth: "45%",
+          distributed: true,
+        },
+      },
+      colors: gradeRateData.map((entry: any) =>
+        entry.rate >= 90
+          ? theme.palette.success.main
+          : entry.rate >= 80
+            ? theme.palette.warning.main
+            : theme.palette.error.main,
+      ),
+      xaxis: {
+        categories: gradeRateData.map((entry: any) => `${t("pages.dashboard.grade")} ${entry.grade}`),
+      },
+      yaxis: {
+        max: 100,
+        labels: {
+          formatter: (value) => `${Math.round(value)}%`,
+        },
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: (value) => `${Math.round(Number(value))}%`,
+      },
+      legend: { show: false },
+      grid: {
+        borderColor: theme.palette.divider,
+      },
+      tooltip: {
+        y: {
+          formatter: (value) => `${value}%`,
+        },
+      },
+    }),
+    [gradeRateData, t, theme],
+  );
+
+  const recentTrendChartOptions = useMemo<ApexOptions>(
+    () => ({
+      chart: {
+        type: "area",
+        toolbar: { show: false },
+        zoom: { enabled: false },
+      },
+      colors: [theme.palette.primary.main],
+      fill: {
+        type: "gradient",
+        gradient: {
+          shadeIntensity: 0.4,
+          opacityFrom: 0.35,
+          opacityTo: 0.05,
+          stops: [0, 90, 100],
+        },
+      },
+      stroke: { curve: "smooth", width: 3 },
+      markers: { size: 4 },
+      xaxis: {
+        categories: recentTrend.map((entry: any) =>
+          new Date(entry.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        ),
+      },
+      yaxis: {
+        max: 100,
+        labels: {
+          formatter: (value) => `${Math.round(value)}%`,
+        },
+      },
+      dataLabels: { enabled: false },
+      grid: {
+        borderColor: theme.palette.divider,
+      },
+      tooltip: {
+        y: {
+          formatter: (value) => `${value}%`,
+        },
+      },
+    }),
+    [recentTrend, theme],
+  );
 
   return (
     <Box>
@@ -1060,30 +1179,7 @@ function SchoolAdminAttendanceDashboard() {
             {isLoading ? (
               <LinearProgress />
             ) : (
-              <Stack spacing={1.25}>
-                {[
-                  { label: t('pages.dashboard.present'), value: summary.present, color: "success.main" },
-                  { label: t('pages.dashboard.late'), value: summary.late, color: "warning.main" },
-                  { label: t('pages.dashboard.absent'), value: summary.absent, color: "error.main" },
-                  { label: t('common.excused'), value: summary.excused, color: "info.main" },
-                ].map((item) => {
-                  const width =
-                    summary.totalRecords > 0
-                      ? `${Math.max(4, Math.round((item.value / summary.totalRecords) * 100))}%`
-                      : "0%";
-                  return (
-                    <Box key={item.label}>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                        <Typography variant="body2">{item.label}</Typography>
-                        <Typography variant="body2">{item.value}</Typography>
-                      </Box>
-                      <Box sx={{ height: 8, borderRadius: 8, background: "rgba(0,0,0,0.08)" }}>
-                        <Box sx={{ height: "100%", width, borderRadius: 8, background: item.color }} />
-                      </Box>
-                    </Box>
-                  );
-                })}
-              </Stack>
+              <Chart options={statusChartOptions} series={statusSeries} type="donut" height={260} />
             )}
           </Paper>
         </Grid>
@@ -1095,25 +1191,12 @@ function SchoolAdminAttendanceDashboard() {
             {isLoading ? (
               <LinearProgress />
             ) : (
-              <Box sx={{ display: "flex", alignItems: "end", gap: 1.5, minHeight: 165 }}>
-                {gradeRateData.map((entry: any) => (
-                  <Box key={entry.grade} sx={{ flex: 1, textAlign: "center" }}>
-                    <Box
-                      sx={{
-                        height: `${Math.max(8, Math.round((entry.rate / 100) * 120))}px`,
-                        background: entry.rate >= 90 ? "success.main" : entry.rate >= 80 ? "warning.main" : "error.main",
-                        borderRadius: 1.5,
-                      }}
-                    />
-                    <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
-                      {t('pages.dashboard.grade')}{entry.grade}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {entry.rate}%
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
+              <Chart
+                options={gradeRateChartOptions}
+                series={[{ name: t("pages.dashboard.attendanceRate"), data: gradeRateData.map((entry: any) => entry.rate) }]}
+                type="bar"
+                height={260}
+              />
             )}
           </Paper>
         </Grid>
@@ -1128,25 +1211,12 @@ function SchoolAdminAttendanceDashboard() {
         ) : recentTrend.length === 0 ? (
           <Alert severity="info">{t('pages.dashboard.noAttendanceRecordsFilters')}</Alert>
         ) : (
-          <Box sx={{ display: "flex", alignItems: "end", gap: 1.25, minHeight: 145 }}>
-            {recentTrend.map((entry: any) => (
-              <Box key={entry.date} sx={{ flex: 1, textAlign: "center" }}>
-                <Box
-                  sx={{
-                    height: `${Math.max(8, Math.round((entry.rate / 100) * 110))}px`,
-                    borderRadius: 1.5,
-                    background: "primary.main",
-                  }}
-                />
-                <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
-                  {new Date(entry.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {entry.rate}%
-                </Typography>
-              </Box>
-            ))}
-          </Box>
+          <Chart
+            options={recentTrendChartOptions}
+            series={[{ name: t("pages.dashboard.attendanceRate"), data: recentTrend.map((entry: any) => entry.rate) }]}
+            type="area"
+            height={280}
+          />
         )}
       </Paper>
 
