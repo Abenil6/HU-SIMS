@@ -2,6 +2,54 @@ const express = require('express');
 const router = express.Router();
 const reportController = require('../controllers/reportController');
 const { protect, authorize, checkPermission, PERMISSIONS, RESOURCES } = require('../middleware/authMiddleware');
+const { validateBody, validateParams, validateQuery } = require('../utils/validateInput');
+
+const validateReportIdParam = validateParams({
+  id: { required: true, type: 'objectId' },
+});
+
+const validateTranscriptRequest = validateBody({
+  studentId: { required: true, type: 'objectId' },
+  academicYear: { required: true, type: 'string', trim: true, maxLength: 30 },
+  semester: { required: true, type: 'string', enum: ['Semester 1', 'Semester 2'] },
+}, { allowUnknown: true });
+
+const validateReportCardRequest = validateBody({
+  studentId: { required: true, type: 'objectId' },
+  academicYear: { required: true, type: 'string', trim: true, maxLength: 30 },
+  semester: { required: true, type: 'string', enum: ['Semester 1', 'Semester 2'] },
+}, { allowUnknown: true });
+
+const validateClassProgressRequest = validateBody({
+  class: { required: true, type: 'string', trim: true, maxLength: 120 },
+  academicYear: { required: true, type: 'string', trim: true, maxLength: 30 },
+  semester: { required: true, type: 'string', enum: ['Semester 1', 'Semester 2'] },
+}, { allowUnknown: true });
+
+const validateAcademicPerformanceRequest = validateBody({
+  class: { type: 'string', trim: true, maxLength: 120 },
+  studentId: { type: 'objectId' },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+  semester: { type: 'string', enum: ['Semester 1', 'Semester 2'] },
+}, { allowUnknown: true });
+
+const validateAttendanceSummaryRequest = validateBody({
+  studentId: { type: 'objectId' },
+  class: { type: 'string', trim: true, maxLength: 120 },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+  month: { type: 'string', pattern: /^(0[1-9]|1[0-2])$/ },
+}, { allowUnknown: true });
+
+const validateOfficializeReport = validateBody({
+  signedBy: { required: true, type: 'string', trim: true, minLength: 2, maxLength: 120 },
+  signatureDate: { required: true, type: 'date' },
+}, { allowUnknown: true });
+
+const validateReportQuery = validateQuery({
+  reportType: { type: 'string', trim: true, maxLength: 60 },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+  semester: { type: 'string', enum: ['Semester 1', 'Semester 2'] },
+});
 
 router.use(protect);
 
@@ -42,8 +90,6 @@ router.use(protect);
  *           enum: ["Semester 1", "Semester 2"]
  */
 
-router.use(protect);
-
 /**
  * @swagger
  * /api/reports/transcript:
@@ -62,7 +108,7 @@ router.use(protect);
  *       201:
  *         description: Transcript generated
  */
-router.post('/transcript', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS), reportController.generateStudentTranscript);
+router.post('/transcript', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS), validateTranscriptRequest, reportController.generateStudentTranscript);
 
 /**
  * @swagger
@@ -76,7 +122,7 @@ router.post('/transcript', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS)
  *       201:
  *         description: Report card generated
  */
-router.post('/report-card', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS), reportController.generateStudentReportCard);
+router.post('/report-card', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS), validateReportCardRequest, reportController.generateStudentReportCard);
 
 /**
  * @swagger
@@ -96,9 +142,9 @@ router.post('/report-card', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS
  *       201:
  *         description: Class report generated
  */
-router.post('/class-progress', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS), reportController.generateClassProgressReport);
+router.post('/class-progress', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS), validateClassProgressRequest, reportController.generateClassProgressReport);
 
-router.post('/academic-performance', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS), reportController.generateAcademicPerformanceReport);
+router.post('/academic-performance', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS), validateAcademicPerformanceRequest, reportController.generateAcademicPerformanceReport);
 
 /**
  * @swagger
@@ -126,7 +172,7 @@ router.post('/academic-performance', checkPermission(PERMISSIONS.WRITE, RESOURCE
  *       201:
  *         description: Attendance summary generated
  */
-router.post('/attendance-summary', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS), reportController.generateAttendanceSummary);
+router.post('/attendance-summary', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS), validateAttendanceSummaryRequest, reportController.generateAttendanceSummary);
 
 /**
  * @swagger
@@ -153,7 +199,7 @@ router.post('/attendance-summary', checkPermission(PERMISSIONS.WRITE, RESOURCES.
  *       200:
  *         description: List of reports
  */
-router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.REPORTS), reportController.getReports);
+router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.REPORTS), validateReportQuery, reportController.getReports);
 
 /**
  * @swagger
@@ -173,7 +219,7 @@ router.get('/', checkPermission(PERMISSIONS.READ, RESOURCES.REPORTS), reportCont
  *       200:
  *         description: Report details
  */
-router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.REPORTS), reportController.getReportById);
+router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.REPORTS), validateReportIdParam, reportController.getReportById);
 
 /**
  * @swagger
@@ -193,7 +239,7 @@ router.get('/:id', checkPermission(PERMISSIONS.READ, RESOURCES.REPORTS), reportC
  *       200:
  *         description: Report data for export
  */
-router.get('/:id/export', checkPermission(PERMISSIONS.READ, RESOURCES.REPORTS), reportController.exportReport);
+router.get('/:id/export', checkPermission(PERMISSIONS.READ, RESOURCES.REPORTS), validateReportIdParam, reportController.exportReport);
 
 /**
  * @swagger
@@ -225,7 +271,7 @@ router.get('/:id/export', checkPermission(PERMISSIONS.READ, RESOURCES.REPORTS), 
  *       200:
  *         description: Report officialized
  */
-router.post('/:id/official', authorize('SchoolAdmin'), reportController.officializeReport);
+router.post('/:id/official', authorize('SchoolAdmin'), validateReportIdParam, validateOfficializeReport, reportController.officializeReport);
 
 /**
  * @swagger
@@ -245,7 +291,7 @@ router.post('/:id/official', authorize('SchoolAdmin'), reportController.official
  *       200:
  *         description: Report deleted
  */
-router.delete('/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.REPORTS), reportController.deleteReport);
+router.delete('/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.REPORTS), validateReportIdParam, reportController.deleteReport);
 
 /**
  * @swagger
@@ -265,7 +311,7 @@ router.delete('/:id', checkPermission(PERMISSIONS.DELETE, RESOURCES.REPORTS), re
  *       200:
  *         description: Report archived
  */
-router.post('/:id/archive', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS), reportController.archiveReport);
+router.post('/:id/archive', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS), validateReportIdParam, reportController.archiveReport);
 
 /**
  * @swagger
@@ -285,6 +331,6 @@ router.post('/:id/archive', checkPermission(PERMISSIONS.WRITE, RESOURCES.REPORTS
  *       200:
  *         description: Report reverted to draft
  */
-router.post('/:id/revert', checkPermission(PERMISSIONS.EDIT, RESOURCES.REPORTS), reportController.revertToDraft);
+router.post('/:id/revert', checkPermission(PERMISSIONS.EDIT, RESOURCES.REPORTS), validateReportIdParam, reportController.revertToDraft);
 
 module.exports = router;

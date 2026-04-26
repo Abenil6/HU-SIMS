@@ -14,6 +14,39 @@ const {
   changePassword,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
+const { validateBody } = require('../utils/validateInput');
+
+const validateLogin = validateBody({
+  email: { required: true, type: 'string', trim: true, format: 'email', maxLength: 120 },
+  password: { required: true, type: 'string', minLength: 1, maxLength: 256 },
+});
+
+const validateTwoFactor = validateBody({
+  challengeToken: { required: true, type: 'string', minLength: 8, maxLength: 2000 },
+  code: { required: true, type: 'string', minLength: 4, maxLength: 10, trim: true },
+});
+
+const validateTokenAndPassword = validateBody({
+  token: { required: true, type: 'string', minLength: 8, maxLength: 4096, trim: true },
+  password: { required: true, type: 'string', minLength: 8, maxLength: 256 },
+});
+
+const validateEmailOnly = validateBody({
+  email: { required: true, type: 'string', trim: true, format: 'email', maxLength: 120 },
+});
+
+const validateProfileUpdate = validateBody({
+  firstName: { type: 'string', trim: true, maxLength: 100 },
+  lastName: { type: 'string', trim: true, maxLength: 100 },
+  email: { type: 'string', trim: true, format: 'email', maxLength: 120 },
+  phone: { type: 'string', trim: true, maxLength: 30 },
+  profileImage: { type: 'string', maxLength: 5000 },
+}, { allowUnknown: true });
+
+const validateChangePassword = validateBody({
+  currentPassword: { required: true, type: 'string', minLength: 1, maxLength: 256 },
+  newPassword: { required: true, type: 'string', minLength: 8, maxLength: 256 },
+});
 
 /**
  * @swagger
@@ -129,8 +162,8 @@ const { protect } = require('../middleware/authMiddleware');
  *       403:
  *         description: Account not active
  */
-router.post('/login', login);
-router.post('/verify-2fa', verifyTwoFactorLogin);
+router.post('/login', validateLogin, login);
+router.post('/verify-2fa', validateTwoFactor, verifyTwoFactorLogin);
 router.post('/logout', protect, logout);
 
 /**
@@ -151,7 +184,7 @@ router.post('/logout', protect, logout);
  *       400:
  *         description: Invalid or expired token
  */
-router.post('/verify-email', verifyEmailAndSetPassword);
+router.post('/verify-email', validateTokenAndPassword, verifyEmailAndSetPassword);
 
 /**
  * @swagger
@@ -176,7 +209,7 @@ router.post('/verify-email', verifyEmailAndSetPassword);
  *       400:
  *         description: Email already verified
  */
-router.post('/resend-verification', resendVerificationEmail);
+router.post('/resend-verification', validateEmailOnly, resendVerificationEmail);
 
 /**
  * @swagger
@@ -194,7 +227,7 @@ router.post('/resend-verification', resendVerificationEmail);
  *       200:
  *         description: If account exists, reset email sent
  */
-router.post('/forgot-password', forgotPassword);
+router.post('/forgot-password', validateEmailOnly, forgotPassword);
 
 /**
  * @swagger
@@ -214,7 +247,7 @@ router.post('/forgot-password', forgotPassword);
  *       400:
  *         description: Invalid or expired token
  */
-router.post('/reset-password', resetPassword);
+router.post('/reset-password', validateTokenAndPassword, resetPassword);
 
 /**
  * @swagger
@@ -256,7 +289,7 @@ router.post('/reset-password', resetPassword);
  *         description: Updated user profile
  */
 router.get('/me', protect, getMe);
-router.put('/me', protect, updateMe);
+router.put('/me', protect, validateProfileUpdate, updateMe);
 router.put('/appearance', protect, updateAppearance);
 
 /**
@@ -279,6 +312,6 @@ router.put('/appearance', protect, updateAppearance);
  *       401:
  *         description: Current password is incorrect
  */
-router.post('/change-password', protect, changePassword);
+router.post('/change-password', protect, validateChangePassword, changePassword);
 
 module.exports = router;
