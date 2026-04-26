@@ -25,6 +25,7 @@ const systemRoutes = require('./routes/systemRoutes');
 const notificationReadStateRoutes = require('./routes/notificationReadStateRoutes');
 const materialRoutes = require('./routes/materialRoutes');
 const contactRoutes = require('./routes/contactRoutes');
+const classRoutes = require('./routes/classRoutes');
 const { startBackupScheduler } = require('./utils/backupScheduler');
 
 dotenv.config();
@@ -69,6 +70,7 @@ app.use('/api/system', systemRoutes);
 app.use('/api/notification-read-states', notificationReadStateRoutes);
 app.use('/api/materials', materialRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/classes', classRoutes);
 
 // Routes placeholder
 app.get('/', (req, res) => res.send('Backend started Running'));

@@ -106,7 +106,7 @@ export const reportService = {
   getReport: async (id: string) => apiGet(`/reports/${id}`),
   downloadReport: async (
     reportId: string,
-    format: "json" | "csv" | "html" = "json",
+    format: "json" | "csv" | "html" | "pdf" | "xlsx" = "json",
   ) => apiGetBlob(`/reports/${reportId}/export`, { format }),
   generateReportCard: async (params: {
     studentId: string;

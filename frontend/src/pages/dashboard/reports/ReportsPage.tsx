@@ -362,7 +362,7 @@ export function ReportsPage() {
 
   const handleDownload = async (
     reportId: string,
-    format: "json" | "csv" | "html",
+    format: "json" | "csv" | "html" | "pdf" | "xlsx",
   ) => {
     setDownloading(reportId);
     try {
@@ -380,10 +380,15 @@ export function ReportsPage() {
         return;
       }
 
-      saveBlob(
-        blob,
-        filename || `report-${reportId}.${format === "csv" ? "csv" : "json"}`,
-      );
+      const defaultExtension =
+        format === "csv"
+          ? "csv"
+          : format === "xlsx"
+            ? "xlsx"
+            : format === "pdf"
+              ? "pdf"
+              : "json";
+      saveBlob(blob, filename || `report-${reportId}.${defaultExtension}`);
       toast.success(`${format.toUpperCase()} export downloaded`);
     } catch (err: unknown) {
       toast.error(getErrorMessage(err, `Failed to export ${format.toUpperCase()}`));
@@ -1023,10 +1028,18 @@ export function ReportsPage() {
                 <Button
                   size="small"
                   startIcon={<PictureAsPdf />}
-                  onClick={() => handleDownload(report.id, "html")}
+                  onClick={() => handleDownload(report.id, "pdf")}
                   disabled={downloading === report.id}
                 >
-                  {downloading === report.id ? "Downloading..." : "Print / PDF"}
+                  {downloading === report.id ? "Downloading..." : "PDF"}
+                </Button>
+                <Button
+                  size="small"
+                  startIcon={<Assessment />}
+                  onClick={() => handleDownload(report.id, "xlsx")}
+                  disabled={downloading === report.id}
+                >
+                  {downloading === report.id ? "Downloading..." : "Excel"}
                 </Button>
                 <Button
                   size="small"

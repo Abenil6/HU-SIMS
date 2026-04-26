@@ -7,6 +7,7 @@ const {
   forgotPassword,
   resetPassword,
   verifyTwoFactorLogin,
+  logout,
   getMe,
   updateMe,
   updateAppearance,
@@ -130,6 +131,7 @@ const { protect } = require('../middleware/authMiddleware');
  */
 router.post('/login', login);
 router.post('/verify-2fa', verifyTwoFactorLogin);
+router.post('/logout', protect, logout);
 
 /**
  * @swagger

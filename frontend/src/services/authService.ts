@@ -34,7 +34,7 @@ export const authService = {
   },
 
   logout: async (): Promise<void> => {
-    return Promise.resolve();
+    await apiPost("/auth/logout", {});
   },
 
   getCurrentUser: async (): Promise<AuthUser> => {

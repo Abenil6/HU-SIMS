@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const VerificationToken = require('../models/VerificationToken');
+const RevokedToken = require('../models/RevokedToken');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const {
   sendVerificationEmail,
   sendPasswordResetEmail,
@@ -195,6 +197,48 @@ exports.verifyTwoFactorLogin = async (req, res) => {
     res.status(401).json({
       success: false,
       message: error.message || 'Invalid verification code',
+    });
+  }
+};
+
+exports.logout = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'No active session token found',
+      });
+    }
+
+    const decoded = jwt.decode(token) || {};
+    const expiresAt = decoded.exp ? new Date(decoded.exp * 1000) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    await RevokedToken.findOneAndUpdate(
+      { token },
+      {
+        token,
+        userId: req.user?._id || req.user?.id || null,
+        expiresAt,
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true },
+    );
+
+    if (req.user) {
+      await logUserLogout(req, req.user, 'SUCCESS');
+    }
+
+    return res.json({
+      success: true,
+      message: 'Logged out successfully',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to logout',
+      error: error.message,
     });
   }
 };

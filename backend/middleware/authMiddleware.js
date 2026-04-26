@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Permission = require('../models/Permission');
+const RevokedToken = require('../models/RevokedToken');
 const { PERMISSIONS, RESOURCES } = require('../models/Permission');
 const { findUserByFlexibleId, normalizeUserId } = require('../utils/userLookup');
 const { loadSystemSettings } = require('../utils/systemSettings');
@@ -114,6 +115,22 @@ const protect = async (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    try {
+      const revokedToken = await RevokedToken.findOne({
+        token,
+        expiresAt: { $gt: new Date() },
+      }).select('_id');
+
+      if (revokedToken) {
+        return res.status(401).json({
+          success: false,
+          message: 'Session has expired. Please log in again.',
+        });
+      }
+    } catch (_revocationError) {
+      // Fail open to avoid blocking valid sessions if revocation storage is unavailable.
+    }
 
     // Get user from token
     const user = await findUserByFlexibleId(decoded.id);

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Material = require('../models/Material');
+const AssignmentSubmission = require('../models/AssignmentSubmission');
 const User = require('../models/User');
 
 const normalizeGradeValue = (value) =>
@@ -54,6 +55,53 @@ const teacherAssignedToSubject = (teacher, subject) =>
   getTeacherSubjects(teacher).some(
     (assignedSubject) => normalizeSubjectValue(assignedSubject) === normalizeSubjectValue(subject),
   );
+
+const studentMatchesMaterialClass = (student, material) => {
+  const studentGrade = normalizeGradeValue(student?.studentProfile?.grade);
+  const studentSection = normalizeClassScopeValue(
+    student?.studentProfile?.stream || student?.studentProfile?.section,
+  );
+  const materialGrade = normalizeGradeValue(material?.grade);
+  const materialSection = normalizeClassScopeValue(material?.section);
+
+  if (!studentGrade || !materialGrade || studentGrade !== materialGrade) {
+    return false;
+  }
+
+  if (!materialSection) {
+    return true;
+  }
+
+  return studentSection === materialSection;
+};
+
+const toSubmissionResponse = (submission) => {
+  const source = submission.toObject ? submission.toObject() : submission;
+  const student = source.studentId || {};
+  const reviewer = source.reviewedBy || {};
+
+  return {
+    id: String(source._id || ''),
+    _id: String(source._id || ''),
+    materialId: String(source.materialId?._id || source.materialId || ''),
+    studentId: String(student._id || source.studentId || ''),
+    studentName: `${student.firstName || ''} ${student.lastName || ''}`.trim(),
+    submissionText: source.submissionText || '',
+    fileUrl: source.fileUrl || '',
+    fileName: source.fileName || '',
+    fileSize: source.fileSize || 0,
+    status: source.status,
+    score: Number.isFinite(source.score) ? source.score : null,
+    feedback: source.feedback || '',
+    submittedAt: source.submittedAt || source.createdAt,
+    isLate: Boolean(source.isLate),
+    reviewedAt: source.reviewedAt || null,
+    reviewedById: reviewer?._id ? String(reviewer._id) : null,
+    reviewedByName: reviewer?._id ? `${reviewer.firstName || ''} ${reviewer.lastName || ''}`.trim() : '',
+    createdAt: source.createdAt,
+    updatedAt: source.updatedAt,
+  };
+};
 
 const toMaterialResponse = (material) => {
   const source = material.toObject ? material.toObject() : material;
@@ -485,6 +533,300 @@ exports.downloadMaterial = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to download material',
+      error: error.message,
+    });
+  }
+};
+
+exports.submitAssignment = async (req, res) => {
+  try {
+    if (req.user.role !== 'Student') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only students can submit assignments',
+      });
+    }
+
+    const material = await Material.findById(req.params.id);
+    if (!material) {
+      return res.status(404).json({
+        success: false,
+        message: 'Assignment not found',
+      });
+    }
+
+    if (material.type !== 'assignment') {
+      return res.status(400).json({
+        success: false,
+        message: 'Submissions are only supported for assignment materials',
+      });
+    }
+
+    if (material.status !== 'published') {
+      return res.status(400).json({
+        success: false,
+        message: 'Assignment is not published yet',
+      });
+    }
+
+    const student = await User.findById(req.user.id).select('studentProfile');
+    if (!student || !studentMatchesMaterialClass(student, material)) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only submit assignments for your class',
+      });
+    }
+
+    const submissionText = String(req.body.submissionText || '').trim();
+    if (!submissionText && !req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Submission text or attachment is required',
+      });
+    }
+
+    const isLate = material.dueDate ? new Date() > new Date(material.dueDate) : false;
+
+    const update = {
+      submissionText,
+      submittedAt: new Date(),
+      isLate,
+      status: 'Submitted',
+      score: null,
+      feedback: '',
+      reviewedBy: null,
+      reviewedAt: null,
+    };
+
+    if (req.file) {
+      update.fileUrl = `/uploads/material-submissions/${req.file.filename}`;
+      update.fileName = req.file.originalname;
+      update.fileSize = req.file.size;
+      update.fileMimeType = req.file.mimetype;
+    }
+
+    const submission = await AssignmentSubmission.findOneAndUpdate(
+      { materialId: material._id, studentId: req.user.id },
+      {
+        $set: update,
+        $setOnInsert: {
+          materialId: material._id,
+          studentId: req.user.id,
+        },
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true },
+    ).populate('studentId', 'firstName lastName');
+
+    return res.status(201).json({
+      success: true,
+      message: 'Assignment submitted successfully',
+      data: toSubmissionResponse(submission),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to submit assignment',
+      error: error.message,
+    });
+  }
+};
+
+exports.getMaterialSubmissions = async (req, res) => {
+  try {
+    const material = await Material.findById(req.params.id);
+    if (!material) {
+      return res.status(404).json({
+        success: false,
+        message: 'Material not found',
+      });
+    }
+
+    const canManageMaterial = isAdminUser(req.user) || String(material.teacherId) === String(req.user.id);
+    if (!canManageMaterial) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to view submissions for this material',
+      });
+    }
+
+    const submissions = await AssignmentSubmission.find({ materialId: material._id })
+      .populate('studentId', 'firstName lastName email studentProfile')
+      .populate('reviewedBy', 'firstName lastName')
+      .sort({ submittedAt: -1 });
+
+    return res.json({
+      success: true,
+      data: submissions.map(toSubmissionResponse),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch submissions',
+      error: error.message,
+    });
+  }
+};
+
+exports.getMySubmissions = async (req, res) => {
+  try {
+    if (req.user.role !== 'Student') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only students can view their submissions',
+      });
+    }
+
+    const submissions = await AssignmentSubmission.find({ studentId: req.user.id })
+      .populate('materialId', 'title type subject grade section dueDate teacherId')
+      .populate('reviewedBy', 'firstName lastName')
+      .sort({ submittedAt: -1 });
+
+    return res.json({
+      success: true,
+      data: submissions.map((submission) => {
+        const item = toSubmissionResponse(submission);
+        const material = submission.materialId || {};
+        return {
+          ...item,
+          material: {
+            id: String(material._id || ''),
+            title: material.title || '',
+            subject: material.subject || '',
+            grade: material.grade || '',
+            section: material.section || '',
+            dueDate: material.dueDate || null,
+          },
+        };
+      }),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch submissions',
+      error: error.message,
+    });
+  }
+};
+
+exports.reviewSubmission = async (req, res) => {
+  try {
+    const { score, feedback = '', status } = req.body;
+    const material = await Material.findById(req.params.id);
+    if (!material) {
+      return res.status(404).json({
+        success: false,
+        message: 'Material not found',
+      });
+    }
+
+    const canManageMaterial = isAdminUser(req.user) || String(material.teacherId) === String(req.user.id);
+    if (!canManageMaterial) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to review this submission',
+      });
+    }
+
+    const submission = await AssignmentSubmission.findOne({
+      _id: req.params.submissionId,
+      materialId: material._id,
+    });
+
+    if (!submission) {
+      return res.status(404).json({
+        success: false,
+        message: 'Submission not found',
+      });
+    }
+
+    if (score !== undefined && score !== null) {
+      const parsedScore = Number(score);
+      if (!Number.isFinite(parsedScore) || parsedScore < 0 || parsedScore > 100) {
+        return res.status(400).json({
+          success: false,
+          message: 'Score must be a number between 0 and 100',
+        });
+      }
+      submission.score = parsedScore;
+    }
+
+    submission.feedback = String(feedback || '').trim();
+    submission.status = status === 'Returned' ? 'Returned' : 'Reviewed';
+    submission.reviewedBy = req.user.id;
+    submission.reviewedAt = new Date();
+
+    await submission.save();
+    await submission.populate('studentId', 'firstName lastName email');
+    await submission.populate('reviewedBy', 'firstName lastName');
+
+    return res.json({
+      success: true,
+      message: 'Submission reviewed successfully',
+      data: toSubmissionResponse(submission),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to review submission',
+      error: error.message,
+    });
+  }
+};
+
+exports.downloadSubmission = async (req, res) => {
+  try {
+    const material = await Material.findById(req.params.id);
+    if (!material) {
+      return res.status(404).json({
+        success: false,
+        message: 'Material not found',
+      });
+    }
+
+    const submission = await AssignmentSubmission.findOne({
+      _id: req.params.submissionId,
+      materialId: material._id,
+    });
+
+    if (!submission) {
+      return res.status(404).json({
+        success: false,
+        message: 'Submission not found',
+      });
+    }
+
+    const canAccess =
+      isAdminUser(req.user) ||
+      String(material.teacherId) === String(req.user.id) ||
+      String(submission.studentId) === String(req.user.id);
+
+    if (!canAccess) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to download this submission',
+      });
+    }
+
+    if (!submission.fileUrl) {
+      return res.status(404).json({
+        success: false,
+        message: 'No attachment found for this submission',
+      });
+    }
+
+    const filePath = path.join(__dirname, '..', submission.fileUrl);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        success: false,
+        message: 'Stored submission file could not be found',
+      });
+    }
+
+    return res.download(filePath, submission.fileName || path.basename(filePath));
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to download submission',
       error: error.message,
     });
   }

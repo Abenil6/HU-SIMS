@@ -18,22 +18,13 @@ import {
   DialogActions,
   CircularProgress,
 } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DataTable } from "@/components/ui/DataTable";
 import type { Column } from "@/components/ui/DataTable";
-import { apiGet } from "@/services/api";
+import toast from "react-hot-toast";
+import classService, { type SchoolClass } from "@/services/classService";
 
-interface ClassData {
-  id: string;
-  name: string;
-  grade: string;
-  stream: string;
-  capacity: number;
-  students: number;
-  classTeacher: string;
-  subjects: string[];
-  status: "Active" | "Inactive";
-}
+type ClassData = SchoolClass;
 
 const grades = ["Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const streams = ["Natural Science", "Social Science"];
@@ -56,47 +47,22 @@ export function ClassesPage() {
   const [selectedClass, setSelectedClass] = useState<ClassData | null>(null);
   const [gradeFilter, setGradeFilter] = useState("");
   const [search, setSearch] = useState("");
+  const queryClient = useQueryClient();
 
-  const { data: usersData, isLoading } = useQuery({
-    queryKey: ["admin-users-students-classes"],
-    queryFn: () => apiGet<any>("/admin/users?role=Student&limit=500&page=1"),
+  const { data: classesData, isLoading } = useQuery({
+    queryKey: ["classes", { search, grade: gradeFilter }],
+    queryFn: () =>
+      classService.getClasses({
+        search: search || undefined,
+        grade: gradeFilter ? gradeFilter.replace("Grade ", "") : undefined,
+        limit: 500,
+      }),
   });
 
   const classes = useMemo((): ClassData[] => {
-    const users = (usersData as any)?.data ?? (usersData as any)?.users ?? [];
-    if (!Array.isArray(users)) return [];
-    const byClass: Record<string, { count: number }> = {};
-    for (const u of users) {
-      const g = u.studentProfile?.grade || u.grade || "9";
-      // For grades 11-12, use stream. For grades 9-10, no stream needed.
-      const studentStream =
-        g === "11" || g === "12"
-          ? u.studentProfile?.stream || u.stream || ""
-          : "";
-      const grade = String(g).replace("Grade ", "");
-      const key = studentStream ? `${grade}-${studentStream}` : grade;
-      byClass[key] = byClass[key] || { count: 0 };
-      byClass[key].count += 1;
-    }
-    return Object.entries(byClass)
-      .map(([key, { count }]) => {
-        const isGrade11or12 = key.includes("-");
-        const grade = isGrade11or12 ? key.split("-")[0] : key;
-        const stream = isGrade11or12 ? key.split("-")[1] : "";
-        return {
-          id: key,
-          name: isGrade11or12 ? `Grade ${grade} - ${stream}` : `Grade ${grade}`,
-          grade: `Grade ${grade}`,
-          stream,
-          capacity: 45,
-          students: count,
-          classTeacher: "-",
-          subjects: [],
-          status: "Active" as const,
-        };
-      })
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [usersData]);
+    const rows = Array.isArray(classesData?.data) ? classesData.data : [];
+    return [...rows].sort((a, b) => a.name.localeCompare(b.name));
+  }, [classesData]);
 
   const filteredClasses = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -126,6 +92,52 @@ export function ClassesPage() {
     classTeacher: "",
     subjects: [] as string[],
     status: "Active" as "Active" | "Inactive",
+  });
+
+  const createMutation = useMutation({
+    mutationFn: () =>
+      classService.createClass({
+        name: formData.name,
+        grade: formData.grade,
+        stream: formData.stream,
+        capacity: formData.capacity,
+        subjects: formData.subjects,
+        status: formData.status,
+      }),
+    onSuccess: () => {
+      toast.success("Class created successfully");
+      queryClient.invalidateQueries({ queryKey: ["classes"] });
+      handleCloseDialog();
+    },
+    onError: (error: Error) => toast.error(error.message || "Failed to create class"),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: () =>
+      classService.updateClass(selectedClass!.id, {
+        name: formData.name,
+        grade: formData.grade,
+        stream: formData.stream,
+        capacity: formData.capacity,
+        subjects: formData.subjects,
+        status: formData.status,
+      }),
+    onSuccess: () => {
+      toast.success("Class updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["classes"] });
+      handleCloseDialog();
+    },
+    onError: (error: Error) => toast.error(error.message || "Failed to update class"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => classService.deleteClass(selectedClass!.id),
+    onSuccess: () => {
+      toast.success("Class deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["classes"] });
+      handleCloseDialog();
+    },
+    onError: (error: Error) => toast.error(error.message || "Failed to delete class"),
   });
 
   const handleOpenDialog = (classData?: ClassData) => {
@@ -224,6 +236,9 @@ export function ClassesPage() {
                 </Select>
               </FormControl>
             </Box>
+            <Button variant="contained" onClick={() => handleOpenDialog()}>
+              Add Class
+            </Button>
           </Box>
 
           <DataTable
@@ -295,8 +310,7 @@ export function ClassesPage() {
                 <Select
                   label="Grade"
                   value={formData.grade}
-                  disabled
-                  onChange={() => {}}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, grade: String(e.target.value) }))}
                 >
                   {grades.map((g) => (
                     <MenuItem key={g} value={g}>
@@ -312,8 +326,7 @@ export function ClassesPage() {
                 <Select
                   label="Stream"
                   value={formData.stream}
-                  disabled
-                  onChange={() => {}}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, stream: String(e.target.value) }))}
                 >
                   {streams.map((s) => (
                     <MenuItem key={s} value={s}>
@@ -328,19 +341,16 @@ export function ClassesPage() {
                 fullWidth
                 label="Class Name"
                 value={formData.name}
-                InputProps={{ readOnly: true }}
+                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
               />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Students / Capacity"
-                value={
-                  selectedClass
-                    ? `${selectedClass.students} / ${formData.capacity}`
-                    : "0 / 45"
-                }
-                InputProps={{ readOnly: true }}
+                label="Capacity"
+                type="number"
+                value={formData.capacity}
+                onChange={(e) => setFormData((prev) => ({ ...prev, capacity: Number(e.target.value) || 45 }))}
               />
             </Grid>
             <Grid size={{ xs: 12 }}>
@@ -348,12 +358,35 @@ export function ClassesPage() {
                 fullWidth
                 label="Class Teacher"
                 value={formData.classTeacher}
+                helperText="Display only. Teacher assignment is managed from Teacher module."
                 InputProps={{ readOnly: true }}
               />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
+          {selectedClass ? (
+            <Button color="error" onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending}>
+              Delete
+            </Button>
+          ) : null}
+          <Button
+            variant="contained"
+            onClick={() => {
+              if (!formData.name || !formData.grade) {
+                toast.error("Name and grade are required");
+                return;
+              }
+              if (selectedClass) {
+                updateMutation.mutate();
+              } else {
+                createMutation.mutate();
+              }
+            }}
+            disabled={createMutation.isPending || updateMutation.isPending}
+          >
+            {selectedClass ? "Save Changes" : "Create Class"}
+          </Button>
           <Button onClick={handleCloseDialog}>Close</Button>
         </DialogActions>
       </Dialog>

@@ -2,6 +2,8 @@ const Report = require('../models/Report');
 const AcademicRecord = require('../models/AcademicRecord');
 const Attendance = require('../models/Attendance');
 const User = require('../models/User');
+const PDFDocument = require('pdfkit');
+const ExcelJS = require('exceljs');
 
 const SEMESTERS = ['Semester 1', 'Semester 2'];
 const BEHAVIOR_GRADES = ['A', 'B', 'C'];
@@ -1758,6 +1760,34 @@ exports.exportReport = async (req, res) => {
 
     const exportData = buildExportData(report);
 
+    const flattenRecord = (value, prefix = '') => {
+      if (Array.isArray(value)) {
+        return value.reduce((acc, entry, index) => ({
+          ...acc,
+          ...flattenRecord(entry, `${prefix}[${index}]`),
+        }), {});
+      }
+
+      if (value && typeof value === 'object') {
+        return Object.entries(value).reduce((acc, [key, entry]) => {
+          const nextPrefix = prefix ? `${prefix}.${key}` : key;
+          return { ...acc, ...flattenRecord(entry, nextPrefix) };
+        }, {});
+      }
+
+      return { [prefix || 'value']: value };
+    };
+
+    const toFlatRows = (data) => {
+      if (Array.isArray(data)) {
+        return data.map((entry) => flattenRecord(entry));
+      }
+      if (data && typeof data === 'object') {
+        return [flattenRecord(data)];
+      }
+      return [{ value: data }];
+    };
+
     if (format === 'csv') {
       res.setHeader('Content-Type', 'text/csv; charset=utf-8');
       res.setHeader('Content-Disposition', `attachment; filename="${buildReportFilename(report, 'csv')}"`);
@@ -1768,6 +1798,92 @@ exports.exportReport = async (req, res) => {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Content-Disposition', `attachment; filename="${buildReportFilename(report, 'html')}"`);
       return res.send(buildReportHtml(report, exportData));
+    }
+
+    if (format === 'pdf') {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${buildReportFilename(report, 'pdf')}"`);
+
+      const doc = new PDFDocument({ margin: 40, size: 'A4' });
+      doc.pipe(res);
+
+      doc.fontSize(16).text('School Report Export', { align: 'left' });
+      doc.moveDown(0.6);
+      doc.fontSize(12).text(`Report Type: ${report.reportType || '-'}`);
+      doc.text(`Academic Year: ${report.academicYear || '-'}`);
+      doc.text(`Semester: ${report.semester || '-'}`);
+      doc.text(`Generated At: ${new Date(report.createdAt).toLocaleString()}`);
+      doc.text(`Status: ${report.status || '-'}`);
+      doc.moveDown();
+
+      const summaryEntries = Object.entries(exportData.summary || {});
+      if (summaryEntries.length) {
+        doc.fontSize(12).text('Summary', { underline: true });
+        summaryEntries.forEach(([key, value]) => {
+          doc.text(`${key}: ${value}`);
+        });
+        doc.moveDown();
+      }
+
+      doc.fontSize(12).text('Data', { underline: true });
+      const rows = toFlatRows(exportData.data || {});
+      const previewRows = rows.slice(0, 80);
+      previewRows.forEach((row, index) => {
+        doc.moveDown(0.3);
+        doc.fontSize(10).text(`${index + 1}.`);
+        Object.entries(row).forEach(([key, value]) => {
+          doc.fontSize(9).text(`   ${key}: ${value ?? ''}`);
+        });
+      });
+
+      if (rows.length > previewRows.length) {
+        doc.moveDown();
+        doc.fontSize(9).text(`... ${rows.length - previewRows.length} more rows omitted for print readability.`);
+      }
+
+      doc.end();
+      return;
+    }
+
+    if (format === 'xlsx') {
+      const workbook = new ExcelJS.Workbook();
+      const metadata = workbook.addWorksheet('Metadata');
+      metadata.columns = [
+        { header: 'Field', key: 'field', width: 30 },
+        { header: 'Value', key: 'value', width: 50 },
+      ];
+      metadata.addRows([
+        { field: 'Report Type', value: report.reportType || '' },
+        { field: 'Academic Year', value: report.academicYear || '' },
+        { field: 'Semester', value: report.semester || '' },
+        { field: 'Generated At', value: new Date(report.createdAt).toISOString() },
+        { field: 'Status', value: report.status || '' },
+      ]);
+
+      const summarySheet = workbook.addWorksheet('Summary');
+      summarySheet.columns = [
+        { header: 'Metric', key: 'metric', width: 30 },
+        { header: 'Value', key: 'value', width: 30 },
+      ];
+      Object.entries(exportData.summary || {}).forEach(([metric, value]) => {
+        summarySheet.addRow({ metric, value });
+      });
+
+      const rows = toFlatRows(exportData.data || {});
+      const headers = Array.from(new Set(rows.flatMap((row) => Object.keys(row))));
+      const dataSheet = workbook.addWorksheet('Data');
+      dataSheet.columns = headers.map((header) => ({
+        header,
+        key: header,
+        width: Math.min(Math.max(header.length + 5, 15), 40),
+      }));
+      rows.forEach((row) => dataSheet.addRow(row));
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${buildReportFilename(report, 'xlsx')}"`);
+      await workbook.xlsx.write(res);
+      res.end();
+      return;
     }
 
     res.setHeader('Content-Type', 'application/json; charset=utf-8');

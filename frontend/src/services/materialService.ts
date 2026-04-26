@@ -45,6 +45,33 @@ export interface MaterialListResponse {
   limit: number;
 }
 
+export interface AssignmentSubmission {
+  id: string;
+  _id: string;
+  materialId: string;
+  studentId: string;
+  studentName?: string;
+  submissionText: string;
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: number;
+  status: "Submitted" | "Reviewed" | "Returned";
+  score?: number | null;
+  feedback?: string;
+  submittedAt: string;
+  isLate: boolean;
+  reviewedAt?: string | null;
+  reviewedByName?: string;
+  material?: {
+    id: string;
+    title: string;
+    subject: string;
+    grade: string;
+    section: string;
+    dueDate?: string | null;
+  };
+}
+
 // Material API
 export const materialService = {
   // Get all materials with filters
@@ -153,6 +180,55 @@ export const materialService = {
   // Get grades list
   getGrades: async (): Promise<string[]> => {
     return apiGet<string[]>("/materials/grades");
+  },
+
+  // Submit assignment (student)
+  submitAssignment: async (
+    materialId: string,
+    data: { submissionText?: string; file?: File },
+  ): Promise<AssignmentSubmission> => {
+    const formData = new FormData();
+    if (data.submissionText !== undefined) formData.append("submissionText", data.submissionText);
+    if (data.file) formData.append("file", data.file);
+    return apiUpload<AssignmentSubmission>(`/materials/${materialId}/submissions`, formData);
+  },
+
+  // Teacher/admin: list submissions for a material
+  getMaterialSubmissions: async (materialId: string): Promise<AssignmentSubmission[]> => {
+    const response = await apiGet<{ success: boolean; data: AssignmentSubmission[] }>(
+      `/materials/${materialId}/submissions`,
+    );
+    return Array.isArray(response?.data) ? response.data : [];
+  },
+
+  // Student: list my submissions
+  getMySubmissions: async (): Promise<AssignmentSubmission[]> => {
+    const response = await apiGet<{ success: boolean; data: AssignmentSubmission[] }>(
+      "/materials/submissions/me",
+    );
+    return Array.isArray(response?.data) ? response.data : [];
+  },
+
+  // Teacher/admin: review a submission
+  reviewSubmission: async (
+    materialId: string,
+    submissionId: string,
+    data: { score?: number; feedback?: string; status?: "Reviewed" | "Returned" },
+  ): Promise<AssignmentSubmission> => {
+    return apiPut<AssignmentSubmission>(
+      `/materials/${materialId}/submissions/${submissionId}/review`,
+      data,
+    );
+  },
+
+  // Download assignment submission attachment
+  downloadSubmissionAttachment: async (
+    materialId: string,
+    submissionId: string,
+  ): Promise<Blob> => {
+    return apiGet(`/materials/${materialId}/submissions/${submissionId}/download`, {
+      responseType: "blob",
+    }) as unknown as Promise<Blob>;
   },
 };
 

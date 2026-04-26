@@ -21,6 +21,7 @@ import {
   CardActions,
   Alert,
   LinearProgress,
+  TextField,
 } from "@mui/material";
 import {
   Add,
@@ -71,6 +72,9 @@ export function MaterialsPage() {
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const isTeacher = user?.role === "Teacher";
+  const isStudent = user?.role === "Student";
+  const isAdmin = user?.role === "SchoolAdmin" || user?.role === "SystemAdmin";
+  const canManageMaterials = isTeacher || isAdmin;
 
   // State
   const [search, setSearch] = useState("");
@@ -95,6 +99,10 @@ export function MaterialsPage() {
   >({});
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [submissionDialogOpen, setSubmissionDialogOpen] = useState(false);
+  const [submissionMaterial, setSubmissionMaterial] = useState<Material | null>(null);
+  const [submissionText, setSubmissionText] = useState("");
+  const [submissionFile, setSubmissionFile] = useState<File | null>(null);
 
   // Determine status from tab
   const tabStatus = tabValue === 0 ? "published" : tabValue === 1 ? "draft" : "archived";
@@ -143,6 +151,12 @@ export function MaterialsPage() {
   });
 
   const materials: Material[] = materialsResponse?.materials ?? [];
+  const { data: mySubmissions = [] } = useQuery({
+    queryKey: ["materials", "my-submissions"],
+    queryFn: () => materialService.getMySubmissions(),
+    enabled: isStudent,
+    staleTime: 30 * 1000,
+  });
 
   // Mutations
   const createMutation = useMutation({
@@ -227,6 +241,26 @@ export function MaterialsPage() {
       toast.success("Material archived successfully");
     },
     onError: () => toast.error("Failed to archive material"),
+  });
+
+  const submissionMutation = useMutation({
+    mutationFn: (data: { materialId: string; submissionText?: string; file?: File }) =>
+      materialService.submitAssignment(data.materialId, {
+        submissionText: data.submissionText,
+        file: data.file,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["materials", "my-submissions"] });
+      toast.success("Assignment submitted successfully");
+      setSubmissionDialogOpen(false);
+      setSubmissionMaterial(null);
+      setSubmissionText("");
+      setSubmissionFile(null);
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to submit assignment";
+      toast.error(errorMessage);
+    },
   });
 
   // Get material type icon
@@ -381,6 +415,23 @@ export function MaterialsPage() {
     setMenuAnchor((prev) => ({ ...prev, [material.id]: null }));
   };
 
+  const handleOpenSubmissionDialog = (material: Material) => {
+    setSubmissionMaterial(material);
+    const existingSubmission = mySubmissions.find((item) => item.materialId === material.id);
+    setSubmissionText(existingSubmission?.submissionText || "");
+    setSubmissionFile(null);
+    setSubmissionDialogOpen(true);
+  };
+
+  const handleSubmitAssignment = () => {
+    if (!submissionMaterial) return;
+    submissionMutation.mutate({
+      materialId: submissionMaterial.id,
+      submissionText,
+      file: submissionFile || undefined,
+    });
+  };
+
   const handleFormSubmit = async (values: Record<string, unknown>) => {
     const classSelection = parseClassOptionValue(values.grade);
     const payload = {
@@ -408,8 +459,9 @@ export function MaterialsPage() {
       published: materials.filter((m) => m.status === "published").length,
       assignments: materials.filter((m) => m.type === "assignment").length,
       materials: materials.filter((m) => m.type === "study_material").length,
+      submittedAssignments: mySubmissions.filter((item) => item.status).length,
     }),
-    [materials],
+    [materials, mySubmissions],
   );
 
   // Subject and grade options
@@ -436,11 +488,11 @@ export function MaterialsPage() {
       <PageHeader
         title="Study Materials & Assignments"
         subtitle={
-          isTeacher
+          canManageMaterials
             ? "Upload materials only for your assigned subjects and classes"
-            : "Manage study materials, assignments, and resources"
+            : "Browse published materials and submit assignments"
         }
-        action={
+        action={canManageMaterials ? (
           <Button
             variant="contained"
             startIcon={<Add />}
@@ -455,7 +507,7 @@ export function MaterialsPage() {
           >
             Upload Material
           </Button>
-        }
+        ) : undefined}
       />
 
       {/* Stats Cards */}
@@ -472,11 +524,17 @@ export function MaterialsPage() {
             value: stats.assignments,
             icon: <Assignment />,
           },
-          {
-            label: "Resources",
-            value: stats.materials,
-            icon: <LibraryBooks />,
-          },
+          isStudent
+            ? {
+                label: "Submitted",
+                value: stats.submittedAssignments,
+                icon: <Assignment />,
+              }
+            : {
+                label: "Resources",
+                value: stats.materials,
+                icon: <LibraryBooks />,
+              },
         ].map((stat, index) => (
           <Box
             key={index}
@@ -506,15 +564,21 @@ export function MaterialsPage() {
       </Box>
 
       {/* Tabs */}
-      <Tabs
-        value={tabValue}
-        onChange={(_, newValue) => setTabValue(newValue)}
-        sx={{ mb: 2 }}
-      >
-        <Tab label="Published" />
-        <Tab label="Drafts" />
-        <Tab label="Archived" />
-      </Tabs>
+      {canManageMaterials ? (
+        <Tabs
+          value={tabValue}
+          onChange={(_, newValue) => setTabValue(newValue)}
+          sx={{ mb: 2 }}
+        >
+          <Tab label="Published" />
+          <Tab label="Drafts" />
+          <Tab label="Archived" />
+        </Tabs>
+      ) : (
+        <Tabs value={0} sx={{ mb: 2 }}>
+          <Tab label="Published" />
+        </Tabs>
+      )}
 
       {/* Filter Bar */}
       <FilterBar
@@ -643,6 +707,33 @@ export function MaterialsPage() {
                     Due: {new Date(material.dueDate).toLocaleDateString()}
                   </Typography>
                 )}
+                {isStudent && material.type === "assignment" && (
+                  <Box sx={{ mt: 1 }}>
+                    {(() => {
+                      const submission = mySubmissions.find(
+                        (item) => item.materialId === material.id,
+                      );
+                      if (!submission) return null;
+                      return (
+                        <Chip
+                          size="small"
+                          color={
+                            submission.status === "Reviewed"
+                              ? "success"
+                              : submission.status === "Returned"
+                                ? "warning"
+                                : "info"
+                          }
+                          label={
+                            submission.score !== null && submission.score !== undefined
+                              ? `${submission.status} (${submission.score}%)`
+                              : submission.status
+                          }
+                        />
+                      );
+                    })()}
+                  </Box>
+                )}
               </CardContent>
               <CardActions
                 sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
@@ -666,18 +757,32 @@ export function MaterialsPage() {
                       <Download fontSize="small" />
                     </IconButton>
                   )}
+                  {isStudent && material.type === "assignment" && (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      sx={{ ml: 1 }}
+                      onClick={() => handleOpenSubmissionDialog(material)}
+                    >
+                      {mySubmissions.some((item) => item.materialId === material.id)
+                        ? "Resubmit"
+                        : "Submit"}
+                    </Button>
+                  )}
                 </Box>
-                <IconButton
-                  size="small"
-                  onClick={(e) =>
-                    setMenuAnchor((prev) => ({
-                      ...prev,
-                      [material.id]: e.currentTarget,
-                    }))
-                  }
-                >
-                  <MoreVert />
-                </IconButton>
+                {canManageMaterials ? (
+                  <IconButton
+                    size="small"
+                    onClick={(e) =>
+                      setMenuAnchor((prev) => ({
+                        ...prev,
+                        [material.id]: e.currentTarget,
+                      }))
+                    }
+                  >
+                    <MoreVert />
+                  </IconButton>
+                ) : null}
               </CardActions>
             </Card>
           ))}
@@ -685,7 +790,7 @@ export function MaterialsPage() {
       )}
 
       {/* Actions Menu */}
-      {materials.map((material) => (
+      {canManageMaterials && materials.map((material) => (
         <Menu
           key={material.id}
           anchorEl={menuAnchor[material.id]}
@@ -853,6 +958,55 @@ export function MaterialsPage() {
             </DialogActions>
           </>
         )}
+      </Dialog>
+
+      <Dialog
+        open={submissionDialogOpen}
+        onClose={() => setSubmissionDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          {submissionMaterial ? `Submit: ${submissionMaterial.title}` : "Submit Assignment"}
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            multiline
+            minRows={4}
+            margin="normal"
+            label="Submission Notes"
+            value={submissionText}
+            onChange={(event) => setSubmissionText(event.target.value)}
+            placeholder="Write your answer or notes here..."
+          />
+          <Button
+            component="label"
+            variant="outlined"
+            sx={{ mt: 1 }}
+          >
+            {submissionFile ? `Attachment: ${submissionFile.name}` : "Attach File (Optional)"}
+            <input
+              type="file"
+              hidden
+              onChange={(event) => {
+                const file = event.target.files?.[0] || null;
+                setSubmissionFile(file);
+              }}
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.zip"
+            />
+          </Button>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSubmissionDialogOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={handleSubmitAssignment}
+            disabled={submissionMutation.isPending}
+          >
+            {submissionMutation.isPending ? "Submitting..." : "Submit Assignment"}
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );

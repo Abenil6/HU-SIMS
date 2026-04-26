@@ -182,6 +182,18 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         const currentUser = get().user;
+        const currentToken = get().token || localStorage.getItem('token');
+
+        if (currentToken) {
+          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/auth/logout`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${currentToken}`,
+              'Content-Type': 'application/json',
+            },
+          }).catch(() => {});
+        }
+
         captureAnalyticsEvent('auth_logout', {
           role: currentUser?.role,
         });

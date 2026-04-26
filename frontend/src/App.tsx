@@ -116,6 +116,11 @@ const AnnouncementsPage = lazy(() =>
     default: module.AnnouncementsPage,
   })),
 );
+const MaterialsPage = lazy(() =>
+  import("@/pages/dashboard/materials/MaterialsPage").then((module) => ({
+    default: module.MaterialsPage,
+  })),
+);
 const ReportsPage = lazy(() =>
   import("@/pages/dashboard/reports/ReportsPage").then((module) => ({
     default: module.ReportsPage,
@@ -272,6 +277,7 @@ function App() {
           <Route path="classes" element={<ClassesPage />} />
           <Route path="attendance" element={<AttendanceMarkingPage />} />
           <Route path="grades" element={<SchoolAdminGradesPage />} />
+          <Route path="materials" element={<MaterialsPage />} />
           <Route path="timetable" element={<TimetablePage />} />
           <Route path="messages" element={<MessagesPage />} />
           <Route path="announcements" element={<AnnouncementsPage />} />
@@ -294,6 +300,7 @@ function App() {
           <Route path="students" element={<StudentListPage />} />
           <Route path="attendance" element={<AttendanceMarkingPage />} />
           <Route path="grades" element={<GradesPage />} />
+          <Route path="materials" element={<MaterialsPage />} />
           <Route path="timetable" element={<TimetablePage />} />
           <Route path="messages" element={<MessagesPage />} />
           <Route path="announcements" element={<AnnouncementsPage />} />
@@ -314,6 +321,7 @@ function App() {
           <Route index element={<StudentDashboard />} />
           <Route path="grades" element={<StudentGradesPage />} />
           <Route path="attendance" element={<StudentAttendancePage />} />
+          <Route path="materials" element={<MaterialsPage />} />
           <Route path="timetable" element={<TimetablePage />} />
           <Route path="messages" element={<MessagesPage />} />
           <Route path="reports" element={<ReportsPage />} />
