@@ -134,14 +134,10 @@ const toMaterialResponse = (material) => {
 };
 
 const ensureTeacherCanManageMaterial = async (req, res, next) => {
-  if (isAdminUser(req.user)) {
-    return next();
-  }
-
   if (req.user.role !== 'Teacher') {
     return res.status(403).json({
       success: false,
-      message: 'Only teachers and school administrators can manage materials',
+      message: 'Only teachers can manage materials',
     });
   }
 
@@ -154,7 +150,7 @@ const ensureTeacherCanManageMaterial = async (req, res, next) => {
   }
 
   req.teacherProfileDoc = teacher;
-  return next();
+  return next;
 };
 
 exports.getMaterials = async (req, res) => {
@@ -249,6 +245,22 @@ exports.getMaterial = async (req, res) => {
       });
     }
 
+    if (req.user.role === 'Student') {
+      if (material.status !== 'published') {
+        return res.status(403).json({
+          success: false,
+          message: 'You can only view published materials',
+        });
+      }
+      const student = await User.findById(req.user.id).select('studentProfile');
+      if (!student || !studentMatchesMaterialClass(student, material)) {
+        return res.status(403).json({
+          success: false,
+          message: 'You can only view materials for your class',
+        });
+      }
+    }
+
     res.json(toMaterialResponse(material));
   } catch (error) {
     res.status(500).json({
@@ -288,6 +300,11 @@ exports.createMaterial = async (req, res) => {
           message: 'You can only upload materials for your assigned classes',
         });
       }
+    } else {
+      return res.status(403).json({
+        success: false,
+        message: 'Only teachers can create materials',
+      });
     }
 
     const material = await Material.create({
@@ -327,7 +344,7 @@ exports.updateMaterial = async (req, res) => {
       });
     }
 
-    if (!isAdminUser(req.user) && String(material.teacherId) !== String(req.user.id)) {
+    if (String(material.teacherId) !== String(req.user.id)) {
       return res.status(403).json({
         success: false,
         message: 'You can only update materials you uploaded',
@@ -339,7 +356,7 @@ exports.updateMaterial = async (req, res) => {
     const nextGrade = normalizeGradeValue(req.body.grade ?? material.grade);
     const nextSection = normalizeClassScopeValue(req.body.section ?? material.section);
 
-    if (req.user.role === 'Teacher') {
+    if (req.user.role !== 'Teacher') {
       if (!teacherAssignedToSubject(teacher, nextSubject)) {
         return res.status(403).json({
           success: false,
@@ -393,7 +410,7 @@ exports.deleteMaterial = async (req, res) => {
       });
     }
 
-    if (!isAdminUser(req.user) && String(material.teacherId) !== String(req.user.id)) {
+    if (String(material.teacherId) !== String(req.user.id)) {
       return res.status(403).json({
         success: false,
         message: 'You can only delete materials you uploaded',
@@ -421,7 +438,7 @@ exports.publishMaterial = async (req, res) => {
       });
     }
 
-    if (!isAdminUser(req.user) && String(material.teacherId) !== String(req.user.id)) {
+    if (String(material.teacherId) !== String(req.user.id)) {
       return res.status(403).json({
         success: false,
         message: 'You can only publish materials you uploaded',
@@ -452,7 +469,7 @@ exports.archiveMaterial = async (req, res) => {
       });
     }
 
-    if (!isAdminUser(req.user) && String(material.teacherId) !== String(req.user.id)) {
+    if (String(material.teacherId) !== String(req.user.id)) {
       return res.status(403).json({
         success: false,
         message: 'You can only archive materials you uploaded',
@@ -641,7 +658,7 @@ exports.getMaterialSubmissions = async (req, res) => {
       });
     }
 
-    const canManageMaterial = isAdminUser(req.user) || String(material.teacherId) === String(req.user.id);
+    const canManageMaterial = String(material.teacherId) === String(req.user.id);
     if (!canManageMaterial) {
       return res.status(403).json({
         success: false,
@@ -719,7 +736,7 @@ exports.reviewSubmission = async (req, res) => {
       });
     }
 
-    const canManageMaterial = isAdminUser(req.user) || String(material.teacherId) === String(req.user.id);
+    const canManageMaterial = String(material.teacherId) === String(req.user.id);
     if (!canManageMaterial) {
       return res.status(403).json({
         success: false,
@@ -796,7 +813,6 @@ exports.downloadSubmission = async (req, res) => {
     }
 
     const canAccess =
-      isAdminUser(req.user) ||
       String(material.teacherId) === String(req.user.id) ||
       String(submission.studentId) === String(req.user.id);
 

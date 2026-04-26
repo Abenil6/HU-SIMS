@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -68,13 +69,13 @@ const getClassLabel = (grade: string, section?: string) =>
   section ? `Grade ${grade} - ${section}` : `Grade ${grade}`;
 
 export function MaterialsPage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const isTeacher = user?.role === "Teacher";
   const isStudent = user?.role === "Student";
-  const isAdmin = user?.role === "SchoolAdmin" || user?.role === "SystemAdmin";
-  const canManageMaterials = isTeacher || isAdmin;
+  const canManageMaterials = isTeacher;
 
   // State
   const [search, setSearch] = useState("");
@@ -166,13 +167,13 @@ export function MaterialsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["materials"] });
-      toast.success("Material created successfully");
+      toast.success(t("materials.materialCreated"));
       setFormModalOpen(false);
       setUploadError(null);
       setUploadProgress(0);
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message || error?.message || "Failed to create material";
+      const errorMessage = error?.response?.data?.message || error?.message || t("materials.failedToCreate");
       setUploadError(errorMessage);
       toast.error(errorMessage);
       setUploadProgress(0);
@@ -187,13 +188,13 @@ export function MaterialsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["materials"] });
-      toast.success("Material updated successfully");
+      toast.success(t("materials.materialUpdated"));
       setFormModalOpen(false);
       setUploadError(null);
       setUploadProgress(0);
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message || error?.message || "Failed to update material";
+      const errorMessage = error?.response?.data?.message || error?.message || t("materials.failedToUpdate");
       setUploadError(errorMessage);
       toast.error(errorMessage);
       setUploadProgress(0);
@@ -219,28 +220,28 @@ export function MaterialsPage() {
     mutationFn: (id: string) => materialService.deleteMaterial(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["materials"] });
-      toast.success("Material deleted successfully");
+      toast.success(t("materials.materialDeleted"));
       setDeleteDialogOpen(false);
     },
-    onError: () => toast.error("Failed to delete material"),
+    onError: () => toast.error(t("materials.failedToDelete")),
   });
 
   const publishMutation = useMutation({
     mutationFn: (id: string) => materialService.publishMaterial(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["materials"] });
-      toast.success("Material published successfully");
+      toast.success(t("materials.materialPublished"));
     },
-    onError: () => toast.error("Failed to publish material"),
+    onError: () => toast.error(t("materials.failedToPublish")),
   });
 
   const archiveMutation = useMutation({
     mutationFn: (id: string) => materialService.archiveMaterial(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["materials"] });
-      toast.success("Material archived successfully");
+      toast.success(t("materials.materialArchived"));
     },
-    onError: () => toast.error("Failed to archive material"),
+    onError: () => toast.error(t("materials.failedToArchive")),
   });
 
   const submissionMutation = useMutation({
@@ -251,14 +252,14 @@ export function MaterialsPage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["materials", "my-submissions"] });
-      toast.success("Assignment submitted successfully");
+      toast.success(t("materials.assignmentSubmitted"));
       setSubmissionDialogOpen(false);
       setSubmissionMaterial(null);
       setSubmissionText("");
       setSubmissionFile(null);
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message || error?.message || "Failed to submit assignment";
+      const errorMessage = error?.response?.data?.message || error?.message || t("materials.failedToSubmit");
       toast.error(errorMessage);
     },
   });
@@ -291,28 +292,28 @@ export function MaterialsPage() {
 
   // Form fields
   const formFields: FormField[] = [
-    { name: "title", label: "Title", type: "text", required: true },
+    { name: "title", label: t("materials.materialTitle"), type: "text", required: true },
     {
       name: "description",
-      label: "Description",
+      label: t("materials.materialDescription"),
       type: "textarea",
       multiline: true,
       rows: 3,
     },
     {
       name: "type",
-      label: "Type",
+      label: t("materials.type"),
       type: "select",
       required: true,
       options: [
-        { value: "study_material", label: "Study Material" },
-        { value: "assignment", label: "Assignment" },
-        { value: "resource", label: "Resource" },
+        { value: "study_material", label: t("materials.studyMaterial") },
+        { value: "assignment", label: t("materials.assignment") },
+        { value: "resource", label: t("materials.resource") },
       ],
     },
     {
       name: "subject",
-      label: "Subject",
+      label: t("materials.subject"),
       type: "select",
       required: true,
       options: (isTeacher ? teacherSubjects : [
@@ -326,12 +327,12 @@ export function MaterialsPage() {
         "Civics",
       ]).map((subject) => ({ value: subject, label: subject })),
       helperText: isTeacher
-        ? "Only your assigned subjects are available."
+        ? t("materials.assignedSubjects")
         : undefined,
     },
     {
       name: "grade",
-      label: isTeacher ? "Class" : "Grade",
+      label: isTeacher ? t("materials.class") : t("materials.grade"),
       type: "select",
       required: true,
       options: isTeacher
@@ -346,17 +347,17 @@ export function MaterialsPage() {
             { value: "12", label: "Grade 12" },
           ],
       helperText: isTeacher
-        ? "Only your assigned classes are available. Section selection has been removed."
+        ? t("materials.assignedClasses")
         : undefined,
     },
     {
       name: "dueDate",
-      label: "Due Date (for assignments)",
+      label: t("materials.dueDate"),
       type: "date",
     },
     {
       name: "file",
-      label: "Upload File",
+      label: t("materials.uploadFile"),
       type: "file",
       accept: ".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png",
     },
@@ -482,15 +483,15 @@ export function MaterialsPage() {
   return (
     <Box>
       <Breadcrumbs
-        items={[{ label: "Materials", path: "/dashboard/materials" }]}
+        items={[{ label: t("materials.pageTitle"), path: "/dashboard/materials" }]}
       />
 
       <PageHeader
-        title="Study Materials & Assignments"
+        title={t("materials.pageTitle")}
         subtitle={
           canManageMaterials
-            ? "Upload materials only for your assigned subjects and classes"
-            : "Browse published materials and submit assignments"
+            ? t("materials.subtitleTeacher")
+            : t("materials.subtitleStudent")
         }
         action={canManageMaterials ? (
           <Button
@@ -505,7 +506,7 @@ export function MaterialsPage() {
             }}
             aria-label="Upload new material"
           >
-            Upload Material
+            {t("materials.uploadMaterial")}
           </Button>
         ) : undefined}
       />
@@ -514,24 +515,24 @@ export function MaterialsPage() {
       <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
         {[
           {
-            label: "Total Materials",
+            label: t("materials.totalMaterials"),
             value: stats.total,
             icon: <Description />,
           },
-          { label: "Published", value: stats.published, icon: <Publish /> },
+          { label: t("materials.published"), value: stats.published, icon: <Publish /> },
           {
-            label: "Assignments",
+            label: t("materials.assignments"),
             value: stats.assignments,
             icon: <Assignment />,
           },
           isStudent
             ? {
-                label: "Submitted",
+                label: t("materials.submitted"),
                 value: stats.submittedAssignments,
                 icon: <Assignment />,
               }
             : {
-                label: "Resources",
+                label: t("materials.resources"),
                 value: stats.materials,
                 icon: <LibraryBooks />,
               },
@@ -570,13 +571,13 @@ export function MaterialsPage() {
           onChange={(_, newValue) => setTabValue(newValue)}
           sx={{ mb: 2 }}
         >
-          <Tab label="Published" />
-          <Tab label="Drafts" />
-          <Tab label="Archived" />
+          <Tab label={t("materials.published")} />
+          <Tab label={t("materials.drafts")} />
+          <Tab label={t("materials.archived")} />
         </Tabs>
       ) : (
         <Tabs value={0} sx={{ mb: 2 }}>
-          <Tab label="Published" />
+          <Tab label={t("materials.published")} />
         </Tabs>
       )}
 
@@ -587,7 +588,7 @@ export function MaterialsPage() {
         filters={[
           {
             name: "subject",
-            label: "Subject",
+            label: t("materials.subject"),
             options: subjects.map((s) => ({ value: s, label: s })),
             value: filters.subject,
             onChange: (value) =>
@@ -595,7 +596,7 @@ export function MaterialsPage() {
           },
           {
             name: "grade",
-            label: "Grade",
+            label: t("materials.grade"),
             options: isTeacher
               ? teacherClasses.map((g) => ({ value: g.value, label: g.label }))
               : adminGrades.map((g) => ({ value: g, label: `Grade ${g}` })),
@@ -605,11 +606,11 @@ export function MaterialsPage() {
           },
           {
             name: "type",
-            label: "Type",
+            label: t("materials.type"),
             options: [
-              { value: "study_material", label: "Study Material" },
-              { value: "assignment", label: "Assignment" },
-              { value: "resource", label: "Resource" },
+              { value: "study_material", label: t("materials.studyMaterial") },
+              { value: "assignment", label: t("materials.assignment") },
+              { value: "resource", label: t("materials.resource") },
             ],
             value: filters.type,
             onChange: (value) =>
@@ -622,7 +623,7 @@ export function MaterialsPage() {
       {/* Materials Grid */}
       {isError ? (
         <Alert severity="error" sx={{ mb: 3 }}>
-          Failed to load materials. Please try again later.
+          {t("materials.failedToLoad")}
         </Alert>
       ) : loading ? (
         <TableLoading />
@@ -704,7 +705,7 @@ export function MaterialsPage() {
                 </Box>
                 {material.dueDate && (
                   <Typography variant="caption" color="warning.main">
-                    Due: {new Date(material.dueDate).toLocaleDateString()}
+                    {t("materials.due")}: {new Date(material.dueDate).toLocaleDateString()}
                   </Typography>
                 )}
                 {isStudent && material.type === "assignment" && (
@@ -765,8 +766,8 @@ export function MaterialsPage() {
                       onClick={() => handleOpenSubmissionDialog(material)}
                     >
                       {mySubmissions.some((item) => item.materialId === material.id)
-                        ? "Resubmit"
-                        : "Submit"}
+                        ? t("materials.resubmit")
+                        : t("materials.submit")}
                     </Button>
                   )}
                 </Box>
@@ -803,14 +804,14 @@ export function MaterialsPage() {
             <ListItemIcon>
               <Edit fontSize="small" />
             </ListItemIcon>
-            Edit
+            {t("common.edit")}
           </MenuItem>
           {material.status === "draft" && (
             <MenuItem onClick={() => handlePublish(material)}>
               <ListItemIcon>
                 <Publish fontSize="small" />
               </ListItemIcon>
-              Publish
+              {t("materials.publish")}
             </MenuItem>
           )}
           {material.status === "published" && (
@@ -818,7 +819,7 @@ export function MaterialsPage() {
               <ListItemIcon>
                 <Archive fontSize="small" />
               </ListItemIcon>
-              Archive
+              {t("materials.archive")}
             </MenuItem>
           )}
           <MenuItem
@@ -828,7 +829,7 @@ export function MaterialsPage() {
             <ListItemIcon>
               <Delete fontSize="small" color="error" />
             </ListItemIcon>
-            Delete
+            {t("common.delete")}
           </MenuItem>
         </Menu>
       ))}
@@ -837,7 +838,7 @@ export function MaterialsPage() {
       {uploadProgress > 0 && uploadProgress < 100 && (
         <Box sx={{ position: "fixed", top: 20, right: 20, zIndex: 9999, width: 300 }}>
           <Alert severity="info">
-            <Typography variant="body2">Uploading material...</Typography>
+            <Typography variant="body2">{t("materials.uploading")}</Typography>
             <LinearProgress variant="determinate" value={uploadProgress} sx={{ mt: 1 }} />
           </Alert>
         </Box>
@@ -847,11 +848,11 @@ export function MaterialsPage() {
       <FormModal
         open={formModalOpen}
         onClose={() => setFormModalOpen(false)}
-        title={selectedMaterial ? "Edit Material" : "Upload New Material"}
+        title={selectedMaterial ? t("materials.editMaterial") : t("materials.uploadNewMaterial")}
         fields={formFields}
         initialValues={initialValues}
         onSubmit={handleFormSubmit}
-        submitText={selectedMaterial ? "Update" : "Create"}
+        submitText={selectedMaterial ? t("materials.update") : t("materials.create")}
         loading={createMutation.isPending || updateMutation.isPending}
         maxWidth="md"
       >
@@ -861,7 +862,7 @@ export function MaterialsPage() {
               setUploadError(null);
               // Retry logic can be added here
             }}>
-              Retry
+              {t("materials.retry")}
             </Button>
           }>
             <Typography variant="body2">{uploadError}</Typography>
@@ -874,9 +875,9 @@ export function MaterialsPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Material"
-        message={`Are you sure you want to delete "${selectedMaterial?.title}"? This action cannot be undone.`}
-        confirmText="Delete"
+        title={t("materials.deleteMaterial")}
+        message={t("materials.deleteConfirm", { title: selectedMaterial?.title })}
+        confirmText={t("common.delete")}
         severity="error"
       />
 
@@ -936,7 +937,7 @@ export function MaterialsPage() {
               </Box>
               {selectedMaterial.dueDate && (
                 <Typography variant="body2" color="warning.main">
-                  Due Date:{" "}
+                  {t("materials.dueDate")}: {" "}
                   {new Date(selectedMaterial.dueDate).toLocaleDateString()}
                 </Typography>
               )}
@@ -949,12 +950,12 @@ export function MaterialsPage() {
                   }
                   sx={{ mt: 2 }}
                 >
-                  Download Attachment
+                  {t("materials.downloadAttachment")}
                 </Button>
               )}
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setPreviewDialogOpen(false)}>Close</Button>
+              <Button onClick={() => setPreviewDialogOpen(false)}>{t("common.close")}</Button>
             </DialogActions>
           </>
         )}
