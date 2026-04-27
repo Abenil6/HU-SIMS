@@ -11,14 +11,16 @@ import App from "./App.tsx";
 
 initAnalytics();
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <I18nextProvider i18n={i18n}>
-      <QueryClientProvider client={queryClient}>
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
-      </QueryClientProvider>
-    </I18nextProvider>
-  </StrictMode>,
-);
+i18n.init().then(() => {
+  createRoot(document.getElementById("root")!).render(
+    <StrictMode>
+      <I18nextProvider i18n={i18n}>
+        <QueryClientProvider client={queryClient}>
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
+        </QueryClientProvider>
+      </I18nextProvider>
+    </StrictMode>,
+  );
+});
