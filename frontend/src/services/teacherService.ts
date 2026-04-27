@@ -69,6 +69,7 @@ export interface TeacherService {
   assignClass: (id: string, grade: string, section: string) => Promise<void>;
   removeClass: (id: string, grade: string, section: string) => Promise<void>;
   getTeachersBySubject: (subject: string) => Promise<Teacher[]>;
+  getMyStudents: () => Promise<any[]>;
 }
 
 export const teacherService: TeacherService = {
@@ -184,6 +185,15 @@ export const teacherService: TeacherService = {
       return response?.data || [];
     } catch (error) {
       console.error("Error fetching teachers by subject:", error);
+      throw error;
+    }
+  },
+  getMyStudents: async (): Promise<any[]> => {
+    try {
+      const response = await apiGet<{ success: boolean; data: any[] }>("/teacher/students");
+      return response?.data || [];
+    } catch (error) {
+      console.error("Error fetching teacher's students:", error);
       throw error;
     }
   },

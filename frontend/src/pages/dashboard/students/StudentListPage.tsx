@@ -50,6 +50,7 @@ import { PageHeader, Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { CreateStudentWizard } from "@/components/students/CreateStudentWizard";
 import { studentService } from "@/services/studentService";
 import { parentService, type Parent } from "@/services/parentService";
+import { teacherService } from "@/services/teacherService";
 import type {
   Student,
   CreateStudentData,
@@ -65,6 +66,7 @@ import {
   useLinkParent,
   useUnlinkParent,
 } from "@/hooks/students/useStudents";
+import { useQuery } from "@tanstack/react-query";
 import { useParents } from "@/hooks/parents/useParents";
 import { GRADES, STREAMS } from "@/constants/academic";
 
@@ -317,11 +319,19 @@ export function StudentListPage() {
   // Use TanStack Query hooks
   const { data: studentsData, isLoading: isLoadingStudents } = useStudents({
     page: page + 1,
-    limit: isViewOnly && assignedClasses.length > 0 ? 1000 : rowsPerPage,
+    limit: isViewOnly ? 1000 : rowsPerPage,
     search: search || undefined,
-    grade: isViewOnly && assignedClasses.length === 1 ? assignedClasses[0].grade : (filters.grade || undefined),
-    stream: isViewOnly && assignedClasses.length === 1 ? assignedClasses[0].stream : (filters.stream || undefined),
+    grade: filters.grade || undefined,
+    stream: filters.stream || undefined,
     status: filters.status || undefined,
+  });
+
+  // Teacher-specific: fetch assigned students from teacher endpoint
+  const { data: teacherStudentsData, isLoading: isLoadingTeacherStudents } = useQuery({
+    queryKey: ['teacher-students', user?.id],
+    queryFn: () => teacherService.getMyStudents(),
+    enabled: isViewOnly,
+    staleTime: 2 * 60 * 1000,
   });
 
   const { data: parentsData } = useParents({ limit: 100 });
@@ -337,33 +347,26 @@ export function StudentListPage() {
   const total = studentsData?.pagination?.total ?? 0;
   const parents: Parent[] = parentsData?.data ?? [];
 
+  // For teachers, use the teacher-specific endpoint data
+  const teacherStudents = teacherStudentsData ?? [];
+  const displayStudents = isViewOnly ? teacherStudents : allStudents;
+  const displayTotal = isViewOnly ? teacherStudents.length : total;
+  const isLoading = isViewOnly ? isLoadingTeacherStudents : isLoadingStudents;
+
   // Filter students by teacher's assigned classes (client-side for multi-class teachers)
   const filteredStudents = useMemo(() => {
-    if (!isViewOnly || assignedClasses.length === 0) return allStudents;
-    
-    return allStudents.filter((student: any) => {
-      const studentGrade = normalizeGradeValue(student?.studentProfile?.grade || student?.grade || "");
-      const studentStream = String(student?.studentProfile?.stream || student?.stream || "").trim();
-      
-      return assignedClasses.some((cls) => {
-        if (studentGrade !== normalizeGradeValue(cls.grade)) return false;
-        if (cls.stream && studentStream !== cls.stream) return false;
-        if (!cls.stream && studentStream) return false;
-        return true;
-      });
-    });
-  }, [allStudents, assignedClasses, isViewOnly]);
+    if (!isViewOnly) return displayStudents;
+    // For teachers, the endpoint already filters by assigned classes, so no additional filtering needed
+    return displayStudents;
+  }, [displayStudents, isViewOnly]);
 
   // Paginate filtered results for teachers
   const students = useMemo(() => {
-    if (!isViewOnly || assignedClasses.length === 0) return filteredStudents;
-    
+    if (!isViewOnly) return filteredStudents;
+
     const startIndex = page * rowsPerPage;
     return filteredStudents.slice(startIndex, startIndex + rowsPerPage);
-  }, [filteredStudents, page, rowsPerPage, isViewOnly, assignedClasses]);
-
-  // Adjust total count for teachers
-  const displayTotal = isViewOnly && assignedClasses.length > 0 ? filteredStudents.length : total;
+  }, [filteredStudents, page, rowsPerPage, isViewOnly]);
 
   // Fetch linked parents for a student (on-demand)
   const [linkedParents, setLinkedParents] = useState<Parent[]>([]);
@@ -1267,7 +1270,7 @@ export function StudentListPage() {
       />
 
       {/* Data Table */}
-      {isLoadingStudents ? (
+      {isLoading ? (
         <TableLoading />
       ) : students.length === 0 ? (
         <TableEmptyState searchQuery={search} />
