@@ -8,6 +8,19 @@ const Report = require('../models/Report');
 const { generateToken, sendVerificationEmail } = require('../utils/emailService');
 const { findUserByFlexibleId } = require('../utils/userLookup');
 
+const normalizeGradeValue = (value = '') =>
+  String(value || '')
+    .replace(/^Grade\s+/i, '')
+    .trim();
+
+const normalizeClassValue = (value = '') =>
+  String(value || '').trim();
+
+const gradeRequiresStreamOrSection = (grade) => {
+  const gradeNumber = Number.parseInt(String(grade || '').replace(/[^\d]/g, ''), 10);
+  return Number.isFinite(gradeNumber) && gradeNumber >= 11;
+};
+
 /**
  * Create a new teacher (Admin function)
  * Teacher is created without password - they must verify email and set password
@@ -435,40 +448,81 @@ exports.getMyClasses = async (req, res) => {
  */
 exports.getMyStudents = async (req, res) => {
   try {
-    // Get classes assigned to the teacher from Timetable
-    const timetables = await Timetable.find({
-      'periods.teacher': req.user.id
-    }).select('class.grade class.section class.stream');
+    const teacher = await findUserByFlexibleId(req.user.id);
 
-    // Extract unique class combinations
-    const assignedClasses = [];
-    const seen = new Set();
+    if (!teacher || teacher.role !== 'Teacher') {
+      return res.status(404).json({
+        success: false,
+        message: 'Teacher not found'
+      });
+    }
 
-    timetables.forEach(timetable => {
-      const key = `${timetable.class.grade}-${timetable.class.section || ''}-${timetable.class.stream || ''}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        assignedClasses.push({
-          grade: timetable.class.grade,
-          section: timetable.class.section,
-          stream: timetable.class.stream
-        });
-      }
+    const assignments = new Map();
+    const profileClasses = Array.isArray(teacher?.teacherProfile?.classes)
+      ? teacher.teacherProfile.classes
+      : [];
+
+    profileClasses.forEach((entry) => {
+      const grade = normalizeGradeValue(entry?.grade);
+      const streamOrSection = normalizeClassValue(entry?.stream || entry?.section);
+      if (!grade) return;
+      assignments.set(`${grade}::${streamOrSection}`, { grade, streamOrSection });
     });
 
-    // Get students in these classes
-    const studentQueries = assignedClasses.map(cls => ({
-      'studentProfile.grade': cls.grade,
-      $or: [
-        { 'studentProfile.section': cls.section || { $exists: false } },
-        { 'studentProfile.stream': cls.stream || { $exists: false } }
-      ]
-    }));
+    // Fallback for legacy data where classes exist only in timetable.
+    if (!assignments.size) {
+      const timetables = await Timetable.find({
+        'periods.teacher': req.user.id
+      }).select('class.grade class.section class.stream');
+
+      timetables.forEach((timetable) => {
+        const grade = normalizeGradeValue(timetable?.class?.grade);
+        const streamOrSection = normalizeClassValue(
+          timetable?.class?.stream || timetable?.class?.section,
+        );
+        if (!grade) return;
+        assignments.set(`${grade}::${streamOrSection}`, { grade, streamOrSection });
+      });
+    }
+
+    if (!assignments.size) {
+      return res.json({
+        success: true,
+        data: []
+      });
+    }
+
+    const studentFilters = Array.from(assignments.values()).map(({ grade, streamOrSection }) => {
+      const gradeFilter = {
+        $or: [
+          { 'studentProfile.grade': grade },
+          { 'studentProfile.grade': `Grade ${grade}` }
+        ],
+      };
+
+      if (!streamOrSection || !gradeRequiresStreamOrSection(grade)) {
+        return gradeFilter;
+      }
+
+      return {
+        $and: [
+          gradeFilter,
+          {
+            $or: [
+              { 'studentProfile.stream': streamOrSection },
+              { 'studentProfile.section': streamOrSection }
+            ]
+          }
+        ],
+      };
+    });
 
     const students = await User.find({
       role: 'Student',
-      $or: studentQueries
-    }).select('firstName lastName email username studentProfile.grade studentProfile.section studentProfile.stream');
+      $or: studentFilters
+    })
+      .select('firstName lastName email username status studentId studentProfile')
+      .sort({ lastName: 1, firstName: 1 });
 
     res.json({
       success: true,

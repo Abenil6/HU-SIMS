@@ -356,9 +356,24 @@ export function StudentListPage() {
   // Filter students by teacher's assigned classes (client-side for multi-class teachers)
   const filteredStudents = useMemo(() => {
     if (!isViewOnly) return displayStudents;
-    // For teachers, the endpoint already filters by assigned classes, so no additional filtering needed
-    return displayStudents;
-  }, [displayStudents, isViewOnly]);
+    if (!assignedClasses.length) return [];
+
+    return displayStudents.filter((student: any) => {
+      const studentGrade = normalizeGradeValue(student?.studentProfile?.grade || student?.grade || "");
+      const studentClass = String(
+        student?.studentProfile?.stream || student?.studentProfile?.section || student?.stream || student?.section || "",
+      ).trim();
+
+      return assignedClasses.some((assigned) => {
+        const assignedGrade = normalizeGradeValue(assigned.grade);
+        const assignedClass = String(assigned.stream || "").trim();
+
+        if (assignedGrade !== studentGrade) return false;
+        if (!assignedClass) return true;
+        return assignedClass === studentClass;
+      });
+    });
+  }, [displayStudents, isViewOnly, assignedClasses]);
 
   // Paginate filtered results for teachers
   const students = useMemo(() => {
