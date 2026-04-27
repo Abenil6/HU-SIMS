@@ -190,7 +190,7 @@ export const teacherService: TeacherService = {
   },
   getMyStudents: async (): Promise<any[]> => {
     try {
-      const response = await apiGet<{ success: boolean; data: any[] }>("/teacher/students");
+      const response = await apiGet<{ success: boolean; data: any[] }>("/teachers/students");
       return response?.data || [];
     } catch (error) {
       console.error("Error fetching teacher's students:", error);

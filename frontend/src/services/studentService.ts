@@ -216,7 +216,11 @@ export const studentService = {
     stream?: string;
     status?: string;
   }): Promise<StudentsListResponse> => {
-    const response = await apiGet<StudentsListResponse>("/admin/users/students", { ...params, limit: params?.limit || 1000 });
+    const requestedLimit = Number(params?.limit);
+    const safeLimit = Number.isFinite(requestedLimit)
+      ? Math.min(Math.max(requestedLimit, 1), 500)
+      : 500;
+    const response = await apiGet<StudentsListResponse>("/admin/users/students", { ...params, limit: safeLimit });
     return normalizeStudentsListResponse(response);
   },
 
