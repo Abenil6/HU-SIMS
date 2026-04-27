@@ -535,7 +535,8 @@
     "examSchedule": "የፈተና ሰሌዳ",
     "settings": "ቅንብሮች",
     "alerts": "ማስጠንቀቂያዎች",
-    "logout": "ውጣ"
+    "logout": "ውጣ",
+    "materials": "ቁሶች"
   },
   "roles": {
     "systemAdmin": "የሲስተም አስተዳዳሪ",

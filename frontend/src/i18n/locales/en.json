@@ -500,7 +500,8 @@
     "settings": "Settings",
     "alerts": "Alerts",
     "logout": "Logout",
-    "contactMessages": "Contact Messages"
+    "contactMessages": "Contact Messages",
+    "materials": "Materials"
   },
   "roles": {
     "systemAdmin": "System Administrator",

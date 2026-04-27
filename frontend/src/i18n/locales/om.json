@@ -534,7 +534,8 @@
     "examSchedule": "Sagantaa Barataa",
     "settings": "Qopheessota",
     "alerts": "Dhiirri",
-    "logout": "Ba'i"
+    "logout": "Ba'i",
+    "materials": "Qabxiilee"
   },
   "roles": {
     "systemAdmin": "Bulchiinsa sirnaa",
