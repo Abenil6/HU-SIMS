@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut, apiDelete, apiUpload, apiUploadPut } from "./api";
+import { apiGet, apiPost, apiPut, apiDelete, apiUpload, apiUploadPut, apiDownload } from "./api";
 
 // Types
 export interface Material {
@@ -166,10 +166,8 @@ export const materialService = {
   },
 
   // Download material
-  downloadMaterial: async (id: string): Promise<Blob> => {
-    return apiGet(`/materials/${id}/download`, {
-      responseType: "blob",
-    }) as unknown as Promise<Blob>;
+  downloadMaterial: async (id: string, fileName?: string): Promise<void> => {
+    return apiDownload(`/materials/${id}/download`, fileName || `material-${id}`);
   },
 
   // Get subjects list
@@ -225,10 +223,9 @@ export const materialService = {
   downloadSubmissionAttachment: async (
     materialId: string,
     submissionId: string,
-  ): Promise<Blob> => {
-    return apiGet(`/materials/${materialId}/submissions/${submissionId}/download`, {
-      responseType: "blob",
-    }) as unknown as Promise<Blob>;
+    fileName?: string
+  ): Promise<void> => {
+    return apiDownload(`/materials/${materialId}/submissions/${submissionId}/download`, fileName || `submission-${submissionId}`);
   },
 };
 
