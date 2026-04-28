@@ -93,7 +93,12 @@ export const messageService = {
   getMessage: async (id: string) => apiGet(`/messages/${id}`),
 
   // Send message
-  sendMessage: async (data: CreateMessageData) => apiPost("/messages", data),
+  sendMessage: async (data: CreateMessageData) =>
+    apiPost("/messages", {
+      ...data,
+      recipient: data.recipientId,
+      body: data.content,
+    }),
 
   // Reply to message
   replyMessage: async (
