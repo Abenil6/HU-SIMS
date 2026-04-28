@@ -90,7 +90,7 @@ export function TeacherDashboard() {
   const { data: studentsData, isLoading: isLoadingStudents, isError: isStudentsError } = useStudents({
     limit: 1000,
   });
-  const { data: messagesData, isError: isMessagesError } = useMessages({ folder: "inbox", limit: 1000 });
+  const { data: messagesData, isError: isMessagesError } = useMessages({ folder: "inbox", limit: 200 });
 
   const { data: scheduleData, isLoading: isLoadingSchedule, isError: isScheduleError, refetch: refetchSchedule } = useQuery({
     queryKey: ["teacher", "schedule", user?._id || user?.id],

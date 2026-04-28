@@ -1,4 +1,11 @@
 import { apiGet, apiPost, apiPut, apiDelete } from "./api";
+const MAX_MESSAGES_LIMIT = 200;
+const DEFAULT_MESSAGES_LIMIT = 100;
+
+const resolveMessagesLimit = (limit?: number) => {
+  if (!Number.isFinite(limit)) return DEFAULT_MESSAGES_LIMIT;
+  return Math.min(Math.max(1, Number(limit)), MAX_MESSAGES_LIMIT);
+};
 
 export interface Message {
   id: string;
@@ -72,15 +79,15 @@ export const messageService = {
 
   // Get inbox messages
   getInbox: async (params?: { page?: number; limit?: number; category?: string }) =>
-    apiGet("/messages", { ...params, limit: params?.limit || 1000 }),
+    apiGet("/messages", { ...params, limit: resolveMessagesLimit(params?.limit) }),
 
   // Get sent messages
   getSent: async (params?: { page?: number; limit?: number }) =>
-    apiGet("/messages/sent", { ...params, limit: params?.limit || 1000 }),
+    apiGet("/messages/sent", { ...params, limit: resolveMessagesLimit(params?.limit) }),
 
   // Get starred messages
   getStarred: async (params?: { page?: number; limit?: number }) =>
-    apiGet("/messages/starred", { ...params, limit: params?.limit || 1000 }),
+    apiGet("/messages/starred", { ...params, limit: resolveMessagesLimit(params?.limit) }),
 
   // Get single message
   getMessage: async (id: string) => apiGet(`/messages/${id}`),
