@@ -12,8 +12,13 @@ const uploadBufferToCloudinary = (fileBuffer, options) =>
 
 exports.uploadMaterialFileToCloudinary = async (req, res, next) => {
   try {
-    if (!req.file) return next();
+    console.log('[uploadMaterialFileToCloudinary] REQ RECEIVED', { hasFile: !!req.file, bodyKeys: Object.keys(req.body || {}) });
+    if (!req.file) {
+      console.log('[uploadMaterialFileToCloudinary] No file in req. Proceeding to next().');
+      return next();
+    }
 
+    console.log('[uploadMaterialFileToCloudinary] Cloudinary configured?', isCloudinaryConfigured());
     if (!isCloudinaryConfigured()) {
       return res.status(500).json({
         success: false,
@@ -23,6 +28,8 @@ exports.uploadMaterialFileToCloudinary = async (req, res, next) => {
 
     const extension = path.extname(req.file.originalname || '').toLowerCase();
     const isImage = ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(extension);
+    
+    console.log('[uploadMaterialFileToCloudinary] Starting Cloudinary upload...', { size: req.file.size, type: req.file.mimetype });
     const uploadResult = await uploadBufferToCloudinary(req.file.buffer, {
       folder: 'hu-sims/materials',
       resource_type: isImage ? 'image' : 'raw',
@@ -39,8 +46,10 @@ exports.uploadMaterialFileToCloudinary = async (req, res, next) => {
       fileMimeType: req.file.mimetype,
     };
 
+    console.log('[uploadMaterialFileToCloudinary] Upload SUCCESS, proceeding to next()');
     return next();
   } catch (error) {
+    console.error('[uploadMaterialFileToCloudinary] ERROR', error);
     return res.status(500).json({
       success: false,
       message: 'Failed to upload material to cloud storage',
