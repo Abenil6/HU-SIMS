@@ -540,6 +540,31 @@ exports.markMaterialViewed = async (req, res) => {
   }
 };
 
+exports.trackDownload = async (req, res) => {
+  try {
+    const material = await Material.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { downloads: 1 } },
+      { new: true },
+    );
+
+    if (!material) {
+      return res.status(404).json({
+        success: false,
+        message: 'Material not found',
+      });
+    }
+
+    res.json({ success: true, downloads: material.downloads });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to track download',
+      error: error.message,
+    });
+  }
+};
+
 exports.downloadMaterial = async (req, res) => {
   try {
     const material = await Material.findByIdAndUpdate(

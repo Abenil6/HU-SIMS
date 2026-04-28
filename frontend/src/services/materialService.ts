@@ -165,9 +165,14 @@ export const materialService = {
     return apiPost(`/materials/${id}/view`);
   },
 
-  // Download material
-  downloadMaterial: async (id: string, fileName?: string): Promise<void> => {
-    return apiDownload(`/materials/${id}/download`, fileName || `material-${id}`);
+  // Download material — open the Cloudinary URL directly in a new tab
+  // and track the download count in the background
+  downloadMaterial: async (material: { id: string; fileUrl?: string; fileName?: string }): Promise<void> => {
+    if (material.fileUrl) {
+      window.open(material.fileUrl, "_blank");
+      // Track download count in the background (fire-and-forget)
+      apiPost(`/materials/${material.id}/track-download`).catch(() => {});
+    }
   },
 
   // Get subjects list

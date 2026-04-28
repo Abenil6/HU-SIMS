@@ -755,7 +755,7 @@ export function MaterialsPage() {
                       size="small"
                       aria-label="Download material"
                       onClick={() =>
-                        materialService.downloadMaterial(material.id)
+                        materialService.downloadMaterial(material)
                       }
                     >
                       <Download fontSize="small" />
@@ -949,7 +949,7 @@ export function MaterialsPage() {
                   variant="outlined"
                   startIcon={<Download />}
                   onClick={() =>
-                    materialService.downloadMaterial(selectedMaterial.id)
+                    materialService.downloadMaterial(selectedMaterial)
                   }
                   sx={{ mt: 2 }}
                 >

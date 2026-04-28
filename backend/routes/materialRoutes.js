@@ -93,5 +93,6 @@ router.delete('/:id', validateMaterialId, materialController.deleteMaterial);
 router.post('/:id/publish', validateMaterialId, materialController.publishMaterial);
 router.post('/:id/archive', validateMaterialId, materialController.archiveMaterial);
 router.post('/:id/view', validateMaterialId, materialController.markMaterialViewed);
+router.post('/:id/track-download', validateMaterialId, materialController.trackDownload);
 
 module.exports = router;
