@@ -7,6 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
 // Create axios instance
 const api = axios.create({
   baseURL: API_URL,
+  timeout: 60000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -51,10 +52,14 @@ api.interceptors.response.use(
     }
 
     // Handle other errors
-    const message =
-      (error.response?.data as any)?.message ||
-      error.message ||
-      "An unexpected error occurred";
+    const isTimeout =
+      error.code === "ECONNABORTED" ||
+      String(error.message || "").toLowerCase().includes("timeout");
+    const message = isTimeout
+      ? "Request timed out. The server took too long to respond."
+      : (error.response?.data as any)?.message ||
+        error.message ||
+        "An unexpected error occurred";
 
     return Promise.reject(new Error(message));
   }

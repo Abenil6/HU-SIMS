@@ -171,12 +171,13 @@ export function MaterialsPage() {
       toast.success(t("pages.materials.materialCreated"));
       setFormModalOpen(false);
       setUploadError(null);
-      setUploadProgress(0);
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message || error?.message || t("pages.materials.failedToCreate");
+      const errorMessage = error?.message || t("pages.materials.failedToCreate");
       setUploadError(errorMessage);
       toast.error(errorMessage);
+    },
+    onSettled: () => {
       setUploadProgress(0);
     },
   });
@@ -192,12 +193,13 @@ export function MaterialsPage() {
       toast.success(t("pages.materials.materialUpdated"));
       setFormModalOpen(false);
       setUploadError(null);
-      setUploadProgress(0);
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message || error?.message || t("pages.materials.failedToUpdate");
+      const errorMessage = error?.message || t("pages.materials.failedToUpdate");
       setUploadError(errorMessage);
       toast.error(errorMessage);
+    },
+    onSettled: () => {
       setUploadProgress(0);
     },
   });
