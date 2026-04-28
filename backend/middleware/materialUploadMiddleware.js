@@ -48,3 +48,42 @@ exports.uploadMaterialFileToCloudinary = async (req, res, next) => {
     });
   }
 };
+
+exports.uploadSubmissionFileToCloudinary = async (req, res, next) => {
+  try {
+    if (!req.file) return next();
+
+    if (!isCloudinaryConfigured()) {
+      return res.status(500).json({
+        success: false,
+        message: 'File storage is not configured. Missing Cloudinary credentials.',
+      });
+    }
+
+    const extension = path.extname(req.file.originalname || '').toLowerCase();
+    const isImage = ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(extension);
+    const uploadResult = await uploadBufferToCloudinary(req.file.buffer, {
+      folder: 'hu-sims/material-submissions',
+      resource_type: isImage ? 'image' : 'raw',
+      use_filename: true,
+      unique_filename: true,
+      overwrite: false,
+    });
+
+    req.uploadedSubmissionFile = {
+      publicId: uploadResult.public_id,
+      fileUrl: uploadResult.secure_url,
+      fileName: req.file.originalname,
+      fileSize: req.file.size,
+      fileMimeType: req.file.mimetype,
+    };
+
+    return next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to upload submission to cloud storage',
+      error: error.message,
+    });
+  }
+};

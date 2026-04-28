@@ -622,11 +622,11 @@ exports.submitAssignment = async (req, res) => {
       reviewedAt: null,
     };
 
-    if (req.file) {
-      update.fileUrl = `/uploads/material-submissions/${req.file.filename}`;
-      update.fileName = req.file.originalname;
-      update.fileSize = req.file.size;
-      update.fileMimeType = req.file.mimetype;
+    if (req.uploadedSubmissionFile) {
+      update.fileUrl = req.uploadedSubmissionFile.fileUrl;
+      update.fileName = req.uploadedSubmissionFile.fileName;
+      update.fileSize = req.uploadedSubmissionFile.fileSize;
+      update.fileMimeType = req.uploadedSubmissionFile.fileMimeType;
     }
 
     const submission = await AssignmentSubmission.findOneAndUpdate(
@@ -835,6 +835,10 @@ exports.downloadSubmission = async (req, res) => {
         success: false,
         message: 'No attachment found for this submission',
       });
+    }
+
+    if (isAbsoluteHttpUrl(submission.fileUrl)) {
+      return res.redirect(submission.fileUrl);
     }
 
     const filePath = path.join(__dirname, '..', submission.fileUrl);

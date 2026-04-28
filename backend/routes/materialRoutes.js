@@ -1,31 +1,17 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 const multer = require('multer');
 const materialController = require('../controllers/materialController');
-const { uploadMaterialFileToCloudinary } = require('../middleware/materialUploadMiddleware');
+const {
+  uploadMaterialFileToCloudinary,
+  uploadSubmissionFileToCloudinary,
+} = require('../middleware/materialUploadMiddleware');
 const { protect } = require('../middleware/authMiddleware');
 const { validateBody, validateParams } = require('../utils/validateInput');
 
 const router = express.Router();
 
-const submissionsUploadDirectory = path.join(__dirname, '..', 'uploads', 'material-submissions');
-fs.mkdirSync(submissionsUploadDirectory, { recursive: true });
 const upload = multer({ storage: multer.memoryStorage() });
-const submissionsStorage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, submissionsUploadDirectory);
-  },
-  filename: (_req, file, cb) => {
-    const extension = path.extname(file.originalname);
-    const safeBase = path
-      .basename(file.originalname, extension)
-      .replace(/[^a-zA-Z0-9-_]+/g, '-')
-      .slice(0, 60);
-    cb(null, `${Date.now()}-${safeBase || 'submission'}${extension}`);
-  },
-});
-const submissionUpload = multer({ storage: submissionsStorage });
+const submissionUpload = multer({ storage: multer.memoryStorage() });
 
 const validateMaterialId = validateParams({
   id: { required: true, type: 'objectId' },
@@ -76,7 +62,14 @@ router.get('/', materialController.getMaterials);
 router.get('/:id/submissions', validateMaterialId, materialController.getMaterialSubmissions);
 router.get('/:id/submissions/:submissionId/download', validateSubmissionParams, materialController.downloadSubmission);
 router.get('/:id/download', validateMaterialId, materialController.downloadMaterial);
-router.post('/:id/submissions', validateMaterialId, submissionUpload.single('file'), validateAssignmentSubmission, materialController.submitAssignment);
+router.post(
+  '/:id/submissions',
+  validateMaterialId,
+  submissionUpload.single('file'),
+  uploadSubmissionFileToCloudinary,
+  validateAssignmentSubmission,
+  materialController.submitAssignment,
+);
 router.put('/:id/submissions/:submissionId/review', validateSubmissionParams, validateSubmissionReview, materialController.reviewSubmission);
 router.post(
   '/',
