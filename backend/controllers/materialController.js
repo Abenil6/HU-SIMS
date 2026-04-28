@@ -272,12 +272,30 @@ exports.getMaterial = async (req, res) => {
 };
 
 exports.createMaterial = async (req, res) => {
+  const startedAt = Date.now();
+  const traceId = `material-upload-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const logStep = (step, extra = {}) => {
+    console.log('[materials.create]', {
+      traceId,
+      step,
+      elapsedMs: Date.now() - startedAt,
+      userId: req.user?.id,
+      role: req.user?.role,
+      hasFile: Boolean(req.file),
+      hasUploadedFile: Boolean(req.uploadedFile?.fileUrl),
+      ...extra,
+    });
+  };
+
   try {
+    logStep('start');
     const { title, description, type, subject, grade, section, dueDate } = req.body;
 
     const normalizedGrade = normalizeGradeValue(grade);
     const normalizedSection = normalizeClassScopeValue(section);
+    logStep('normalized-input');
     const teacher = req.teacherProfileDoc || (await User.findById(req.user.id).select('role teacherProfile'));
+    logStep('teacher-profile-loaded');
 
     if (!title || !type || !subject || !normalizedGrade) {
       return res.status(400).json({
@@ -308,6 +326,9 @@ exports.createMaterial = async (req, res) => {
     }
 
     const uploadedFile = req.uploadedFile || null;
+    logStep('before-material-create', {
+      hasCloudFile: Boolean(uploadedFile?.fileUrl),
+    });
     const material = await Material.create({
       title: String(title).trim(),
       description: String(description || '').trim(),
@@ -323,10 +344,13 @@ exports.createMaterial = async (req, res) => {
       dueDate: dueDate || null,
       status: 'draft',
     });
+    logStep('material-created', { materialId: String(material._id) });
 
     const savedMaterial = await Material.findById(material._id).populate('teacherId', 'firstName lastName');
+    logStep('material-populated');
     res.status(201).json(toMaterialResponse(savedMaterial));
   } catch (error) {
+    logStep('error', { error: error.message });
     res.status(500).json({
       success: false,
       message: 'Failed to create material',

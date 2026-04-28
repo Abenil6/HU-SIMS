@@ -3,11 +3,13 @@ import { useAuthStore } from "@/stores/authStore";
 
 // API Base URL
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
+const DEFAULT_REQUEST_TIMEOUT_MS = 60000;
+const UPLOAD_REQUEST_TIMEOUT_MS = 180000;
 
 // Create axios instance
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 60000,
+  timeout: DEFAULT_REQUEST_TIMEOUT_MS,
   headers: {
     "Content-Type": "application/json",
   },
@@ -116,6 +118,7 @@ export const apiUpload = async <T>(
   onProgress?: (progress: number) => void
 ): Promise<T> => {
   const response = await api.post<T>(url, formData, {
+    timeout: UPLOAD_REQUEST_TIMEOUT_MS,
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -135,6 +138,7 @@ export const apiUploadPut = async <T>(
   onProgress?: (progress: number) => void
 ): Promise<T> => {
   const response = await api.put<T>(url, formData, {
+    timeout: UPLOAD_REQUEST_TIMEOUT_MS,
     headers: {
       "Content-Type": "multipart/form-data",
     },
