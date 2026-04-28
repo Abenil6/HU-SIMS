@@ -10,8 +10,8 @@ const validateReportIdParam = validateParams({
 
 const validateTranscriptRequest = validateBody({
   studentId: { required: true, type: 'objectId' },
-  academicYear: { required: true, type: 'string', trim: true, maxLength: 30 },
-  semester: { required: true, type: 'string', enum: ['Semester 1', 'Semester 2'] },
+  academicYear: { type: 'string', trim: true, maxLength: 30 },
+  semester: { type: 'string', enum: ['Semester 1', 'Semester 2'] },
 }, { allowUnknown: true });
 
 const validateReportCardRequest = validateBody({
