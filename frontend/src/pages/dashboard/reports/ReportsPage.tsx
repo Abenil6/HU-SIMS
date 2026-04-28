@@ -1028,7 +1028,7 @@ export function ReportsPage() {
                 <Button
                   size="small"
                   startIcon={<PictureAsPdf />}
-                  onClick={() => handleDownload(report.id, "pdf")}
+                  onClick={() => handleDownload(report.id, "html")}
                   disabled={downloading === report.id}
                 >
                   {downloading === report.id ? "Downloading..." : "PDF"}
