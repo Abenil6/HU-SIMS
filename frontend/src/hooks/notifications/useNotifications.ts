@@ -184,7 +184,7 @@ export function useNotifications() {
 
   const staffAbsenceAlertsQuery = useQuery({
     queryKey: ["notifications", role, "absence-alerts"],
-    queryFn: () => absenceAlertService.getAlerts({ status: "Active", limit: 20 }),
+    queryFn: () => absenceAlertService.getAlerts({ status: "Pending", limit: 20 }),
     enabled: role === "Teacher" || role === "SchoolAdmin",
     staleTime: 2 * 60 * 1000,
   });

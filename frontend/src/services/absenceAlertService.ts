@@ -1,5 +1,12 @@
 import { apiGet, apiPost } from "./api";
 import { debug } from "@/lib/debug";
+const MAX_ALERTS_LIMIT = 200;
+const DEFAULT_ALERTS_LIMIT = 20;
+
+const resolveAlertsLimit = (limit?: number) => {
+  if (!Number.isFinite(limit)) return DEFAULT_ALERTS_LIMIT;
+  return Math.min(Math.max(1, Number(limit)), MAX_ALERTS_LIMIT);
+};
 
 // Absence alert types
 export interface AbsenceAlert {
@@ -106,7 +113,7 @@ export const absenceAlertService = {
     limit?: number;
   }) => {
     debug.absenceAlert('Fetching all alerts with params:', params);
-    const response = await apiGet<{ data: AbsenceAlert[]; pagination: any }>("/absence-alerts", { ...params, limit: params?.limit || 1000 });
+    const response = await apiGet<{ data: AbsenceAlert[]; pagination: any }>("/absence-alerts", { ...params, limit: resolveAlertsLimit(params?.limit) });
     debug.absenceAlert('All alerts:', response);
     return response;
   },
