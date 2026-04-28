@@ -77,7 +77,7 @@ describe('Student Controller', () => {
       expect(createdStudent.studentProfile.academicDocuments[0].category).toBe('Grade 8 Ministry Result');
       expect(createdStudent.studentProfile.academicDocuments[1].category).toBe('Previous Grade Report');
       expect(createdStudent.studentProfile.academicDocuments[0].storageKey).toBeTruthy();
-      expect(createdStudent.studentProfile.academicDocuments[0].fileUrl).toContain('/uploads/');
+      expect(createdStudent.studentProfile.academicDocuments[0].fileUrl).toContain('res.cloudinary.com');
     });
 
     it('should auto-create parent accounts from guardian emails and link them', async () => {

@@ -1,5 +1,3 @@
-const fs = require('fs');
-const path = require('path');
 const Material = require('../models/Material');
 const AssignmentSubmission = require('../models/AssignmentSubmission');
 const User = require('../models/User');
@@ -540,19 +538,14 @@ exports.downloadMaterial = async (req, res) => {
       });
     }
 
-    if (isAbsoluteHttpUrl(material.fileUrl)) {
-      return res.redirect(material.fileUrl);
-    }
-
-    const filePath = path.join(__dirname, '..', material.fileUrl);
-    if (!fs.existsSync(filePath)) {
+    if (!isAbsoluteHttpUrl(material.fileUrl)) {
       return res.status(404).json({
         success: false,
-        message: 'Stored file could not be found',
+        message: 'Stored file URL is invalid. Material must be re-uploaded to cloud storage.',
       });
     }
 
-    return res.download(filePath, material.fileName || path.basename(filePath));
+    return res.redirect(material.fileUrl);
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -837,19 +830,14 @@ exports.downloadSubmission = async (req, res) => {
       });
     }
 
-    if (isAbsoluteHttpUrl(submission.fileUrl)) {
-      return res.redirect(submission.fileUrl);
-    }
-
-    const filePath = path.join(__dirname, '..', submission.fileUrl);
-    if (!fs.existsSync(filePath)) {
+    if (!isAbsoluteHttpUrl(submission.fileUrl)) {
       return res.status(404).json({
         success: false,
-        message: 'Stored submission file could not be found',
+        message: 'Stored submission URL is invalid. Submission file must be re-uploaded to cloud storage.',
       });
     }
 
-    return res.download(filePath, submission.fileName || path.basename(filePath));
+    return res.redirect(submission.fileUrl);
   } catch (error) {
     return res.status(500).json({
       success: false,

@@ -12,7 +12,6 @@ const { sendVerificationEmail, generateToken } = require('../utils/emailService'
 const { findUserByFlexibleId, findUserByFlexibleIdWithPopulate } = require('../utils/userLookup');
 const {
   saveAcademicDocumentFile,
-  resolveAcademicDocumentAbsolutePath,
   deleteAcademicDocumentFile
 } = require('../utils/academicDocumentStorage');
 const { normalizeUserResponse } = require('../utils/userResponse');
@@ -1378,20 +1377,29 @@ exports.downloadAcademicDocument = async (req, res) => {
       return res.redirect(fileUrl);
     }
 
-    if (document.storageKey) {
-      const absolutePath = resolveAcademicDocumentAbsolutePath(document.storageKey);
-      return res.sendFile(absolutePath);
+    const legacyPayload = getLegacyDocumentPayload(document);
+    if (legacyPayload) {
+      return res.send(legacyPayload.buffer);
     }
 
-    const legacyPayload = getLegacyDocumentPayload(document);
-    if (!legacyPayload) {
+    if (document.storageKey) {
+      return res.status(404).json({
+        success: false,
+        message: 'Document was stored with legacy local storage and is no longer available. Please re-upload it to cloud storage.'
+      });
+    }
+
+    if (!fileUrl) {
       return res.status(404).json({
         success: false,
         message: 'Stored academic document content is missing'
       });
     }
 
-    return res.send(legacyPayload.buffer);
+    return res.status(404).json({
+      success: false,
+      message: 'Stored academic document URL is invalid'
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
