@@ -900,7 +900,7 @@ export function StudentListPage() {
   const stats = useMemo(
     () => ({
       total,
-      active: students.filter((s) => s.status === "active").length,
+      active: students.filter((s) => String(s.status || "").toLowerCase() === "active").length,
       grades: [...new Set(students.map((s) => getStudentGrade(s)).filter(Boolean))]
         .length,
     }),
