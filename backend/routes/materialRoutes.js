@@ -3,30 +3,15 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const materialController = require('../controllers/materialController');
+const { uploadMaterialFileToCloudinary } = require('../middleware/materialUploadMiddleware');
 const { protect } = require('../middleware/authMiddleware');
 const { validateBody, validateParams } = require('../utils/validateInput');
 
 const router = express.Router();
 
-const uploadDirectory = path.join(__dirname, '..', 'uploads', 'materials');
 const submissionsUploadDirectory = path.join(__dirname, '..', 'uploads', 'material-submissions');
-fs.mkdirSync(uploadDirectory, { recursive: true });
 fs.mkdirSync(submissionsUploadDirectory, { recursive: true });
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadDirectory);
-  },
-  filename: (_req, file, cb) => {
-    const extension = path.extname(file.originalname);
-    const safeBase = path
-      .basename(file.originalname, extension)
-      .replace(/[^a-zA-Z0-9-_]+/g, '-')
-      .slice(0, 60);
-    cb(null, `${Date.now()}-${safeBase || 'material'}${extension}`);
-  },
-});
-
-const upload = multer({ storage });
+const upload = multer({ storage: multer.memoryStorage() });
 const submissionsStorage = multer.diskStorage({
   destination: (_req, _file, cb) => {
     cb(null, submissionsUploadDirectory);
@@ -97,6 +82,7 @@ router.post(
   '/',
   materialController.ensureTeacherCanManageMaterial,
   upload.single('file'),
+  uploadMaterialFileToCloudinary,
   validateMaterialCreate,
   materialController.createMaterial,
 );
@@ -106,6 +92,7 @@ router.put(
   validateMaterialId,
   materialController.ensureTeacherCanManageMaterial,
   upload.single('file'),
+  uploadMaterialFileToCloudinary,
   validateMaterialUpdate,
   materialController.updateMaterial,
 );

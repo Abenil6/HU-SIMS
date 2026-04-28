@@ -103,6 +103,8 @@ const toSubmissionResponse = (submission) => {
   };
 };
 
+const isAbsoluteHttpUrl = (value) => /^https?:\/\//i.test(String(value || ''));
+
 const toMaterialResponse = (material) => {
   const source = material.toObject ? material.toObject() : material;
   const teacher = source.teacherId || {};
@@ -307,6 +309,7 @@ exports.createMaterial = async (req, res) => {
       });
     }
 
+    const uploadedFile = req.uploadedFile || null;
     const material = await Material.create({
       title: String(title).trim(),
       description: String(description || '').trim(),
@@ -315,10 +318,10 @@ exports.createMaterial = async (req, res) => {
       grade: normalizedGrade,
       section: normalizedSection,
       teacherId: req.user.id,
-      fileUrl: req.file ? `/uploads/materials/${req.file.filename}` : '',
-      fileName: req.file?.originalname || '',
-      fileSize: req.file?.size || 0,
-      fileMimeType: req.file?.mimetype || '',
+      fileUrl: uploadedFile?.fileUrl || '',
+      fileName: uploadedFile?.fileName || '',
+      fileSize: uploadedFile?.fileSize || 0,
+      fileMimeType: uploadedFile?.fileMimeType || '',
       dueDate: dueDate || null,
       status: 'draft',
     });
@@ -381,11 +384,11 @@ exports.updateMaterial = async (req, res) => {
     material.grade = nextGrade;
     material.section = nextSection;
 
-    if (req.file) {
-      material.fileUrl = `/uploads/materials/${req.file.filename}`;
-      material.fileName = req.file.originalname;
-      material.fileSize = req.file.size;
-      material.fileMimeType = req.file.mimetype;
+    if (req.uploadedFile) {
+      material.fileUrl = req.uploadedFile.fileUrl;
+      material.fileName = req.uploadedFile.fileName;
+      material.fileSize = req.uploadedFile.fileSize;
+      material.fileMimeType = req.uploadedFile.fileMimeType;
     }
 
     await material.save();
@@ -535,6 +538,10 @@ exports.downloadMaterial = async (req, res) => {
         success: false,
         message: 'No attachment found for this material',
       });
+    }
+
+    if (isAbsoluteHttpUrl(material.fileUrl)) {
+      return res.redirect(material.fileUrl);
     }
 
     const filePath = path.join(__dirname, '..', material.fileUrl);

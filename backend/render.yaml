@@ -27,3 +27,9 @@ services:
         sync: false
       - key: FRONTEND_URL
         value: https://hunb-sims.vercel.app
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
