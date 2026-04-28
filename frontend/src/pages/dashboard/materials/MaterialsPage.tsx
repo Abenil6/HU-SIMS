@@ -37,6 +37,8 @@ import {
   Description,
   Assignment,
   LibraryBooks,
+  Grading,
+  AttachFile,
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import { FilterBar } from "@/components/ui/FilterBar";
@@ -46,7 +48,7 @@ import type { FormField } from "@/components/ui/FormModal";
 import { TableEmptyState } from "@/components/ui/EmptyState";
 import { TableLoading } from "@/components/ui/LoadingSpinner";
 import { PageHeader, Breadcrumbs } from "@/components/ui/Breadcrumbs";
-import { materialService, type Material } from "@/services/materialService";
+import { materialService, type Material, type AssignmentSubmission } from "@/services/materialService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -106,6 +108,14 @@ export function MaterialsPage() {
   const [submissionText, setSubmissionText] = useState("");
   const [submissionFile, setSubmissionFile] = useState<File | null>(null);
 
+  // Teacher submissions view state
+  const [viewSubmissionsOpen, setViewSubmissionsOpen] = useState(false);
+  const [viewSubmissionsMaterial, setViewSubmissionsMaterial] = useState<Material | null>(null);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [reviewingSubmission, setReviewingSubmission] = useState<AssignmentSubmission | null>(null);
+  const [reviewScore, setReviewScore] = useState<string>("");
+  const [reviewFeedback, setReviewFeedback] = useState("");
+
   // Determine status from tab
   const tabStatus = tabValue === 0 ? "published" : tabValue === 1 ? "draft" : "archived";
   const teacherSubjects = useMemo(() => {
@@ -157,6 +167,14 @@ export function MaterialsPage() {
     queryKey: ["materials", "my-submissions"],
     queryFn: () => materialService.getMySubmissions(),
     enabled: isStudent,
+    staleTime: 30 * 1000,
+  });
+
+  // Teacher: fetch submissions for a specific material
+  const { data: materialSubmissions = [], refetch: refetchSubmissions } = useQuery({
+    queryKey: ["materials", "submissions", viewSubmissionsMaterial?.id],
+    queryFn: () => materialService.getMaterialSubmissions(viewSubmissionsMaterial!.id),
+    enabled: !!viewSubmissionsMaterial && viewSubmissionsOpen,
     staleTime: 30 * 1000,
   });
 
@@ -265,6 +283,25 @@ export function MaterialsPage() {
       const errorMessage = error?.response?.data?.message || error?.message || t("pages.materials.failedToSubmit");
       toast.error(errorMessage);
     },
+  });
+
+  // Teacher: review submission mutation
+  const reviewMutation = useMutation({
+    mutationFn: (data: { materialId: string; submissionId: string; score?: number; feedback?: string; status?: "Reviewed" | "Returned" }) =>
+      materialService.reviewSubmission(data.materialId, data.submissionId, {
+        score: data.score,
+        feedback: data.feedback,
+        status: data.status,
+      }),
+    onSuccess: () => {
+      refetchSubmissions();
+      toast.success("Submission reviewed successfully");
+      setReviewDialogOpen(false);
+      setReviewingSubmission(null);
+      setReviewScore("");
+      setReviewFeedback("");
+    },
+    onError: () => toast.error("Failed to review submission"),
   });
 
   // Get material type icon
@@ -433,6 +470,31 @@ export function MaterialsPage() {
       materialId: submissionMaterial.id,
       submissionText,
       file: submissionFile || undefined,
+    });
+  };
+
+  // Teacher: open submissions viewer
+  const handleViewSubmissions = (material: Material) => {
+    setViewSubmissionsMaterial(material);
+    setViewSubmissionsOpen(true);
+    setMenuAnchor((prev) => ({ ...prev, [material.id]: null }));
+  };
+
+  const handleOpenReview = (submission: AssignmentSubmission) => {
+    setReviewingSubmission(submission);
+    setReviewScore(submission.score !== null && submission.score !== undefined ? String(submission.score) : "");
+    setReviewFeedback(submission.feedback || "");
+    setReviewDialogOpen(true);
+  };
+
+  const handleSubmitReview = (status: "Reviewed" | "Returned") => {
+    if (!reviewingSubmission || !viewSubmissionsMaterial) return;
+    reviewMutation.mutate({
+      materialId: viewSubmissionsMaterial.id,
+      submissionId: reviewingSubmission.id,
+      score: reviewScore ? Number(reviewScore) : undefined,
+      feedback: reviewFeedback,
+      status,
     });
   };
 
@@ -809,6 +871,14 @@ export function MaterialsPage() {
             </ListItemIcon>
             {t("common.edit")}
           </MenuItem>
+          {material.type === "assignment" && (
+            <MenuItem onClick={() => handleViewSubmissions(material)}>
+              <ListItemIcon>
+                <Grading fontSize="small" />
+              </ListItemIcon>
+              View Submissions
+            </MenuItem>
+          )}
           {material.status === "draft" && (
             <MenuItem onClick={() => handlePublish(material)}>
               <ListItemIcon>
@@ -1009,6 +1079,184 @@ export function MaterialsPage() {
             disabled={submissionMutation.isPending}
           >
             {submissionMutation.isPending ? "Submitting..." : "Submit Assignment"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Teacher: View Submissions Dialog */}
+      <Dialog
+        open={viewSubmissionsOpen}
+        onClose={() => setViewSubmissionsOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Grading color="primary" />
+            <Box>
+              <Typography variant="h6">Student Submissions</Typography>
+              <Typography variant="body2" color="text.secondary">
+                {viewSubmissionsMaterial?.title} — {materialSubmissions.length} submission(s)
+              </Typography>
+            </Box>
+          </Box>
+        </DialogTitle>
+        <DialogContent dividers>
+          {materialSubmissions.length === 0 ? (
+            <Box sx={{ textAlign: "center", py: 4 }}>
+              <Assignment sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
+              <Typography color="text.secondary">No submissions yet</Typography>
+            </Box>
+          ) : (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {materialSubmissions.map((submission) => (
+                <Box
+                  key={submission.id}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    border: `1px solid ${alpha(theme.palette.divider, 0.3)}`,
+                    background: alpha(theme.palette.background.paper, 0.8),
+                    "&:hover": { borderColor: theme.palette.primary.main },
+                  }}
+                >
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                    <Box>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        {submission.studentName || "Unknown Student"}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Submitted: {new Date(submission.submittedAt).toLocaleString()}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                      {submission.isLate && (
+                        <Chip label="Late" size="small" color="error" variant="outlined" />
+                      )}
+                      <Chip
+                        label={
+                          submission.score !== null && submission.score !== undefined
+                            ? `${submission.status} (${submission.score}%)`
+                            : submission.status
+                        }
+                        size="small"
+                        color={
+                          submission.status === "Reviewed"
+                            ? "success"
+                            : submission.status === "Returned"
+                              ? "warning"
+                              : "info"
+                        }
+                      />
+                    </Box>
+                  </Box>
+
+                  {submission.submissionText && (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        mb: 1,
+                        p: 1.5,
+                        borderRadius: 1,
+                        background: alpha(theme.palette.action.hover, 0.5),
+                        whiteSpace: "pre-wrap",
+                      }}
+                    >
+                      {submission.submissionText}
+                    </Typography>
+                  )}
+
+                  {submission.fileUrl && (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<AttachFile />}
+                      onClick={() => window.open(submission.fileUrl, "_blank")}
+                      sx={{ mb: 1 }}
+                    >
+                      {submission.fileName || "Download Attachment"}
+                    </Button>
+                  )}
+
+                  {submission.feedback && (
+                    <Box sx={{ mt: 1, p: 1.5, borderRadius: 1, background: alpha(theme.palette.success.main, 0.08) }}>
+                      <Typography variant="caption" color="success.main" sx={{ fontWeight: 600 }}>
+                        Your Feedback:
+                      </Typography>
+                      <Typography variant="body2">{submission.feedback}</Typography>
+                    </Box>
+                  )}
+
+                  <Box sx={{ mt: 1.5, display: "flex", gap: 1 }}>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      onClick={() => handleOpenReview(submission)}
+                    >
+                      {submission.status === "Submitted" ? "Review" : "Update Review"}
+                    </Button>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setViewSubmissionsOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Teacher: Review Submission Dialog */}
+      <Dialog
+        open={reviewDialogOpen}
+        onClose={() => setReviewDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Review Submission</DialogTitle>
+        <DialogContent>
+          {reviewingSubmission && (
+            <Box sx={{ pt: 1 }}>
+              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
+                Student: {reviewingSubmission.studentName}
+              </Typography>
+              <TextField
+                fullWidth
+                label="Score (0-100)"
+                type="number"
+                value={reviewScore}
+                onChange={(e) => setReviewScore(e.target.value)}
+                inputProps={{ min: 0, max: 100 }}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                multiline
+                minRows={3}
+                label="Feedback"
+                value={reviewFeedback}
+                onChange={(e) => setReviewFeedback(e.target.value)}
+                placeholder="Provide feedback to the student..."
+              />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setReviewDialogOpen(false)}>Cancel</Button>
+          <Button
+            variant="outlined"
+            color="warning"
+            onClick={() => handleSubmitReview("Returned")}
+            disabled={reviewMutation.isPending}
+          >
+            Return for Revision
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => handleSubmitReview("Reviewed")}
+            disabled={reviewMutation.isPending}
+          >
+            {reviewMutation.isPending ? "Saving..." : "Mark as Reviewed"}
           </Button>
         </DialogActions>
       </Dialog>
