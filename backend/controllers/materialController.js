@@ -150,7 +150,7 @@ const ensureTeacherCanManageMaterial = async (req, res, next) => {
   }
 
   req.teacherProfileDoc = teacher;
-  return next;
+  return next();
 };
 
 exports.getMaterials = async (req, res) => {
