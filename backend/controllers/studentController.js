@@ -1373,6 +1373,11 @@ exports.downloadAcademicDocument = async (req, res) => {
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `${contentDisposition}; filename="${safeFileName}"`);
 
+    const fileUrl = String(document.fileUrl || '').trim();
+    if (/^https?:\/\//i.test(fileUrl)) {
+      return res.redirect(fileUrl);
+    }
+
     if (document.storageKey) {
       const absolutePath = resolveAcademicDocumentAbsolutePath(document.storageKey);
       return res.sendFile(absolutePath);
