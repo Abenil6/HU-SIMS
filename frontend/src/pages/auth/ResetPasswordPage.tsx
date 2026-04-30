@@ -26,6 +26,7 @@ import {
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import { authService } from "@/services/authService";
+import { usePublicConfig } from "@/hooks/usePublicConfig";
 
 const colors = {
   sage: "#8FA998",
@@ -95,6 +96,7 @@ export function ResetPasswordPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const { config } = usePublicConfig();
 
   useEffect(() => {
     if (!token) {
@@ -116,8 +118,9 @@ export function ResetPasswordPage() {
       return;
     }
 
-    if (password.length < 8) {
-      toast.error("Password must be at least 8 characters");
+    const minLength = config?.minPasswordLength || 8;
+    if (password.length < minLength) {
+      toast.error(`Password must be at least ${minLength} characters`);
       return;
     }
 

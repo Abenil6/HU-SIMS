@@ -82,6 +82,39 @@ router.get('/public-stats', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /system/public-config:
+ *   get:
+ *     summary: Get public system configuration (password policy, etc.)
+ *     tags: [System]
+ *     responses:
+ *       200:
+ *         description: Public system configuration
+ */
+router.get('/public-config', async (req, res) => {
+  try {
+    const settings = await loadSystemSettings();
+    res.json({
+      success: true,
+      data: {
+        siteName: settings.systemSettings.siteName,
+        requireEmailVerification: settings.systemSettings.requireEmailVerification,
+        minPasswordLength: settings.securitySettings.minPasswordLength,
+        requireSpecialChar: settings.securitySettings.requireSpecialChar,
+        requireNumber: settings.securitySettings.requireNumber,
+        twoFactorAuth: settings.securitySettings.twoFactorAuth
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching public config:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching system configuration' 
+    });
+  }
+});
+
 // Apply protection to all routes
 router.use(protect);
 

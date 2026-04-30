@@ -40,6 +40,7 @@ import { apiGet } from "@/services/api";
 import {
   normalizeAppearanceSettings,
 } from "@/lib/appearance";
+import { usePublicConfig } from "@/hooks/usePublicConfig";
 
 const ROLE_COPY = {
   SystemAdmin: {
@@ -89,6 +90,7 @@ export function ProfilePage() {
     useState<AppearanceSettings>(
       normalizeAppearanceSettings(user?.appearanceSettings),
     );
+  const { config } = usePublicConfig();
 
   const [profileData, setProfileData] = useState({
     firstName: user?.firstName || "",
@@ -317,8 +319,9 @@ export function ProfilePage() {
       return;
     }
 
-    if (passwordData.newPassword.length < 8) {
-      toast.error("Password must be at least 8 characters long");
+    const minLength = config?.minPasswordLength || 8;
+    if (passwordData.newPassword.length < minLength) {
+      toast.error(`Password must be at least ${minLength} characters long`);
       return;
     }
 
