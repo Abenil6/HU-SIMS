@@ -12,6 +12,16 @@ import {
   alpha,
   Dialog,
   CircularProgress,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControlLabel,
+  Switch,
+  Select,
+  MenuItem,
+  TextField,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import {
   Security,
@@ -52,6 +62,12 @@ interface SecurityAlert {
   username: string;
 }
 
+interface BackupConfig {
+  autoBackup: boolean;
+  backupFrequency: "hourly" | "daily" | "weekly" | "monthly";
+  retainBackups: number;
+}
+
 export function SecurityPage() {
   const theme = useTheme();
   const toast = useToast();
@@ -64,17 +80,54 @@ export function SecurityPage() {
   const [timeRange, setTimeRange] = useState("24h");
   const [systemHealth, setSystemHealth] = useState<any>(null);
   const [backupLoading, setBackupLoading] = useState(false);
+  const [backupConfig, setBackupConfig] = useState<BackupConfig>({
+    autoBackup: false,
+    backupFrequency: "daily",
+    retainBackups: 7,
+  });
+  const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
+  const [savingConfig, setSavingConfig] = useState(false);
 
   const handleBackup = async () => {
     setBackupLoading(true);
     try {
       const result: any = await apiPost(`/system/backups/run`, {});
       toast.success(`Backup created: ${result.data.filename} (${result.data.size})`);
+      loadSystemData(); // Refresh to update latest backup info
     } catch (error: any) {
       console.error("Backup failed:", error);
       toast.error(error.message || "Failed to create backup");
     } finally {
       setBackupLoading(false);
+    }
+  };
+
+  const fetchBackupConfig = async () => {
+    try {
+      const result: any = await apiGet(`/system/backups`);
+      if (result.success && result.data) {
+        setBackupConfig({
+          autoBackup: result.data.autoBackup,
+          backupFrequency: result.data.backupFrequency,
+          retainBackups: result.data.retainBackups,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to fetch backup config:", error);
+    }
+  };
+
+  const handleSaveConfig = async () => {
+    setSavingConfig(true);
+    try {
+      await apiPost(`/system/backups/config`, backupConfig);
+      toast.success("Backup schedule updated successfully");
+      setIsConfigDialogOpen(false);
+      loadSystemData(); // Refresh to show updated "Next backup" time
+    } catch (error: any) {
+      toast.error(error.message || "Failed to save configuration");
+    } finally {
+      setSavingConfig(false);
     }
   };
   useEffect(() => {
@@ -95,6 +148,8 @@ export function SecurityPage() {
       } catch {
         // health endpoint is optional, ignore if unavailable
       }
+
+      await fetchBackupConfig();
     } catch (error) {
       console.error("Failed to load system data:", error);
       toast.error("Failed to load security data");
@@ -517,7 +572,7 @@ export function SecurityPage() {
                       <Button
                         variant="outlined"
                         sx={{ mt: 2 }}
-                        onClick={() => toast.info("Schedule settings coming soon")}
+                        onClick={() => setIsConfigDialogOpen(true)}
                       >
                         Configure Schedule
                       </Button>
@@ -564,6 +619,89 @@ export function SecurityPage() {
             Please wait while we backup your data
           </Typography>
         </Box>
+      </Dialog>
+
+      {/* Backup Configuration Dialog */}
+      <Dialog
+        open={isConfigDialogOpen}
+        onClose={() => !savingConfig && setIsConfigDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>Backup Schedule Configuration</DialogTitle>
+        <DialogContent dividers>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3, py: 1 }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={backupConfig.autoBackup}
+                  onChange={(e) =>
+                    setBackupConfig({ ...backupConfig, autoBackup: e.target.checked })
+                  }
+                  color="primary"
+                />
+              }
+              label={
+                <Box>
+                  <Typography variant="body1" fontWeight={600}>
+                    Enable Automatic Backups
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    System will automatically create database snapshots
+                  </Typography>
+                </Box>
+              }
+            />
+
+            <FormControl fullWidth disabled={!backupConfig.autoBackup}>
+              <InputLabel>Backup Frequency</InputLabel>
+              <Select
+                value={backupConfig.backupFrequency}
+                label="Backup Frequency"
+                onChange={(e) =>
+                  setBackupConfig({
+                    ...backupConfig,
+                    backupFrequency: e.target.value as any,
+                  })
+                }
+              >
+                <MenuItem value="hourly">Hourly</MenuItem>
+                <MenuItem value="daily">Daily</MenuItem>
+                <MenuItem value="weekly">Weekly</MenuItem>
+                <MenuItem value="monthly">Monthly</MenuItem>
+              </Select>
+            </FormControl>
+
+            <TextField
+              fullWidth
+              type="number"
+              label="Retention (Number of backups to keep)"
+              value={backupConfig.retainBackups}
+              onChange={(e) =>
+                setBackupConfig({
+                  ...backupConfig,
+                  retainBackups: parseInt(e.target.value) || 1,
+                })
+              }
+              inputProps={{ min: 1, max: 100 }}
+              helperText="Older backups will be automatically deleted"
+              disabled={!backupConfig.autoBackup}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button onClick={() => setIsConfigDialogOpen(false)} disabled={savingConfig}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSaveConfig}
+            disabled={savingConfig}
+            startIcon={savingConfig ? <CircularProgress size={20} /> : null}
+          >
+            {savingConfig ? "Saving..." : "Save Settings"}
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );
