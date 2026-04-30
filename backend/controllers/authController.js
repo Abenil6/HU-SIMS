@@ -546,6 +546,9 @@ const sanitizeAppearanceSettings = (input = {}) => ({
     : 'medium',
   sidebarCollapsed: Boolean(input.sidebarCollapsed),
   showAnimations: Boolean(input.showAnimations),
+  language: ['en', 'am', 'om'].includes(String(input.language))
+    ? String(input.language)
+    : 'en',
 });
 
 /**
@@ -621,7 +624,7 @@ exports.updateMe = async (req, res) => {
 
 exports.updateAppearance = async (req, res) => {
   try {
-    const updates = sanitizeAppearanceSettings(req.body || {});
+    let updates = sanitizeAppearanceSettings(req.body || {});
     const existingUser = await findUserByFlexibleId(req.user.id);
 
     if (!existingUser) {
@@ -629,6 +632,11 @@ exports.updateAppearance = async (req, res) => {
         success: false,
         message: 'User not found',
       });
+    }
+
+    // Enforce English for SystemAdmin
+    if (existingUser.role === 'SystemAdmin') {
+      updates.language = 'en';
     }
 
     await User.updateOne(

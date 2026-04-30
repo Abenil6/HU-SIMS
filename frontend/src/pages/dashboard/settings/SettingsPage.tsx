@@ -639,6 +639,24 @@ export function SettingsPage() {
                 </Typography>
               </Grid>
 
+              {/* Language Selection */}
+              {user?.role !== "SystemAdmin" && (
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <FormControl fullWidth>
+                    <InputLabel>Preferred Language</InputLabel>
+                    <Select
+                      value={appearanceSettings.language || 'en'}
+                      label="Preferred Language"
+                      onChange={handleAppearanceChange("language") as any}
+                    >
+                      <MenuItem value="en">English</MenuItem>
+                      <MenuItem value="am">አማርኛ (Amharic)</MenuItem>
+                      <MenuItem value="om">Afaan Oromoo</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              )}
+
               {/* Color Theme */}
               <Grid size={{ xs: 12, md: 6 }}>
                 <FormControl fullWidth>

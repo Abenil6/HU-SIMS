@@ -2,6 +2,9 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Select, MenuItem, FormControl, Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { useAuthStore } from '@/stores/authStore';
+import authService from '@/services/authService';
+import { normalizeAppearanceSettings } from '@/lib/appearance';
 
 const languages = [
   { code: 'en', name: 'English', flag: 'gb' },
@@ -13,10 +16,26 @@ export const LanguageSelector: React.FC = () => {
   const { i18n } = useTranslation();
   const theme = useTheme();
 
-  const handleLanguageChange = (event: any) => {
+  const { user, updateUser } = useAuthStore();
+  const appearance = normalizeAppearanceSettings(user?.appearanceSettings);
+
+  const handleLanguageChange = async (event: any) => {
     const newLang = event.target.value;
     i18n.changeLanguage(newLang);
     console.log('Language changed to:', newLang);
+
+    if (user) {
+      try {
+        const nextAppearance = {
+          ...appearance,
+          language: newLang as 'en' | 'am' | 'om'
+        };
+        updateUser({ appearanceSettings: nextAppearance });
+        await authService.updateAppearance(nextAppearance);
+      } catch (error) {
+        console.error('Failed to save language preference:', error);
+      }
+    }
   };
 
   return (

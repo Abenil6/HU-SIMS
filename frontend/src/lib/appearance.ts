@@ -8,6 +8,7 @@ export const DEFAULT_APPEARANCE: AppearanceSettings = {
   borderRadius: "medium",
   sidebarCollapsed: false,
   showAnimations: true,
+  language: "en",
 };
 
 export const normalizeAppearanceSettings = (

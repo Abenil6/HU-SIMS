@@ -10,6 +10,7 @@ export interface AppearanceSettings {
   borderRadius: 'none' | 'small' | 'medium' | 'large';
   sidebarCollapsed: boolean;
   showAnimations: boolean;
+  language: 'en' | 'am' | 'om';
 }
 
 export interface User {

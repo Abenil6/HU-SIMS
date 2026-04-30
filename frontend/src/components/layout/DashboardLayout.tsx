@@ -312,7 +312,7 @@ const getNavigationItems = (role: string, firstChildId: string = "", t: any) => 
 };
 
 export function DashboardLayout() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -349,6 +349,14 @@ export function DashboardLayout() {
   useEffect(() => {
     setSidebarCollapsed(Boolean(appearance.sidebarCollapsed));
   }, [appearance.sidebarCollapsed]);
+
+  // Apply language setting from appearance
+  useEffect(() => {
+    const targetLang = user?.role === "SystemAdmin" ? "en" : appearance.language;
+    if (targetLang && i18n.language !== targetLang) {
+      i18n.changeLanguage(targetLang);
+    }
+  }, [appearance.language, user?.role, i18n]);
 
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) =>
@@ -600,7 +608,7 @@ export function DashboardLayout() {
             >
               {appearanceState.darkMode ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
-            {user?.role !== "SystemAdmin" &&<LanguageSelector />}
+            {user?.role !== "SystemAdmin" && <LanguageSelector />}
             <NotificationBell />
             <IconButton
               onClick={handleProfileMenuOpen}

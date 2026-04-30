@@ -110,6 +110,11 @@ const userSchema = new mongoose.Schema(
       showAnimations: {
         type: Boolean,
         default: true
+      },
+      language: {
+        type: String,
+        enum: ['en', 'am', 'om'],
+        default: 'en'
       }
     },
     
