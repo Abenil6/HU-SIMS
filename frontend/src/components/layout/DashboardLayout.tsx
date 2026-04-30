@@ -600,7 +600,7 @@ export function DashboardLayout() {
             >
               {appearanceState.darkMode ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
-            <LanguageSelector />
+            {user?.role !== "SystemAdmin" &&<LanguageSelector />}
             <NotificationBell />
             <IconButton
               onClick={handleProfileMenuOpen}
