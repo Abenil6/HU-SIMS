@@ -166,6 +166,7 @@ export function LoginPage() {
   const [darkMode] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
+  const [loginError, setLoginError] = useState<{ message: string; locked?: boolean; remainingMinutes?: number } | null>(null);
 
   const {
     register,
@@ -178,6 +179,7 @@ export function LoginPage() {
   const currentTheme = darkMode ? darkTheme : lightTheme;
 
   const onSubmit = async (data: LoginFormData) => {
+    setLoginError(null);
     try {
       const result = await login(data.email, data.password);
       if (result.requiresTwoFactor) {
@@ -196,8 +198,14 @@ export function LoginPage() {
         };
         navigate(routes[user.role] || "/dashboard");
       }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Login failed");
+    } catch (error: any) {
+      const errorData = {
+        message: error.message || "Login failed",
+        locked: error.message?.includes("locked"),
+        remainingMinutes: error.remainingMinutes
+      };
+      setLoginError(errorData);
+      toast.error(errorData.message);
     }
   };
 
@@ -413,6 +421,14 @@ export function LoginPage() {
                     <Box
                       sx={{ display: "flex", flexDirection: "column", gap: 3 }}
                     >
+                      {loginError && (
+                        <Alert 
+                          severity={loginError.locked ? "error" : "warning"}
+                          sx={{ mb: 1 }}
+                        >
+                          {loginError.message}
+                        </Alert>
+                      )}
                       <TextField
                         label="Email Address"
                         type="email"

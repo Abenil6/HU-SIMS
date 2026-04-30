@@ -83,10 +83,13 @@ exports.login = async (req, res) => {
       });
     }
 
-    if (getLockStatus(user)) {
+    const lockStatus = getLockStatus(user);
+    if (lockStatus.isLocked) {
       return res.status(423).json({
         success: false,
-        message: 'Account temporarily locked due to repeated failed login attempts. Please try again later.',
+        message: `Account temporarily locked. Please try again in ${lockStatus.remainingMinutes} minute${lockStatus.remainingMinutes !== 1 ? 's' : ''}.`,
+        lockUntil: lockStatus.lockUntil,
+        remainingMinutes: lockStatus.remainingMinutes,
       });
     }
 
@@ -130,7 +133,11 @@ exports.login = async (req, res) => {
       
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password'
+        message: failedAttempt.locked
+          ? 'Account locked due to too many failed attempts. Please try again in 30 minutes.'
+          : `Invalid email or password. ${failedAttempt.attemptsRemaining} attempt${failedAttempt.attemptsRemaining !== 1 ? 's' : ''} remaining.`,
+        attemptsRemaining: failedAttempt.attemptsRemaining,
+        locked: failedAttempt.locked,
       });
     }
 

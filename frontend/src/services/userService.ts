@@ -12,9 +12,12 @@ export interface User {
   status: "active" | "inactive" | "pending";
   avatar?: string;
   isVerified?: boolean;
+  failedLoginAttempts?: number;
+  lockUntil?: string;
   createdAt: string;
   updatedAt: string;
 }
+
 
 export interface CreateUserData {
   firstName: string;
@@ -61,10 +64,13 @@ function mapUser(u: any): User {
     status: mapStatus(u?.status),
     avatar: u?.avatar || u?.profileImage,
     isVerified: u?.isVerified,
+    failedLoginAttempts: u?.failedLoginAttempts,
+    lockUntil: u?.lockUntil,
     createdAt: u?.createdAt,
     updatedAt: u?.updatedAt,
   };
 }
+
 
 // User API
 export const userService = {
@@ -168,6 +174,13 @@ export const userService = {
     const usersRaw: any[] = res?.data || [];
     return usersRaw.map(mapUser);
   },
+
+  // Unlock user account
+  unlockUser: async (id: string): Promise<User> => {
+    const res: any = await apiPost(`/admin/users/${id}/unlock`, {});
+    return mapUser(res?.data ?? res);
+  },
 };
+
 
 export default userService;

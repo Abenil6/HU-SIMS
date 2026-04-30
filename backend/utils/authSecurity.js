@@ -79,17 +79,24 @@ const isPasswordExpired = (user, settings) => {
 };
 
 const getLockStatus = (user) => {
-  if (!user?.lockUntil) return false;
-  return new Date(user.lockUntil).getTime() > Date.now();
+  if (!user?.lockUntil) return { isLocked: false };
+  const lockTime = new Date(user.lockUntil).getTime();
+  const now = Date.now();
+  const isLocked = lockTime > now;
+  
+  return {
+    isLocked,
+    remainingMinutes: isLocked ? Math.ceil((lockTime - now) / 60000) : 0,
+    lockUntil: user.lockUntil
+  };
 };
 
 const registerFailedLoginAttempt = async (user, settings) => {
   const maxLoginAttempts = Number(settings?.systemSettings?.maxLoginAttempts || 5);
   const lockUntilDate = new Date(Date.now() + LOGIN_LOCK_MINUTES * 60 * 1000);
 
-  // Use in-memory count to avoid the aggregation-pipeline syntax that
-  // Mongoose 9 / MongoDB driver 6 requires { updatePipeline: true } for.
-  const newAttempts = (Number(user.failedLoginAttempts) || 0) + 1;
+  const currentAttempts = Number(user.failedLoginAttempts) || 0;
+  const newAttempts = currentAttempts + 1;
   const shouldLock = newAttempts >= maxLoginAttempts;
 
   const setData = {
@@ -102,8 +109,11 @@ const registerFailedLoginAttempt = async (user, settings) => {
   await User.updateOne({ _id: user._id }, { $set: setData });
 
   return {
-    attempts: shouldLock ? maxLoginAttempts : newAttempts,
+    attempts: newAttempts,
+    maxAttempts: maxLoginAttempts,
+    attemptsRemaining: Math.max(0, maxLoginAttempts - newAttempts),
     locked: shouldLock,
+    lockUntil: shouldLock ? lockUntilDate : null
   };
 };
 

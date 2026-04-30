@@ -964,3 +964,39 @@ exports.getStudentParentLinks = async (req, res) => {
     });
   }
 };
+
+/**
+ * Unlock user account
+ */
+exports.unlockUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { 
+        $set: { failedLoginAttempts: 0 },
+        $unset: { lockUntil: '' }
+      },
+      { new: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'User account unlocked successfully',
+      data: normalizeUserResponse(user.toObject())
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to unlock user',
+      error: error.message
+    });
+  }
+};
+

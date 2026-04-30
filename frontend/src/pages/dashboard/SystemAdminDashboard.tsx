@@ -47,6 +47,7 @@ import {
   Refresh,
   CheckCircle,
   Lock,
+  LockOpen,
   MoreVert,
   Mail,
   Reply,
@@ -579,6 +580,22 @@ export function SystemAdminDashboard() {
     }
   };
 
+  const handleUnlockUser = async (user: User) => {
+    try {
+      await userService.unlockUser(user.id);
+      toast.success(`User ${user.firstName} unlocked successfully`);
+      loadUsers();
+    } catch (error) {
+      console.error("Failed to unlock user:", error);
+      toast.error("Failed to unlock user");
+    }
+  };
+
+  const isUserLocked = (user: User) => {
+    if (!user.lockUntil) return false;
+    return new Date(user.lockUntil).getTime() > Date.now();
+  };
+
   const resetForm = () => {
     setFormData({
       firstName: "",
@@ -920,9 +937,20 @@ export function SystemAdminDashboard() {
                           <IconButton
                             size="small"
                             onClick={() => handleStatusToggle(user)}
+                            title={user.status === "active" ? "Deactivate" : "Activate"}
                           >
                             <Lock fontSize="small" />
                           </IconButton>
+                          {isUserLocked(user) && (
+                            <IconButton
+                              size="small"
+                              onClick={() => handleUnlockUser(user)}
+                              color="warning"
+                              title="Unlock Account"
+                            >
+                              <LockOpen fontSize="small" />
+                            </IconButton>
+                          )}
                           <IconButton
                             size="small"
                             onClick={() => openDeleteDialog(user)}

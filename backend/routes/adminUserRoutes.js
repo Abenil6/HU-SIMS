@@ -434,6 +434,27 @@ router.post('/:id/activate', protect, authorize('SystemAdmin', 'SchoolAdmin'), v
 
 /**
  * @swagger
+ * /api/admin/users/{id}/unlock:
+ *   post:
+ *     summary: Unlock user account (clear failed login attempts and lock date)
+ *     tags: [Admin Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User account unlocked
+ */
+router.post('/:id/unlock', protect, authorize('SystemAdmin', 'SchoolAdmin'), validateUserId, adminUserController.unlockUser);
+
+
+/**
+ * @swagger
  * /api/admin/users/{id}/reset-password:
  *   post:
  *     summary: Reset user password
