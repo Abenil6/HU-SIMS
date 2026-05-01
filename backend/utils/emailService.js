@@ -3,14 +3,24 @@ const isTestEnv = process.env.NODE_ENV === 'test';
 
 // Create transporter (configure with your email service)
 const createTransporter = () => {
+  const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  
+  // Gmail port 465 uses secure: true, port 587 uses secure: false (STARTTLS)
+  const secure = process.env.SMTP_SECURE === 'true' || port === 465;
+
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: process.env.SMTP_PORT || 587,
-    secure: false,
+    host,
+    port,
+    secure,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-    }
+      user: (process.env.SMTP_USER || '').trim(),
+      pass: (process.env.SMTP_PASS || '').trim()
+    },
+    // Add timeouts to prevent hanging on connection issues
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,
+    socketTimeout: 20000,
   });
 };
 
