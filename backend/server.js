@@ -27,6 +27,7 @@ const materialRoutes = require('./routes/materialRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const classRoutes = require('./routes/classRoutes');
 const { startBackupScheduler } = require('./utils/backupScheduler');
+const { verifyConnection } = require('./utils/emailService');
 
 dotenv.config();
 const app = express();
@@ -89,7 +90,11 @@ if (process.env.NODE_ENV !== 'test') {
 
   // Start server
   const PORT = process.env.PORT || 5001;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    // Test email connection on startup
+    verifyConnection();
+  });
 }
 
 // Export app for testing

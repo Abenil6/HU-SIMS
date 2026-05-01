@@ -4,7 +4,8 @@ const isTestEnv = process.env.NODE_ENV === 'test';
 // Create transporter (configure with your email service)
 const createTransporter = () => {
   const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
-  const port = parseInt(process.env.SMTP_PORT || '587');
+  // Switching to 465 (SSL) as default for better cloud compatibility
+  const port = parseInt(process.env.SMTP_PORT || '465');
   
   // Gmail port 465 uses secure: true, port 587 uses secure: false (STARTTLS)
   const secure = process.env.SMTP_SECURE === 'true' || port === 465;
@@ -22,6 +23,22 @@ const createTransporter = () => {
     greetingTimeout: 10000,
     socketTimeout: 20000,
   });
+};
+
+/**
+ * Verify SMTP connection
+ */
+const verifyConnection = async () => {
+  const transporter = createTransporter();
+  try {
+    console.log('Testing SMTP connection...');
+    await transporter.verify();
+    console.log('SMTP connection verified successfully');
+    return true;
+  } catch (error) {
+    console.error('SMTP connection verification failed:', error);
+    return false;
+  }
 };
 
 /**
@@ -292,5 +309,6 @@ module.exports = {
   sendLoginNotificationEmail,
   sendAbsenceAlertEmail,
   sendContactThankYouEmail,
-  generateToken
+  generateToken,
+  verifyConnection
 };
