@@ -29,14 +29,18 @@ const createTransporter = () => {
  * Verify SMTP connection
  */
 const verifyConnection = async () => {
+  const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
+  const port = parseInt(process.env.SMTP_PORT || '465');
+  const secure = process.env.SMTP_SECURE === 'true' || port === 465;
+
   const transporter = createTransporter();
   try {
-    console.log('Testing SMTP connection...');
+    console.log(`Testing SMTP connection to ${host}:${port} (secure: ${secure})...`);
     await transporter.verify();
     console.log('SMTP connection verified successfully');
     return true;
   } catch (error) {
-    console.error('SMTP connection verification failed:', error);
+    console.error(`SMTP connection verification failed for ${host}:${port}:`, error);
     return false;
   }
 };
