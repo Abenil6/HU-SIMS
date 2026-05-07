@@ -103,33 +103,9 @@ cd HU-SIMS
 cd backend
 npm install
 ```
-
-Create a `.env` file in the backend directory:
-
-```env
-# Server Configuration
-PORT=5001
-JWT_SECRET=your_jwt_secret_here
-JWT_EXPIRES_IN=7d
-
-# MongoDB Configuration
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/database_name
-
-# Email Configuration (Gmail SMTP)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
-SMTP_FROM="HU Non-Boarding School" <your_email@gmail.com>
-
 # Frontend URL
 FRONTEND_URL=http://localhost:5173
 ```
-
-**Note**: For Gmail SMTP, you need to:
-1. Enable 2FA on your Google account
-2. Generate an App Password from https://myaccount.google.com/apppasswords
-3. Use the 16-character App Password (remove spaces)
 
 ### 3. Frontend Setup
 
@@ -137,26 +113,6 @@ FRONTEND_URL=http://localhost:5173
 cd frontend
 npm install
 ```
-
-Create a `.env` file in the frontend directory:
-
-```env
-VITE_API_URL=http://localhost:5001/api
-VITE_APP_NAME=HU SIMS
-```
-
-### 4. Seed Initial Data (Optional)
-
-```bash
-cd backend
-npm run seed:all
-```
-
-This will create:
-- System Admin user
-- Sample users for each role
-- Sample academic data
-
 ## 🚀 Running the Project
 
 ### Development Mode
@@ -223,29 +179,6 @@ HU-SIMS/
 └── README.md
 ```
 
-## 🔐 Default Credentials
-
-After seeding data, you can use these credentials:
-
-**System Admin:**
-- Email: admin@school.com
-- Password: admin123
-
-**School Admin:**
-- Email: schooladmin@school.com
-- Password: school123
-
-**Teacher:**
-- Email: teacher@school.com
-- Password: teacher123
-
-**Student:**
-- Email: student@school.com
-- Password: student123
-
-**Parent:**
-- Email: parent@school.com
-- Password: parent123
 
 ## 🧪 Testing
 
@@ -265,25 +198,6 @@ cd frontend
 npm run lint            # Run ESLint
 ```
 
-## 🚢 Deployment
-
-### Backend Deployment (Render)
-
-1. Connect your GitHub repository to Render
-2. Create a new Web Service
-3. Set build command: `npm install`
-4. Set start command: `node server.js`
-5. Add environment variables from your `.env` file
-6. Deploy
-
-### Frontend Deployment (Vercel)
-
-1. Connect your GitHub repository to Vercel
-2. Import the project
-3. Set root directory to `frontend`
-4. Add environment variable:
-   - `VITE_API_URL`: Your backend URL (e.g., https://hu-sims-backend.onrender.com/api)
-5. Deploy
 
 ## 📊 API Documentation
 
@@ -303,7 +217,7 @@ This project is licensed under the ISC License.
 
 ## 👥 Authors
 
-- **Apple** - Initial development
+- **Abenezer** - Initial development
 
 ## 🙏 Acknowledgments
 
@@ -314,11 +228,10 @@ This project is licensed under the ISC License.
 
 ## 📞 Support
 
-For support, email abeniman740@gmail.com or open an issue in the repository.
+For support, email abenilee740@gmail.com or open an issue in the repository.
 
 ## 🔒 Security Notes
 
-- Never commit `.env` files to version control
 - Use strong JWT secrets in production
 - Enable 2FA for all admin accounts
 - Regularly update dependencies
