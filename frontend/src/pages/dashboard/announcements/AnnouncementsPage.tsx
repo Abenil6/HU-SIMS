@@ -39,6 +39,7 @@ import {
   usePublishAnnouncement,
 } from "@/hooks/announcements/useAnnouncements";
 import { createAnnouncementSchema } from "@/lib/validation";
+import { z } from "zod";
 
 interface AnnouncementItem {
   id: string;
@@ -417,7 +418,7 @@ export function AnnouncementsPage() {
           // Validate with zod schema
           const validationResult = createAnnouncementSchema.safeParse(values);
           if (!validationResult.success) {
-            const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+            const errorMessages = validationResult.error.issues.map((e: z.ZodIssue) => e.message).join(', ');
             toast.error(errorMessages);
             return;
           }

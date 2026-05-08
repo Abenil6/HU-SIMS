@@ -56,6 +56,7 @@ import {
   classReportGenerationSchema,
   attendanceSummaryGenerationSchema,
 } from "@/lib/validation";
+import { z } from "zod";
 
 interface StudentRecord {
   id?: string;
@@ -287,7 +288,7 @@ export function ReportsPage() {
       if (selectedReportType === "student_report_card") {
         validationResult = reportCardGenerationSchema.safeParse(values);
         if (!validationResult.success) {
-          const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+          const errorMessages = validationResult.error.issues.map((e: z.ZodIssue) => e.message).join(', ');
           toast.error(errorMessages);
           return;
         }
@@ -300,7 +301,7 @@ export function ReportsPage() {
       } else if (selectedReportType === "student_transcript") {
         validationResult = studentTranscriptGenerationSchema.safeParse(values);
         if (!validationResult.success) {
-          const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+          const errorMessages = validationResult.error.issues.map((e: z.ZodIssue) => e.message).join(', ');
           toast.error(errorMessages);
           return;
         }
@@ -313,7 +314,7 @@ export function ReportsPage() {
       ) {
         validationResult = classReportGenerationSchema.safeParse(values);
         if (!validationResult.success) {
-          const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+          const errorMessages = validationResult.error.issues.map((e: z.ZodIssue) => e.message).join(', ');
           toast.error(errorMessages);
           return;
         }
@@ -333,7 +334,7 @@ export function ReportsPage() {
       } else if (selectedReportType === "attendance_summary") {
         validationResult = attendanceSummaryGenerationSchema.safeParse(values);
         if (!validationResult.success) {
-          const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+          const errorMessages = validationResult.error.issues.map((e: z.ZodIssue) => e.message).join(', ');
           toast.error(errorMessages);
           return;
         }

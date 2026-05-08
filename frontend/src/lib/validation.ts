@@ -158,6 +158,58 @@ export const systemAdminUpdateUserSchema = z.object({
   path: ["stream"],
 });
 
+// School Admin Dashboard Student Creation Schema
+export const schoolAdminCreateStudentSchema = z.object({
+  firstName: lettersOnlySchema,
+  lastName: lettersOnlySchema,
+  email: emailSchema,
+  phone: phoneOptionalSchema,
+  gender: z.enum(["Male", "Female"]),
+  dob: z.string().min(1, "Date of birth is required"),
+  grade: z.string().min(1, "Grade is required"),
+  stream: z.string().optional(),
+  enrollmentDate: z.string().min(1, "Enrollment date is required"),
+}).refine((data) => {
+  const grade = String(data.grade);
+  const stream = String(data.stream || "");
+  if ((grade === "11" || grade === "12") && !stream) {
+    return false;
+  }
+  if (grade !== "11" && grade !== "12" && stream) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Stream must be provided only for Grade 11 and Grade 12",
+  path: ["stream"],
+});
+
+// School Admin Dashboard Student Update Schema
+export const schoolAdminUpdateStudentSchema = z.object({
+  firstName: lettersOnlySchema.optional(),
+  lastName: lettersOnlySchema.optional(),
+  email: emailSchema.optional(),
+  phone: phoneOptionalSchema,
+  gender: z.enum(["Male", "Female"]).optional(),
+  dob: z.string().optional(),
+  grade: z.string().optional(),
+  stream: z.string().optional(),
+  enrollmentDate: z.string().optional(),
+}).refine((data) => {
+  const grade = String(data.grade || "");
+  const stream = String(data.stream || "");
+  if ((grade === "11" || grade === "12") && !stream) {
+    return false;
+  }
+  if (grade !== "11" && grade !== "12" && stream) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Stream must be provided only for Grade 11 and Grade 12",
+  path: ["stream"],
+});
+
 export const updateUserSchema = createUserSchema.partial().extend({
   status: z.enum(["active", "inactive", "pending", "Active", "Inactive", "Pending"]).optional(),
 });
@@ -430,6 +482,8 @@ export type TwoFactorFormData = z.infer<typeof twoFactorSchema>;
 export type CreateUserData = z.infer<typeof createUserSchema>;
 export type SystemAdminCreateUserData = z.infer<typeof systemAdminCreateUserSchema>;
 export type SystemAdminUpdateUserData = z.infer<typeof systemAdminUpdateUserSchema>;
+export type SchoolAdminCreateStudentData = z.infer<typeof schoolAdminCreateStudentSchema>;
+export type SchoolAdminUpdateStudentData = z.infer<typeof schoolAdminUpdateStudentSchema>;
 export type UpdateUserData = z.infer<typeof updateUserSchema>;
 export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
 export type CreateTeacherData = z.infer<typeof createTeacherSchema>;

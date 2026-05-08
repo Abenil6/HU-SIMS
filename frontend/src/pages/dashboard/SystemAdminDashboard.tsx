@@ -60,6 +60,7 @@ import { FormModal } from "@/components/ui/FormModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { contactService, type ContactMessage } from "@/services/contactService";
 import { systemAdminCreateUserSchema, systemAdminUpdateUserSchema } from "@/lib/validation";
+import { z } from "zod";
 
 /**
  * System Admin Dashboard
@@ -531,7 +532,7 @@ export function SystemAdminDashboard() {
     // Validate with zod schema
     const validationResult = systemAdminCreateUserSchema.safeParse(formData);
     if (!validationResult.success) {
-      const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+      const errorMessages = validationResult.error.issues.map((e: z.ZodIssue) => e.message).join(', ');
       toast.error(errorMessages);
       return;
     }
@@ -556,7 +557,7 @@ export function SystemAdminDashboard() {
     // Validate with zod schema
     const validationResult = systemAdminUpdateUserSchema.safeParse(formData);
     if (!validationResult.success) {
-      const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+      const errorMessages = validationResult.error.issues.map((e: z.ZodIssue) => e.message).join(', ');
       toast.error(errorMessages);
       return;
     }

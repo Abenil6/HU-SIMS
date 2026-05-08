@@ -70,6 +70,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParents } from "@/hooks/parents/useParents";
 import { GRADES, STREAMS } from "@/constants/academic";
 import { studentListEditSchema } from "@/lib/validation";
+import { z } from "zod";
 
 const ACADEMIC_DOC_MAX_SIZE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_ACADEMIC_DOC_TYPES = new Set([
@@ -682,7 +683,7 @@ export function StudentListPage() {
       // Validate with zod schema
       const validationResult = studentListEditSchema.safeParse(payload);
       if (!validationResult.success) {
-        const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+        const errorMessages = validationResult.error.issues.map((e: z.ZodIssue) => e.message).join(', ');
         toast.error(errorMessages);
         return;
       }

@@ -62,6 +62,8 @@ import { GRADES, STREAMS, getSubjectsForGrade } from "@/constants/academic";
 import type { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 import toast from "react-hot-toast";
+import { schoolAdminCreateStudentSchema, schoolAdminUpdateStudentSchema } from "@/lib/validation";
+import { z } from "zod";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -640,34 +642,27 @@ export function SchoolAdminDashboard() {
   const streamOptions = [STREAMS.NATURAL, STREAMS.SOCIAL];
 
   const handleCreateStudent = async () => {
-    if (!studentForm.firstName || !studentForm.lastName || !studentForm.email ||
-        !studentForm.grade || !studentForm.dob || !studentForm.gender) {
-      toast.error("Please fill in all required fields (name, email, grade, gender, date of birth)");
+    // Validate with zod schema
+    const validationResult = schoolAdminCreateStudentSchema.safeParse(studentForm);
+    if (!validationResult.success) {
+      const errorMessages = validationResult.error.issues.map((e: z.ZodIssue) => e.message).join(', ');
+      toast.error(errorMessages);
       return;
     }
-    // Stream is required for grades 11 and 12
-    if ((studentForm.grade === "11" || studentForm.grade === "12") && !studentForm.stream) {
-      toast.error("Stream is required for Grade 11 and 12 students");
-      return;
-    }
-    // Stream should not be set for grades 9 and 10
-    if ((studentForm.grade === "9" || studentForm.grade === "10") && studentForm.stream) {
-      toast.error("Stream should not be set for Grade 9 and 10 students");
-      return;
-    }
+
     const username = studentForm.email.split("@")[0] + "_" + Date.now().toString().slice(-4);
     createStudentMutation.mutate({
       role: "Student",
-      firstName: studentForm.firstName,
-      lastName: studentForm.lastName,
-      email: studentForm.email,
+      firstName: validationResult.data.firstName,
+      lastName: validationResult.data.lastName,
+      email: validationResult.data.email,
       username,
-      phone: studentForm.phone || undefined,
-      grade: studentForm.grade,
-      stream: studentForm.stream || undefined,
-      gender: studentForm.gender,
-      dateOfBirth: studentForm.dob,
-      enrollmentDate: studentForm.enrollmentDate,
+      phone: validationResult.data.phone || undefined,
+      grade: validationResult.data.grade,
+      stream: validationResult.data.stream || undefined,
+      gender: validationResult.data.gender,
+      dateOfBirth: validationResult.data.dob,
+      enrollmentDate: validationResult.data.enrollmentDate,
     });
   };
 
@@ -689,26 +684,25 @@ export function SchoolAdminDashboard() {
 
   const handleUpdateStudent = async () => {
     if (!editingStudent) return;
-    // Stream is required for grades 11 and 12
-    if ((studentForm.grade === "11" || studentForm.grade === "12") && !studentForm.stream) {
-      toast.error("Stream is required for Grade 11 and 12 students");
+    
+    // Validate with zod schema
+    const validationResult = schoolAdminUpdateStudentSchema.safeParse(studentForm);
+    if (!validationResult.success) {
+      const errorMessages = validationResult.error.issues.map((e: z.ZodIssue) => e.message).join(', ');
+      toast.error(errorMessages);
       return;
     }
-    // Stream should not be set for grades 9 and 10
-    if ((studentForm.grade === "9" || studentForm.grade === "10") && studentForm.stream) {
-      toast.error("Stream should not be set for Grade 9 and 10 students");
-      return;
-    }
+
     try {
       await updateStudentMutation.mutateAsync({
         id: editingStudent._id || editingStudent.id,
         data: {
-          firstName: studentForm.firstName,
-          lastName: studentForm.lastName,
-          phone: studentForm.phone || undefined,
-          grade: studentForm.grade,
-          stream: studentForm.stream || undefined,
-          gender: studentForm.gender,
+          firstName: validationResult.data.firstName,
+          lastName: validationResult.data.lastName,
+          phone: validationResult.data.phone || undefined,
+          grade: validationResult.data.grade,
+          stream: validationResult.data.stream || undefined,
+          gender: validationResult.data.gender,
         },
       });
       setEditStudentDialogOpen(false);

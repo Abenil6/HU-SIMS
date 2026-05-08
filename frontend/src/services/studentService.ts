@@ -29,7 +29,7 @@ export interface Student {
   lastName: string;
   email?: string;
   phone?: string;
-  gender: "Male" | "Female";
+  gender: "Male" | "Female" | "Other";
   dob: string;
   grade: string;
   stream?: string; // Only for Grade 11-12
@@ -112,7 +112,7 @@ export interface CreateStudentData {
   email?: string;
   phone?: string;
   profileImage?: string;
-  gender: "Male" | "Female";
+  gender: "Male" | "Female" | "Other";
   dob: string;
   nationality?: string;
   grandfatherName?: string;
