@@ -60,6 +60,56 @@ const buildStudentCountMap = async () => {
   return map;
 };
 
+const deriveClassesFromStudents = async () => {
+  const rows = await User.aggregate([
+    { $match: { role: 'Student' } },
+    {
+      $project: {
+        grade: { $ifNull: ['$studentProfile.grade', '$grade'] },
+        stream: {
+          $ifNull: [
+            '$studentProfile.stream',
+            { $ifNull: ['$studentProfile.section', { $ifNull: ['$stream', '$section'] }] },
+          ],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          grade: '$grade',
+          stream: '$stream',
+        },
+        studentCount: { $sum: 1 },
+      },
+    },
+  ]);
+
+  return rows.map((row) => {
+    const grade = normalizeGrade(row?._id?.grade);
+    const stream = normalizeStream(row?._id?.stream);
+    const displayName = stream ? `${grade} - ${stream}` : grade;
+
+    return {
+      _id: `derived_${grade}_${stream}`,
+      id: `derived_${grade}_${stream}`,
+      name: displayName,
+      grade: `Grade ${grade}`,
+      stream: stream || '',
+      academicYear: '',
+      capacity: 45,
+      students: row.studentCount || 0,
+      classTeacher: '-',
+      classTeacherId: '',
+      subjects: [],
+      status: 'Active',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isDerived: true,
+    };
+  });
+};
+
 exports.getClasses = async (req, res) => {
   try {
     const { grade, stream, status, search, academicYear, page = 1, limit = 20 } = req.query;
@@ -89,6 +139,43 @@ exports.getClasses = async (req, res) => {
       SchoolClass.countDocuments(query),
       buildStudentCountMap(),
     ]);
+
+    // If no explicit classes exist, derive from student enrollments
+    if (total === 0 && classes.length === 0) {
+      const derivedClasses = await deriveClassesFromStudents();
+
+      // Apply filters to derived classes
+      let filteredDerived = derivedClasses;
+      if (grade) {
+        filteredDerived = filteredDerived.filter(c => c.grade === `Grade ${normalizeGrade(grade)}`);
+      }
+      if (stream !== undefined) {
+        filteredDerived = filteredDerived.filter(c => c.stream === normalizeStream(stream));
+      }
+      if (search) {
+        const searchLower = search.toLowerCase();
+        filteredDerived = filteredDerived.filter(c =>
+          c.name.toLowerCase().includes(searchLower) ||
+          c.grade.toLowerCase().includes(searchLower) ||
+          c.stream.toLowerCase().includes(searchLower)
+        );
+      }
+
+      const totalDerived = filteredDerived.length;
+      const paginatedDerived = filteredDerived
+        .slice((numericPage - 1) * numericLimit, numericPage * numericLimit);
+
+      return res.json({
+        success: true,
+        data: paginatedDerived,
+        pagination: {
+          page: numericPage,
+          limit: numericLimit,
+          total: totalDerived,
+          pages: Math.ceil(totalDerived / numericLimit),
+        },
+      });
+    }
 
     const data = classes.map((doc) => {
       const key = `${normalizeGrade(doc.grade)}::${normalizeStream(doc.stream)}`;
