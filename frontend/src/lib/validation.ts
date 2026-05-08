@@ -104,6 +104,36 @@ export const createUserSchema = z.object({
     .regex(/^[a-zA-Z0-9._-]+$/, "Username can only contain letters, numbers, dots, hyphens, and underscores"),
 });
 
+// System Admin Dashboard User Creation Schema (without username, with grade/stream/status)
+export const systemAdminCreateUserSchema = z.object({
+  firstName: lettersOnlySchema,
+  lastName: lettersOnlySchema,
+  email: emailSchema,
+  phone: phoneOptionalSchema,
+  role: z.enum(["SystemAdmin", "SchoolAdmin", "Teacher", "Student", "Parent"]),
+  grade: z.string().optional(),
+  stream: z.string().optional(),
+  status: z.enum(["active", "inactive"]).optional(),
+}).refine((data) => {
+  // If role is Student and grade is 11 or 12, stream is required
+  if (data.role === "Student") {
+    const grade = String(data.grade || "");
+    if ((grade === "11" || grade === "12") && !data.stream) {
+      return false;
+    }
+    if (grade !== "11" && grade !== "12" && data.stream) {
+      return false;
+    }
+  }
+  return true;
+}, {
+  message: "Stream is required for Grade 11 and Grade 12 students",
+  path: ["stream"],
+});
+
+// System Admin Dashboard User Update Schema
+export const systemAdminUpdateUserSchema = systemAdminCreateUserSchema.partial();
+
 export const updateUserSchema = createUserSchema.partial().extend({
   status: z.enum(["active", "inactive", "pending", "Active", "Inactive", "Pending"]).optional(),
 });
@@ -374,6 +404,8 @@ export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
 export type TwoFactorFormData = z.infer<typeof twoFactorSchema>;
 export type CreateUserData = z.infer<typeof createUserSchema>;
+export type SystemAdminCreateUserData = z.infer<typeof systemAdminCreateUserSchema>;
+export type SystemAdminUpdateUserData = z.infer<typeof systemAdminUpdateUserSchema>;
 export type UpdateUserData = z.infer<typeof updateUserSchema>;
 export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
 export type CreateTeacherData = z.infer<typeof createTeacherSchema>;

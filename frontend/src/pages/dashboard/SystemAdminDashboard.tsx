@@ -59,7 +59,7 @@ import { useToast } from "@/components/ui/Toast";
 import { FormModal } from "@/components/ui/FormModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { contactService, type ContactMessage } from "@/services/contactService";
-import { createUserSchema, updateUserSchema } from "@/lib/validation";
+import { systemAdminCreateUserSchema, systemAdminUpdateUserSchema } from "@/lib/validation";
 
 /**
  * System Admin Dashboard
@@ -529,7 +529,7 @@ export function SystemAdminDashboard() {
 
   const handleCreateUser = async () => {
     // Validate with zod schema
-    const validationResult = createUserSchema.safeParse(formData);
+    const validationResult = systemAdminCreateUserSchema.safeParse(formData);
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
       toast.error(errorMessages);
@@ -554,7 +554,7 @@ export function SystemAdminDashboard() {
     if (!selectedUser) return;
     
     // Validate with zod schema
-    const validationResult = updateUserSchema.safeParse(formData);
+    const validationResult = systemAdminUpdateUserSchema.safeParse(formData);
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
       toast.error(errorMessages);
