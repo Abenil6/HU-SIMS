@@ -230,6 +230,16 @@ export function SchoolAdminGradesPage() {
     limit: 1000,
   }) as { data: any; isLoading: boolean; refetch: () => void };
 
+  // Debug: Log loaded grades data
+  useEffect(() => {
+    if (recordsData) {
+      console.log("School Admin - All loaded grades:", recordsData);
+      const pendingGrades = recordsData.filter((g: any) => g.status === "Pending Approval");
+      console.log("School Admin - Pending grades:", pendingGrades);
+      console.log("School Admin - All statuses:", [...new Set(recordsData.map((g: any) => g.status))]);
+    }
+  }, [recordsData]);
+
   const studentLookup = useMemo(() => {
     const lookup = new Map<string, any>();
 
