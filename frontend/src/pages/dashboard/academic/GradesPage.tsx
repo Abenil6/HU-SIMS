@@ -1133,6 +1133,10 @@ export function GradesPage() {
 
   const handleDeleteConfirm = async () => {
     if (!selectedGrade) return;
+    // Debug: Log the grade data to understand ID structure
+    console.log("Deleting grade with data:", selectedGrade);
+    console.log("Grade ID being sent:", selectedGrade.id);
+    console.log("Grade _id field:", (selectedGrade as any)._id);
     await deleteAcademicRecord.mutateAsync(selectedGrade.id);
     setDeleteDialogOpen(false);
     setSelectedGrade(null);
