@@ -48,8 +48,7 @@ import toast from "react-hot-toast";
 import { PageHeader, Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { StatsCard } from "@/components/ui/StatsCard";
 import { useStudents } from "@/hooks/students/useStudents";
-import { useAcademicRecords } from "@/hooks/academic/useAcademicRecords";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getStatus, getGradeColor, academicService } from "@/services/academicService";
 import { academicYearService } from "@/services/academicYearService";
 import { useAuthStore } from "@/stores/authStore";
@@ -225,9 +224,11 @@ export function SchoolAdminGradesPage() {
     [studentsData],
   );
 
-  // Fetch all academic records using useAcademicRecords
-  const { data: recordsData, isLoading: isLoadingRecords, refetch: refetchGrades } = useAcademicRecords({
-    limit: 1000,
+  // Fetch all academic records using admin-specific endpoint
+  const { data: recordsData, isLoading: isLoadingRecords, refetch: refetchGrades } = useQuery({
+    queryKey: ["adminGrades", { limit: 1000 }],
+    queryFn: () => academicService.getGradesForApproval({ limit: 1000 }),
+    staleTime: 2 * 60 * 1000,
   }) as { data: any; isLoading: boolean; refetch: () => void };
 
   // Debug: Log loaded grades data
