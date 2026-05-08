@@ -53,8 +53,16 @@ function mapStatus(status: any): User["status"] {
 }
 
 function mapUser(u: any): User {
+  // Debug: Log raw user data to understand ID structure
+  console.log("Raw user data:", u);
+  console.log("User id fields:", { id: u?.id, _id: u?._id });
+  
+  // Ensure we get a valid MongoDB ObjectId
+  const userId = u?._id || u?.id;
+  console.log("Final user ID:", userId);
+  
   return {
-    id: u?.id || u?._id,
+    id: userId,
     firstName: u?.firstName || "",
     lastName: u?.lastName || "",
     email: u?.email || "",
