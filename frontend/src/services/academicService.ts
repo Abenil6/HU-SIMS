@@ -121,7 +121,7 @@ export const academicService = {
     limit?: number;
   }) => apiGet("/academic-records/grades", { ...params, limit: params.limit || 1000 }),
 
-  // Get all grades for admin approval (admin-only endpoint)
+  // Get all grades for admin approval (admin-only parameters)
   getGradesForApproval: async (params?: {
     status?: string;
     grade?: string;
@@ -129,7 +129,7 @@ export const academicService = {
     semester?: string;
     academicYear?: string;
     limit?: number;
-  }) => apiGet("/academic-records/admin/grades", { ...params, limit: params?.limit || 1000 }),
+  }) => apiGet("/academic-records/grades", { ...params, admin: true, limit: params?.limit || 1000 }),
 
   // Enter new grade
   enterGrade: async (data: {
