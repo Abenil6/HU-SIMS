@@ -38,6 +38,7 @@ import {
 import {
   Add,
   Download,
+  Upload,
   Calculate,
   Assessment,
   TrendingUp,
@@ -48,6 +49,8 @@ import {
   School,
   InfoOutlined,
   Refresh,
+  CheckCircle,
+  Warning,
 } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import { PageHeader, Breadcrumbs } from "@/components/ui/Breadcrumbs";
@@ -226,6 +229,16 @@ export function GradesPage() {
   const [marks, setMarks] = useState<MarksState>(emptyMarks());
   const [submitting, setSubmitting] = useState(false);
   const [exporting, setExporting] = useState(false);
+
+  // ── bulk grade entry state ──
+  const [bulkEntryOpen, setBulkEntryOpen] = useState(false);
+  const [bulkGrade, setBulkGrade] = useState("");
+  const [bulkStream, setBulkStream] = useState("");
+  const [bulkSubject, setBulkSubject] = useState(defaultTeacherSubject);
+  const [bulkSemester, setBulkSemester] = useState("1");
+  const [bulkGradesData, setBulkGradesData] = useState<Record<string, MarksState>>({});
+  const [bulkSubmitting, setBulkSubmitting] = useState(false);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -796,6 +809,204 @@ export function GradesPage() {
     setStudentGradesOpen(true);
   };
 
+  // ── bulk grade entry functions ──
+  const openBulkEntryDialog = () => {
+    setBulkGrade("");
+    setBulkStream("");
+    setBulkSubject(defaultTeacherSubject);
+    setBulkSemester("1");
+    setBulkGradesData({});
+    setCsvFile(null);
+    setBulkEntryOpen(true);
+  };
+
+  const closeBulkEntryDialog = () => {
+    setBulkEntryOpen(false);
+    setBulkGradesData({});
+    setCsvFile(null);
+  };
+
+  const handleLoadStudentsForBulkEntry = () => {
+    if (!bulkGrade || (gradeRequiresStream(bulkGrade) && !bulkStream)) {
+      toast.error("Please select grade" + (gradeRequiresStream(bulkGrade) ? " and stream" : ""));
+      return;
+    }
+    if (!bulkSubject) {
+      toast.error("Please select subject");
+      return;
+    }
+
+    // Initialize empty marks for all students in the selected grade/stream
+    const studentsInGrade = formFilteredStudents.filter((s: any) => {
+      const studentGrade = normalizeGradeValue(s?.studentProfile?.grade || s?.grade || "");
+      const studentStream = String(s?.studentProfile?.stream || s?.stream || "").trim();
+      return studentGrade === normalizeGradeValue(bulkGrade) &&
+             (!gradeRequiresStream(bulkGrade) || studentStream === bulkStream);
+    });
+
+    const initialData: Record<string, MarksState> = {};
+    studentsInGrade.forEach((student: any) => {
+      const studentId = student.studentId || student.studentProfile?.studentId || student.id || student._id;
+      if (studentId) {
+        initialData[studentId] = emptyMarks();
+      }
+    });
+
+    setBulkGradesData(initialData);
+  };
+
+  const handleBulkGradeChange = (studentId: string, component: ComponentKey, value: string) => {
+    setBulkGradesData((prev) => ({
+      ...prev,
+      [studentId]: {
+        ...prev[studentId],
+        [component]: value,
+      },
+    }));
+  };
+
+  const calculateRowTotal = (marks: MarksState) => {
+    return COMPONENTS.reduce((sum, c) => sum + (Number(marks[c.key]) || 0), 0);
+  };
+
+  const handleSaveAllGrades = async () => {
+    if (!bulkGrade || !bulkSubject || !bulkSemester) {
+      toast.error("Please select grade, subject, and semester");
+      return;
+    }
+
+    setBulkSubmitting(true);
+    try {
+      const creates = [];
+
+      for (const [studentId, marks] of Object.entries(bulkGradesData)) {
+        for (const comp of COMPONENTS) {
+          const score = Number(marks[comp.key]) || 0;
+          if (score > 0) { // Only submit if score is entered
+            creates.push({
+              studentId,
+              subject: bulkSubject,
+              grade: bulkGrade,
+              stream: bulkStream || undefined,
+              semester: bulkSemester === "1" ? "Semester 1" : "Semester 2",
+              academicYear: activeAcademicYear,
+              assessmentType: comp.assessmentType,
+              score,
+              status: "Pending" as const,
+            });
+          }
+        }
+      }
+
+      if (creates.length === 0) {
+        toast.error("No grades entered");
+        return;
+      }
+
+      // Submit all grades
+      for (const data of creates) {
+        await createGrade.mutateAsync(data);
+      }
+
+      toast.success(`Successfully saved ${creates.length} grade entries`);
+      closeBulkEntryDialog();
+      refetchGrades();
+    } catch (error) {
+      console.error("Failed to save bulk grades:", error);
+      toast.error("Failed to save some grades");
+    } finally {
+      setBulkSubmitting(false);
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    if (!bulkGrade || (gradeRequiresStream(bulkGrade) && !bulkStream)) {
+      toast.error("Please select grade" + (gradeRequiresStream(bulkGrade) ? " and stream" : "") + " first");
+      return;
+    }
+
+    const studentsInGrade = formFilteredStudents.filter((s: any) => {
+      const studentGrade = normalizeGradeValue(s?.studentProfile?.grade || s?.grade || "");
+      const studentStream = String(s?.studentProfile?.stream || s?.stream || "").trim();
+      return studentGrade === normalizeGradeValue(bulkGrade) &&
+             (!gradeRequiresStream(bulkGrade) || studentStream === bulkStream);
+    });
+
+    const headers = ["student_name", "mid_exam", "final_exam", "assignment", "quiz_test"];
+    const rows = studentsInGrade.map((s: any) => {
+      const name = `${s.firstName || ""} ${s.lastName || ""}`.trim();
+      return [name, "", "", "", ""].join(",");
+    });
+
+    const csvContent = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `grade_template_${bulkGrade}${bulkStream ? "_" + bulkStream : ""}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast.success("Template downloaded successfully");
+  };
+
+  const handleCsvImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setCsvFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split("\n");
+      const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
+
+      const studentNameIndex = headers.indexOf("student_name");
+      const midExamIndex = headers.indexOf("mid_exam");
+      const finalExamIndex = headers.indexOf("final_exam");
+      const assignmentIndex = headers.indexOf("assignment");
+      const quizTestIndex = headers.indexOf("quiz_test");
+
+      if (studentNameIndex === -1) {
+        toast.error("CSV must contain 'student_name' column");
+        return;
+      }
+
+      const importedData: Record<string, MarksState> = {};
+      
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        const values = line.split(",");
+        const studentName = values[studentNameIndex]?.trim();
+        
+        if (!studentName) continue;
+
+        // Find student by name
+        const student = formFilteredStudents.find((s: any) => {
+          const name = `${s.firstName || ""} ${s.lastName || ""}`.trim().toLowerCase();
+          return name === studentName.toLowerCase();
+        });
+
+        if (student) {
+          const studentId = student.studentId || student.studentProfile?.studentId || student.id || student._id;
+          if (studentId) {
+            importedData[studentId] = {
+              midMarks: midExamIndex !== -1 ? values[midExamIndex]?.trim() || "" : "",
+              finalMarks: finalExamIndex !== -1 ? values[finalExamIndex]?.trim() || "" : "",
+              assignmentMarks: assignmentIndex !== -1 ? values[assignmentIndex]?.trim() || "" : "",
+              quizMarks: quizTestIndex !== -1 ? values[quizTestIndex]?.trim() || "" : "",
+            };
+          }
+        }
+      }
+
+      setBulkGradesData(importedData);
+      toast.success(`Imported grades for ${Object.keys(importedData).length} students`);
+    };
+    reader.readAsText(file);
+  };
+
   // ── submit ──
   const handleFormSubmit = async () => {
     if (!formStudentId) {
@@ -1076,13 +1287,22 @@ export function GradesPage() {
         }
         action={
           canManageGrades ? (
-            <Button
-              variant="contained"
-              startIcon={<Add />}
-              onClick={openAddDialog}
-            >
-              Enter Grade
-            </Button>
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <Button
+                variant="contained"
+                startIcon={<Add />}
+                onClick={openAddDialog}
+              >
+                Enter Grade
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<Calculate />}
+                onClick={openBulkEntryDialog}
+              >
+                Bulk Entry
+              </Button>
+            </Box>
           ) : null
         }
       />
@@ -2151,6 +2371,274 @@ export function GradesPage() {
               : editMode
                 ? t('common.save')
                 : t('common.saveAll')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ── Bulk Grade Entry Dialog ─────────────────────────────────────── */}
+      <Dialog open={bulkEntryOpen} onClose={closeBulkEntryDialog} maxWidth="xl" fullWidth>
+        <DialogTitle sx={{ pb: 1 }}>
+          <Typography variant="h6" fontWeight={700}>
+            Bulk Grade Entry
+          </Typography>
+          <Typography variant="body2" color="text.secondary" mt={0.5}>
+            Enter grades for all students in the selected grade/stream at once
+          </Typography>
+        </DialogTitle>
+
+        <Divider />
+
+        <DialogContent sx={{ pt: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {/* Selection Form */}
+            <Box sx={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2 }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Grade *</InputLabel>
+                <Select
+                  value={bulkGrade}
+                  label="Grade *"
+                  onChange={(e) => {
+                    setBulkGrade(e.target.value);
+                    setBulkStream("");
+                  }}
+                >
+                  <MenuItem value="">Select Grade</MenuItem>
+                  {[
+                    ...new Set(
+                      assignedClasses.map((cls) =>
+                        normalizeGradeValue(cls.grade),
+                      ),
+                    ),
+                  ].map((gradeOption) => (
+                    <MenuItem key={gradeOption} value={gradeOption}>
+                      Grade {gradeOption}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {gradeRequiresStream(bulkGrade) && (
+                <FormControl fullWidth size="small">
+                  <InputLabel>Stream *</InputLabel>
+                  <Select
+                    value={bulkStream}
+                    label="Stream *"
+                    onChange={(e) => setBulkStream(e.target.value)}
+                  >
+                    <MenuItem value="">Select Stream</MenuItem>
+                    {[
+                      ...new Set(
+                        assignedClasses
+                          .filter((c) => 
+                            normalizeGradeValue(c.grade) === normalizeGradeValue(bulkGrade) && 
+                            c.stream
+                          )
+                          .map((c) => String(c.stream).trim()),
+                      ),
+                    ].map((streamOption) => (
+                      <MenuItem key={streamOption} value={streamOption}>
+                        {streamFilterLabel(streamOption)}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+
+              <FormControl fullWidth size="small">
+                <InputLabel>Subject *</InputLabel>
+                <Select
+                  value={bulkSubject}
+                  label="Subject *"
+                  onChange={(e) => setBulkSubject(e.target.value)}
+                >
+                  {isTeacher ? (
+                    teacherSubjects.length === 0 ? (
+                      <MenuItem value="" disabled>
+                        No subject assigned
+                      </MenuItem>
+                    ) : (
+                      teacherSubjects.map((s) => (
+                        <MenuItem key={s} value={s}>
+                          {s}
+                        </MenuItem>
+                      ))
+                    )
+                  ) : (
+                    [
+                      "Mathematics",
+                      "English",
+                      "Physics",
+                      "Chemistry",
+                      "Biology",
+                      "History",
+                      "Geography",
+                      "Civics",
+                      "Physical Education",
+                      "Economics",
+                      "ICT",
+                    ].map((s) => (
+                      <MenuItem key={s} value={s}>
+                        {s}
+                      </MenuItem>
+                    ))
+                  )}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth size="small">
+                <InputLabel>Semester *</InputLabel>
+                <Select
+                  value={bulkSemester}
+                  label="Semester *"
+                  onChange={(e) => setBulkSemester(e.target.value)}
+                >
+                  <MenuItem value="1">Semester 1</MenuItem>
+                  <MenuItem value="2">Semester 2</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+              <Button
+                variant="contained"
+                onClick={handleLoadStudentsForBulkEntry}
+                disabled={!bulkGrade || (gradeRequiresStream(bulkGrade) && !bulkStream) || !bulkSubject}
+              >
+                Load Students
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={handleDownloadTemplate}
+                disabled={!bulkGrade || (gradeRequiresStream(bulkGrade) && !bulkStream)}
+                startIcon={<Download />}
+              >
+                Download Template
+              </Button>
+              <Button
+                variant="outlined"
+                component="label"
+                disabled={!bulkGrade || (gradeRequiresStream(bulkGrade) && !bulkStream)}
+                startIcon={<Upload />}
+              >
+                Import CSV
+                <input
+                  type="file"
+                  accept=".csv"
+                  hidden
+                  onChange={handleCsvImport}
+                />
+              </Button>
+            </Box>
+
+            {/* Bulk Grades Table */}
+            {Object.keys(bulkGradesData).length > 0 && (
+              <>
+                <Divider />
+                <TableContainer component={Paper} variant="outlined">
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 600 }}>Student Name</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }} align="center">Mid Exam (20)</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }} align="center">Final Exam (40)</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }} align="center">Assignment (20)</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }} align="center">Quiz/Test (20)</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }} align="center">Total</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }} align="center">Status</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {formFilteredStudents
+                        .filter((s: any) => {
+                          const studentGrade = normalizeGradeValue(s?.studentProfile?.grade || s?.grade || "");
+                          const studentStream = String(s?.studentProfile?.stream || s?.stream || "").trim();
+                          const studentId = s.studentId || s.studentProfile?.studentId || s.id || s._id;
+                          return studentGrade === normalizeGradeValue(bulkGrade) &&
+                                 (!gradeRequiresStream(bulkGrade) || studentStream === bulkStream) &&
+                                 studentId in bulkGradesData;
+                        })
+                        .map((student: any) => {
+                          const studentId = student.studentId || student.studentProfile?.studentId || student.id || student._id;
+                          const studentName = `${student.firstName || ""} ${student.lastName || ""}`.trim();
+                          const marks = bulkGradesData[studentId] || emptyMarks();
+                          const total = calculateRowTotal(marks);
+                          const isComplete = total === 100;
+                          const hasErrors = COMPONENTS.some(c => Number(marks[c.key]) > c.max);
+
+                          return (
+                            <TableRow key={studentId}>
+                              <TableCell sx={{ fontWeight: 500 }}>{studentName}</TableCell>
+                              {COMPONENTS.map((comp) => (
+                                <TableCell key={comp.key} align="center">
+                                  <TextField
+                                    size="small"
+                                    type="number"
+                                    inputProps={{ min: 0, max: comp.max, step: 0.5 }}
+                                    value={marks[comp.key]}
+                                    onChange={(e) => handleBulkGradeChange(studentId, comp.key, e.target.value)}
+                                    error={Number(marks[comp.key]) > comp.max}
+                                    sx={{ width: 80 }}
+                                  />
+                                </TableCell>
+                              ))}
+                              <TableCell align="center">
+                                <Chip
+                                  label={`${total}/100`}
+                                  size="small"
+                                  color={isComplete ? "success" : hasErrors ? "error" : "default"}
+                                  variant={isComplete ? "filled" : "outlined"}
+                                />
+                              </TableCell>
+                              <TableCell align="center">
+                                {isComplete ? (
+                                  <CheckCircle color="success" fontSize="small" />
+                                ) : hasErrors ? (
+                                  <Tooltip title="Some marks exceed maximum">
+                                    <Warning color="error" fontSize="small" />
+                                  </Tooltip>
+                                ) : (
+                                  <Typography variant="caption" color="text.secondary">
+                                    Incomplete
+                                  </Typography>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {Object.keys(bulkGradesData).length} students loaded
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {Object.values(bulkGradesData).filter(m => calculateRowTotal(m) === 100).length} / {Object.keys(bulkGradesData).length} complete
+                  </Typography>
+                </Box>
+              </>
+            )}
+          </Box>
+        </DialogContent>
+
+        <Divider />
+
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button onClick={closeBulkEntryDialog} disabled={bulkSubmitting}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSaveAllGrades}
+            disabled={bulkSubmitting || Object.keys(bulkGradesData).length === 0}
+            startIcon={
+              bulkSubmitting ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : undefined
+            }
+          >
+            {bulkSubmitting ? "Saving..." : "Save All Grades"}
           </Button>
         </DialogActions>
       </Dialog>
