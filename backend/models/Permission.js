@@ -170,11 +170,10 @@ const normalizePermissionsObject = (permissions = {}) => {
  */
 permissionSchema.statics.initializeDefaultPermissions = async function() {
   for (const [role, permissions] of Object.entries(defaultPermissions)) {
-    await this.findOneAndUpdate(
-      { role },
-      { role, permissions: sanitizePermissionsMap(permissions) },
-      { upsert: true, new: true }
-    );
+    const exists = await this.findOne({ role });
+    if (!exists) {
+      await this.create({ role, permissions: sanitizePermissionsMap(permissions) });
+    }
   }
 };
 
@@ -206,7 +205,11 @@ permissionSchema.statics.getRolePermissions = async function(role) {
 };
 
 permissionSchema.statics.getPermissionMatrix = async function() {
-  await this.initializeDefaultPermissions();
+  // Only initialize if no permissions exist at all, or check for each role
+  const existingCount = await this.countDocuments();
+  if (existingCount === 0) {
+    await this.initializeDefaultPermissions();
+  }
 
   const [permissions, userCounts] = await Promise.all([
     this.find({ role: { $in: Object.keys(ROLE_METADATA) } }).lean(),
