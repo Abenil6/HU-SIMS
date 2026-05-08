@@ -43,6 +43,21 @@ import {
   type RolePermissionRecord,
 } from "@/services/rolePermissionService";
 
+const ENFORCED_RESOURCES = new Set([
+  "academic-records",
+  "attendance",
+  "timetables",
+  "certificates",
+  "reports",
+  "messages",
+  "exam-schedules",
+  "absence-alerts",
+]);
+
+const getResourceEnforcementStatus = (resource: string): "enforced" | "role-based" => {
+  return ENFORCED_RESOURCES.has(resource) ? "enforced" : "role-based";
+};
+
 /* ──────────────────────────────────────────────────────────────────────
    FEATURE PERMISSION MAPPING
    Maps human-readable feature names to backend resource + actions
@@ -840,7 +855,14 @@ export function RolesPage() {
                             >
                               {cat.category}
                             </Typography>
-                            {allEnabled && (
+                            {getResourceEnforcementStatus(cat.permissions[0].resource) === "role-based" ? (
+                               <Chip 
+                                 label="Locked" 
+                                 size="small" 
+                                 variant="outlined" 
+                                 sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700, color: 'text.disabled', borderColor: 'divider' }} 
+                               />
+                            ) : allEnabled && (
                               <CheckCircle
                                 sx={{
                                   fontSize: 18,
@@ -857,10 +879,11 @@ export function RolesPage() {
                                 currentPermissions,
                                 perm,
                               );
+                              const isLocked = getResourceEnforcementStatus(perm.resource) === "role-based";
                               return (
                                 <Tooltip
                                   key={`${perm.resource}-${perm.actions.join(",")}`}
-                                  title={perm.description}
+                                  title={isLocked ? "System-defined role permission (Locked)" : perm.description}
                                   placement="right"
                                   arrow
                                 >
@@ -869,7 +892,7 @@ export function RolesPage() {
                                       <Checkbox
                                         checked={enabled}
                                         onChange={() => handleToggle(perm)}
-                                        disabled={saving}
+                                        disabled={saving || isLocked}
                                         size="small"
                                         sx={{
                                           color: alpha(
@@ -877,10 +900,9 @@ export function RolesPage() {
                                             0.4,
                                           ),
                                           "&.Mui-checked": {
-                                            color:
-                                              ROLE_CONFIG[selectedRole]
-                                                ?.color ||
-                                              theme.palette.primary.main,
+                                            color: isLocked 
+                                              ? theme.palette.text.disabled
+                                              : (ROLE_CONFIG[selectedRole]?.color || theme.palette.primary.main),
                                           },
                                         }}
                                       />
@@ -890,9 +912,11 @@ export function RolesPage() {
                                         variant="body2"
                                         sx={{
                                           fontWeight: enabled ? 600 : 400,
-                                          color: enabled
-                                            ? theme.palette.text.primary
-                                            : theme.palette.text.secondary,
+                                          color: isLocked 
+                                            ? theme.palette.text.disabled 
+                                            : (enabled ? theme.palette.text.primary : theme.palette.text.secondary),
+                                          textDecoration: isLocked && !enabled ? 'line-through' : 'none',
+                                          opacity: isLocked ? 0.7 : 1
                                         }}
                                       >
                                         {perm.label}
@@ -904,11 +928,9 @@ export function RolesPage() {
                                       borderRadius: 1.5,
                                       px: 1,
                                       py: 0.25,
+                                      cursor: isLocked ? 'not-allowed' : 'pointer',
                                       "&:hover": {
-                                        bgcolor: alpha(
-                                          theme.palette.primary.main,
-                                          0.04,
-                                        ),
+                                        bgcolor: isLocked ? 'transparent' : alpha(theme.palette.primary.main, 0.04),
                                       },
                                     }}
                                   />
