@@ -894,7 +894,7 @@ export function GradesPage() {
               score,
               maxScore: comp.max,
               weight: comp.weight,
-              status: "Pending" as const,
+              status: "Pending Approval" as const,
             });
           }
         }
