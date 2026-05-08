@@ -235,9 +235,10 @@ export function SchoolAdminGradesPage() {
   useEffect(() => {
     if (recordsData) {
       console.log("School Admin - All loaded grades:", recordsData);
-      const pendingGrades = recordsData.filter((g: any) => g.status === "Pending Approval");
+      const records = Array.isArray(recordsData?.data) ? recordsData.data : (Array.isArray(recordsData) ? recordsData : []);
+      const pendingGrades = records.filter((g: any) => g.status === "Pending Approval");
       console.log("School Admin - Pending grades:", pendingGrades);
-      console.log("School Admin - All statuses:", [...new Set(recordsData.map((g: any) => g.status))]);
+      console.log("School Admin - All statuses:", [...new Set(records.map((g: any) => g.status))]);
     }
   }, [recordsData]);
 
