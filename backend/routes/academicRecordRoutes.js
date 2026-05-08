@@ -17,7 +17,7 @@ const validateRecordsQuery = validateQuery({
   grade: { type: 'string', trim: true, maxLength: 30 },
   subject: { type: 'string', trim: true, maxLength: 120 },
   page: { type: 'number', min: 1 },
-  limit: { type: 'number', min: 1, max: 200 },
+  limit: { type: 'number', min: 1, max: 1000 },
 }, { allowUnknown: true });
 
 const validateAcademicRecordCreate = validateBody({
