@@ -577,6 +577,9 @@ export function SystemAdminDashboard() {
   const handleDeleteUser = async () => {
     if (!selectedUser) return;
     try {
+      // Debug: Log the user data to understand the ID structure
+      console.log("Deleting user with data:", selectedUser);
+      console.log("User ID being sent:", selectedUser.id);
       await userService.deleteUser(selectedUser.id);
       toast.success("User deleted successfully");
       setDeleteDialogOpen(false);
