@@ -129,7 +129,7 @@ export const academicService = {
     semester?: string;
     academicYear?: string;
     limit?: number;
-  }) => apiGet("/admin/academic-records/grades", { ...params, limit: params?.limit || 1000 }),
+  }) => apiGet("/academic-records/admin/grades", { ...params, limit: params?.limit || 1000 }),
 
   // Enter new grade
   enterGrade: async (data: {
