@@ -837,7 +837,7 @@ export function GradesPage() {
     }
 
     // Initialize empty marks for all students in the selected grade/stream
-    const studentsInGrade = formFilteredStudents.filter((s: any) => {
+    const studentsInGrade = scopedStudents.filter((s: any) => {
       const studentGrade = normalizeGradeValue(s?.studentProfile?.grade || s?.grade || "");
       const studentStream = String(s?.studentProfile?.stream || s?.stream || "").trim();
       return studentGrade === normalizeGradeValue(bulkGrade) &&
@@ -984,8 +984,15 @@ export function GradesPage() {
         
         if (!studentName) continue;
 
-        // Find student by name
-        const student = formFilteredStudents.find((s: any) => {
+        // Find student by name within the selected grade/stream
+        const studentsInBulkGrade = scopedStudents.filter((s: any) => {
+          const studentGrade = normalizeGradeValue(s?.studentProfile?.grade || s?.grade || "");
+          const studentStream = String(s?.studentProfile?.stream || s?.stream || "").trim();
+          return studentGrade === normalizeGradeValue(bulkGrade) &&
+                 (!gradeRequiresStream(bulkGrade) || studentStream === bulkStream);
+        });
+        
+        const student = studentsInBulkGrade.find((s: any) => {
           const name = `${s.firstName || ""} ${s.lastName || ""}`.trim().toLowerCase();
           return name === studentName.toLowerCase();
         });
@@ -2550,7 +2557,7 @@ export function GradesPage() {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {formFilteredStudents
+                      {scopedStudents
                         .filter((s: any) => {
                           const studentGrade = normalizeGradeValue(s?.studentProfile?.grade || s?.grade || "");
                           const studentStream = String(s?.studentProfile?.stream || s?.stream || "").trim();
