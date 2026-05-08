@@ -9,7 +9,7 @@ describe('Attendance Controller', () => {
   let teacherUser, teacherToken;
   let studentUser, studentToken;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const admin = await createAdminUser(app);
     adminUser = admin.user;
     adminToken = admin.token;

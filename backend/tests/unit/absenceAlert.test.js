@@ -3,16 +3,14 @@ const app = require('../../server');
 const { createAdminUser, createTeacherUser, createStudentUser, createParentUser } = require('../helpers/testHelpers');
 const { createAbsenceAlertData } = require('../helpers/testFactories');
 const AbsenceAlert = require('../../models/AbsenceAlert');
-const Student = require('../../models/Student');
 
 describe('Absence Alert Controller', () => {
   let adminUser, adminToken;
   let teacherUser, teacherToken;
   let studentUser, studentToken;
   let parentUser, parentToken;
-  let testStudent;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const admin = await createAdminUser(app);
     adminUser = admin.user;
     adminToken = admin.token;
@@ -28,21 +26,12 @@ describe('Absence Alert Controller', () => {
     const parent = await createParentUser(app);
     parentUser = parent.user;
     parentToken = parent.token;
-
-    testStudent = await Student.create({
-      user: studentUser._id,
-      enrollmentNumber: `ENR${Date.now()}`,
-      grade: 'Grade 10',
-      section: 'A',
-      dateOfBirth: '2010-01-01',
-      gender: 'Male'
-    });
   });
 
   describe('POST /api/absence-alerts - Create absence alert', () => {
     it('should create absence alert with valid data', async () => {
       const alertData = createAbsenceAlertData({
-        student: testStudent.user
+        student: studentUser._id
       });
 
       const response = await request(app)
@@ -67,7 +56,7 @@ describe('Absence Alert Controller', () => {
       const batchData = {
         alerts: [
           {
-            student: testStudent.user,
+            student: studentUser._id,
             date: new Date().toISOString().split('T')[0],
             reason: 'Absent without notice'
           }
@@ -96,7 +85,7 @@ describe('Absence Alert Controller', () => {
   describe('PUT /api/absence-alerts/:id/notify - Send notification', () => {
     it('should send notification to parents', async () => {
       const alert = await AbsenceAlert.create({
-        student: testStudent.user,
+        student: studentUser._id,
         date: new Date(),
         reason: 'Absent',
         status: 'Pending'
@@ -113,7 +102,7 @@ describe('Absence Alert Controller', () => {
   describe('PUT /api/absence-alerts/:id/resolve - Resolve alert', () => {
     it('should resolve absence alert', async () => {
       const alert = await AbsenceAlert.create({
-        student: testStudent.user,
+        student: studentUser._id,
         date: new Date(),
         reason: 'Absent',
         status: 'Pending'

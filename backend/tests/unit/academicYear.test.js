@@ -8,7 +8,7 @@ describe('Academic Year Controller', () => {
   let adminUser, adminToken;
   let teacherUser, teacherToken;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const admin = await createAdminUser(app);
     adminUser = admin.user;
     adminToken = admin.token;

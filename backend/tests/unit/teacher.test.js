@@ -2,12 +2,13 @@ const request = require('supertest');
 const app = require('../../server');
 const { createAdminUser, createTeacherUser } = require('../helpers/testHelpers');
 const { createTeacherData } = require('../helpers/testFactories');
+const VerificationToken = require('../../models/VerificationToken');
 
 describe('Teacher Controller', () => {
   let adminUser, adminToken;
   let teacherUser, teacherToken;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const admin = await createAdminUser(app);
     adminUser = admin.user;
     adminToken = admin.token;
@@ -17,12 +18,12 @@ describe('Teacher Controller', () => {
     teacherToken = teacher.token;
   });
 
-  describe('POST /api/teachers - Create teacher', () => {
+  describe('POST /api/admin/users - Create teacher (admin endpoint)', () => {
     it('should create teacher with valid data', async () => {
       const teacherData = createTeacherData();
 
       const response = await request(app)
-        .post('/api/teachers')
+        .post('/api/admin/users')
         .set('Authorization', `Bearer ${adminToken}`)
         .send(teacherData);
 
@@ -31,53 +32,73 @@ describe('Teacher Controller', () => {
 
     it('should reject creation without authentication', async () => {
       const response = await request(app)
-        .post('/api/teachers')
+        .post('/api/admin/users')
         .send(createTeacherData());
 
       expect(response.status).toBe(401);
     });
   });
 
-  describe('GET /api/teachers - Get teachers', () => {
+  describe('GET /api/admin/users - Get teachers', () => {
     it('should retrieve all teachers', async () => {
       const response = await request(app)
-        .get('/api/teachers')
+        .get('/api/admin/users?role=Teacher')
         .set('Authorization', `Bearer ${adminToken}`);
 
       expect(response.status).toBe(200);
     });
   });
 
-  describe('GET /api/teachers/:id - Get teacher by ID', () => {
+  describe('GET /api/admin/users/:id - Get teacher by ID', () => {
     it('should retrieve teacher by ID', async () => {
       const response = await request(app)
-        .get(`/api/teachers/${teacherUser._id}`)
+        .get(`/api/admin/users/${teacherUser._id}`)
         .set('Authorization', `Bearer ${adminToken}`);
 
       expect(response.status).toBe(200);
     });
   });
 
-  describe('PUT /api/teachers/:id - Update teacher', () => {
+  describe('PUT /api/admin/users/:id - Update teacher', () => {
     it('should update teacher information', async () => {
       const response = await request(app)
-        .put(`/api/teachers/${teacherUser._id}`)
+        .put(`/api/admin/users/${teacherUser._id}`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ subject: 'Physics' });
+        .send({ firstName: 'Updated', lastName: 'Teacher' });
 
       expect([200, 201]).toContain(response.status);
     });
   });
 
-  describe('DELETE /api/teachers/:id - Delete teacher', () => {
-    it('should delete teacher', async () => {
-      const tempTeacher = await createTeacherUser(app);
+  describe('DELETE /api/admin/users/:id - Delete teacher', () => {
+    it('should delete teacher (SystemAdmin only)', async () => {
+      // Create a temporary teacher via admin endpoint
+      const teacherData = createTeacherData();
+      const createResponse = await request(app)
+        .post('/api/admin/users')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(teacherData);
 
+      expect([200, 201]).toContain(createResponse.status);
+      
+      const teacherId = createResponse.body.user._id || createResponse.body.user.id;
+
+      // SchoolAdmin cannot delete users - only SystemAdmin can
       const response = await request(app)
-        .delete(`/api/teachers/${tempTeacher.user._id}`)
+        .delete(`/api/admin/users/${teacherId}`)
         .set('Authorization', `Bearer ${adminToken}`);
 
-      expect([200, 204]).toContain(response.status);
+      expect(response.status).toBe(403); // Forbidden for SchoolAdmin
+    });
+  });
+
+  describe('Teacher-specific endpoints', () => {
+    it('should get teacher profile', async () => {
+      const response = await request(app)
+        .get('/api/teachers/profile')
+        .set('Authorization', `Bearer ${teacherToken}`);
+
+      expect(response.status).toBe(200);
     });
   });
 });

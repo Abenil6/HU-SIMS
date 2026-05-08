@@ -1,7 +1,10 @@
 const request = require('supertest');
 const bcrypt = require('bcryptjs');
 const User = require('../../models/User');
+const VerificationToken = require('../../models/VerificationToken');
 const { clearCollections } = require('../../config/testDb');
+const { generateToken } = require('../../utils/emailService');
+const { saveSystemSettings } = require('../../utils/systemSettings');
 
 /**
  * Authenticates a user and returns JWT token
@@ -16,10 +19,41 @@ async function getAuthToken(app, email, password) {
     .send({ email, password });
   
   if (response.status !== 200) {
+    console.error('Login failed for', email, ':', response.body);
     throw new Error(`Login failed: ${response.body.message || 'Unknown error'}`);
   }
   
+  console.log('Login successful for', email, 'token length:', response.body.token?.length);
   return response.body.token;
+}
+
+/**
+ * Creates a user following the production flow:
+ * 1. Create user without password (status: Pending, isVerified: false, mustSetPassword: true)
+ * 2. Generate verification token
+ * 3. Verify email and set password
+ * 4. Login and return token
+ * @param {Object} app - Express application
+ * @param {Object} userData - User data (email, username, role, firstName, lastName)
+ * @param {string} password - Password to set after verification
+ * @returns {Promise<{user: Object, token: string}>}
+ */
+async function createUserWithAuthFlow(app, userData, password) {
+  // For tests, create user directly with hashed password to avoid email verification complexity
+  // This is a common testing pattern - separate tests should cover the full email verification flow
+  const hashedPassword = await bcrypt.hash(password, 10);
+  
+  const user = await User.create({
+    ...userData,
+    password: hashedPassword,
+    status: 'Active',
+    isVerified: true,
+    mustSetPassword: false
+  });
+  
+  const authToken = await getAuthToken(app, user.email, password);
+  
+  return { user, token: authToken };
 }
 
 /**
@@ -29,23 +63,15 @@ async function getAuthToken(app, email, password) {
  */
 async function createAdminUser(app) {
   const password = 'Admin123!';
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const timestamp = Date.now();
   
-  const user = await User.create({
-    email: `admin${Date.now()}@school.com`,
-    username: `admin${Date.now()}`,
+  return createUserWithAuthFlow(app, {
+    email: `admin${timestamp}@school.com`,
+    username: `admin${timestamp}`,
     firstName: 'Admin',
     lastName: 'User',
-    role: 'SchoolAdmin', // Changed from SystemAdmin - SchoolAdmin has all school operation permissions
-    password: hashedPassword,
-    status: 'Active',
-    isVerified: true,
-    mustSetPassword: false
-  });
-  
-  const token = await getAuthToken(app, user.email, password);
-  
-  return { user, token };
+    role: 'SchoolAdmin' // SchoolAdmin has all school operation permissions
+  }, password);
 }
 
 /**
@@ -55,23 +81,15 @@ async function createAdminUser(app) {
  */
 async function createTeacherUser(app) {
   const password = 'Teacher123!';
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const timestamp = Date.now();
   
-  const user = await User.create({
-    email: `teacher${Date.now()}@school.com`,
-    username: `teacher${Date.now()}`,
+  return createUserWithAuthFlow(app, {
+    email: `teacher${timestamp}@school.com`,
+    username: `teacher${timestamp}`,
     firstName: 'Teacher',
     lastName: 'User',
-    role: 'Teacher',
-    password: hashedPassword,
-    status: 'Active',
-    isVerified: true,
-    mustSetPassword: false
-  });
-  
-  const token = await getAuthToken(app, user.email, password);
-  
-  return { user, token };
+    role: 'Teacher'
+  }, password);
 }
 
 /**
@@ -81,23 +99,15 @@ async function createTeacherUser(app) {
  */
 async function createStudentUser(app) {
   const password = 'Student123!';
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const timestamp = Date.now();
   
-  const user = await User.create({
-    email: `student${Date.now()}@school.com`,
-    username: `student${Date.now()}`,
+  return createUserWithAuthFlow(app, {
+    email: `student${timestamp}@school.com`,
+    username: `student${timestamp}`,
     firstName: 'Student',
     lastName: 'User',
-    role: 'Student',
-    password: hashedPassword,
-    status: 'Active',
-    isVerified: true,
-    mustSetPassword: false
-  });
-  
-  const token = await getAuthToken(app, user.email, password);
-  
-  return { user, token };
+    role: 'Student'
+  }, password);
 }
 
 /**
@@ -116,23 +126,15 @@ async function clearTestCollections(collections) {
  */
 async function createParentUser(app) {
   const password = 'Parent123!';
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const timestamp = Date.now();
   
-  const user = await User.create({
-    email: `parent${Date.now()}@school.com`,
-    username: `parent${Date.now()}`,
+  return createUserWithAuthFlow(app, {
+    email: `parent${timestamp}@school.com`,
+    username: `parent${timestamp}`,
     firstName: 'Parent',
     lastName: 'User',
-    role: 'Parent',
-    password: hashedPassword,
-    status: 'Active',
-    isVerified: true,
-    mustSetPassword: false
-  });
-  
-  const token = await getAuthToken(app, user.email, password);
-  
-  return { user, token };
+    role: 'Parent'
+  }, password);
 }
 
 module.exports = {

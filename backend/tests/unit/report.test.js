@@ -1,15 +1,13 @@
 const request = require('supertest');
 const app = require('../../server');
 const { createAdminUser, createTeacherUser, createStudentUser } = require('../helpers/testHelpers');
-const Student = require('../../models/Student');
 
 describe('Report Controller', () => {
   let adminUser, adminToken;
   let teacherUser, teacherToken;
   let studentUser, studentToken;
-  let testStudent;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const admin = await createAdminUser(app);
     adminUser = admin.user;
     adminToken = admin.token;
@@ -21,21 +19,12 @@ describe('Report Controller', () => {
     const student = await createStudentUser(app);
     studentUser = student.user;
     studentToken = student.token;
-
-    testStudent = await Student.create({
-      user: studentUser._id,
-      enrollmentNumber: `ENR${Date.now()}`,
-      grade: 'Grade 10',
-      section: 'A',
-      dateOfBirth: '2010-01-01',
-      gender: 'Male'
-    });
   });
 
   describe('GET /api/reports/student/:studentId - Generate student performance report', () => {
     it('should generate student performance report', async () => {
       const response = await request(app)
-        .get(`/api/reports/student/${testStudent.user}`)
+        .get(`/api/reports/student/${studentUser._id}`)
         .set('Authorization', `Bearer ${teacherToken}`);
 
       expect(response.status).toBe(200);
@@ -43,7 +32,7 @@ describe('Report Controller', () => {
 
     it('should reject request without authentication', async () => {
       const response = await request(app)
-        .get(`/api/reports/student/${testStudent.user}`);
+        .get(`/api/reports/student/${studentUser._id}`);
 
       expect(response.status).toBe(401);
     });

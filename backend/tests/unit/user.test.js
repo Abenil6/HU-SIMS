@@ -8,7 +8,7 @@ describe('User Management', () => {
   let adminToken;
   let testUserId;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const result = await createAdminUser(app);
     adminUser = result.user;
     adminToken = result.token;

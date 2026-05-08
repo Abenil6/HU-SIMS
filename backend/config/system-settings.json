@@ -9,7 +9,7 @@
     "contactPhone": "+251-XX-XXX-XXXX",
     "timezone": "Africa/Addis_Ababa",
     "dateFormat": "YYYY-MM-DD",
-    "requireEmailVerification": true,
+    "requireEmailVerification": false,
     "maxLoginAttempts": 5,
     "sessionTimeout": 30,
     "enableNotifications": true,

@@ -2,17 +2,18 @@ const request = require('supertest');
 const app = require('../../server');
 const { createAdminUser } = require('../helpers/testHelpers');
 const { createUserData } = require('../helpers/testFactories');
+const VerificationToken = require('../../models/VerificationToken');
 
 describe('User Workflow Integration Tests', () => {
   let adminToken;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const result = await createAdminUser(app);
     adminToken = result.token;
   });
 
   describe('Complete user registration and login workflow', () => {
-    it('should create user, login, and update profile', async () => {
+    it('should create user, verify email, set password, login, and update profile', async () => {
       // Step 1: Admin creates a new user
       const userData = createUserData({
         role: 'Teacher',
@@ -29,7 +30,27 @@ describe('User Workflow Integration Tests', () => {
       
       const userId = createResponse.body.user._id || createResponse.body.user.id;
 
-      // Step 2: User logs in
+      // Step 2: Get verification token from database (simulating email delivery)
+      const verification = await VerificationToken.findOne({
+        userId: userId,
+        type: 'email_verification'
+      });
+
+      expect(verification).toBeDefined();
+      expect(verification.token).toBeDefined();
+
+      // Step 3: User verifies email and sets password
+      const verifyResponse = await request(app)
+        .post('/api/auth/verify-email')
+        .send({
+          token: verification.token,
+          password: userData.password
+        });
+
+      expect(verifyResponse.status).toBe(200);
+      expect(verifyResponse.body.success).toBe(true);
+
+      // Step 4: User logs in
       const loginResponse = await request(app)
         .post('/api/auth/login')
         .send({
@@ -42,7 +63,7 @@ describe('User Workflow Integration Tests', () => {
       
       const userToken = loginResponse.body.token;
 
-      // Step 3: User views their profile
+      // Step 5: User views their profile
       const profileResponse = await request(app)
         .get('/api/auth/me')
         .set('Authorization', `Bearer ${userToken}`);
@@ -50,7 +71,7 @@ describe('User Workflow Integration Tests', () => {
       expect(profileResponse.status).toBe(200);
       expect(profileResponse.body.data.email).toBe(userData.email);
 
-      // Step 4: User updates their profile
+      // Step 6: User updates their profile
       const updateResponse = await request(app)
         .put(`/api/admin/users/${userId}`)
         .set('Authorization', `Bearer ${adminToken}`)
@@ -102,7 +123,7 @@ describe('User Workflow Integration Tests', () => {
       
       const userId = createResponse.body.user._id || createResponse.body.user.id;
 
-      // Verify user exists in database
+      // Verify user exists in database (user will be in Pending status)
       const getUserResponse = await request(app)
         .get('/api/admin/users')
         .set('Authorization', `Bearer ${adminToken}`);
@@ -114,6 +135,7 @@ describe('User Workflow Integration Tests', () => {
       
       expect(createdUser).toBeDefined();
       expect(createdUser.email).toBe(userData.email);
+      expect(createdUser.status).toBe('Pending'); // User should be in Pending status
     });
   });
 });

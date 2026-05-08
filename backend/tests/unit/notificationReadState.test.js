@@ -6,7 +6,7 @@ describe('Notification Read State Controller', () => {
   let studentUser;
   let studentToken;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const student = await createStudentUser(app);
     studentUser = student.user;
     studentToken = student.token;

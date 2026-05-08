@@ -6,7 +6,7 @@ describe('Authentication', () => {
   let adminUser;
   let adminToken;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     // Create an admin user for testing
     const result = await createAdminUser(app);
     adminUser = result.user;
@@ -84,7 +84,7 @@ describe('Authentication', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data).toBeDefined();
       expect(response.body.data.email).toBe(adminUser.email);
-      expect(response.body.data.role).toBe('SystemAdmin');
+      expect(response.body.data.role).toBe('SchoolAdmin');
     });
 
     it('should reject request without token', async () => {

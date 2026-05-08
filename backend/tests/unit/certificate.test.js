@@ -3,14 +3,12 @@ const app = require('../../server');
 const { createAdminUser, createStudentUser } = require('../helpers/testHelpers');
 const { createCertificateData } = require('../helpers/testFactories');
 const Certificate = require('../../models/Certificate');
-const Student = require('../../models/Student');
 
 describe('Certificate Controller', () => {
   let adminUser, adminToken;
   let studentUser, studentToken;
-  let testStudent;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const admin = await createAdminUser(app);
     adminUser = admin.user;
     adminToken = admin.token;
@@ -18,21 +16,12 @@ describe('Certificate Controller', () => {
     const student = await createStudentUser(app);
     studentUser = student.user;
     studentToken = student.token;
-
-    testStudent = await Student.create({
-      user: studentUser._id,
-      enrollmentNumber: `ENR${Date.now()}`,
-      grade: 'Grade 12',
-      section: 'A',
-      dateOfBirth: '2008-01-01',
-      gender: 'Male'
-    });
   });
 
   describe('POST /api/certificates - Generate certificate', () => {
     it('should generate certificate with valid data', async () => {
       const certificateData = createCertificateData({
-        student: testStudent.user,
+        student: studentUser._id,
         type: 'Completion'
       });
 
@@ -66,7 +55,7 @@ describe('Certificate Controller', () => {
   describe('PUT /api/certificates/:id/issue - Issue certificate', () => {
     it('should issue certificate', async () => {
       const certificate = await Certificate.create({
-        student: testStudent.user,
+        student: studentUser._id,
         type: 'Completion',
         certificateNumber: `CERT${Date.now()}`,
         issueDate: new Date(),
@@ -84,7 +73,7 @@ describe('Certificate Controller', () => {
   describe('PUT /api/certificates/:id/cancel - Cancel certificate', () => {
     it('should cancel certificate', async () => {
       const certificate = await Certificate.create({
-        student: testStudent.user,
+        student: studentUser._id,
         type: 'Transfer',
         certificateNumber: `CERT${Date.now()}`,
         issueDate: new Date(),
@@ -102,7 +91,7 @@ describe('Certificate Controller', () => {
   describe('GET /api/certificates/:id/verify - Verify certificate', () => {
     it('should verify certificate', async () => {
       const certificate = await Certificate.create({
-        student: testStudent.user,
+        student: studentUser._id,
         type: 'Bonafide',
         certificateNumber: `CERT${Date.now()}`,
         issueDate: new Date(),

@@ -1,0 +1,1779 @@
+================================================================================
+HU NON-BOARDING SCHOOL INFORMATION MANAGEMENT SYSTEM (HU-SIMS)
+COMPREHENSIVE SYSTEM DOCUMENTATION
+================================================================================
+
+TABLE OF CONTENTS
+-----------------
+1. System Overview
+2. Architecture
+3. Technology Stack
+4. User Roles and Permissions
+5. Features by Role
+6. Backend API Endpoints
+7. Frontend Pages and Components
+8. Data Models
+9. Security Features
+10. Deployment Information
+
+================================================================================
+1. SYSTEM OVERVIEW
+================================================================================
+
+HU-SIMS is a comprehensive school information management system designed for
+Haramaya University Non-Boarding Secondary School. The system enables efficient
+management of students, teachers, parents, academic records, attendance,
+reports, timetables, and communication.
+
+LIVE DEMO:
+- Frontend: https://hunb-sims.vercel.app
+- Backend: https://hu-sims-backend.onrender.com
+
+SYSTEM PURPOSE:
+- Centralized student and staff management
+- Academic record tracking and reporting
+- Attendance monitoring and absence alerts
+- Timetable management and scheduling
+- Internal communication and announcements
+- Role-based access control for different user types
+- System administration and monitoring
+
+================================================================================
+2. ARCHITECTURE
+================================================================================
+
+The system follows a client-server architecture with separate frontend and
+backend applications:
+
+FRONTEND ARCHITECTURE:
+- React 19 with TypeScript for type safety
+- Component-based architecture with reusable UI components
+- State management using Zustand
+- Data fetching with TanStack Query (React Query)
+- Routing with React Router DOM
+- Form handling with React Hook Form and Zod validation
+
+BACKEND ARCHITECTURE:
+- RESTful API built with Express.js
+- MongoDB for data persistence (MongoDB Atlas)
+- JWT-based authentication
+- Role-based access control (RBAC)
+- Middleware for authentication, authorization, and error handling
+- Modular controller-route-model structure
+
+COMMUNICATION:
+- HTTP/REST API between frontend and backend
+- JWT tokens for authentication
+- CORS enabled for cross-origin requests
+
+================================================================================
+3. TECHNOLOGY STACK
+================================================================================
+
+FRONTEND TECHNOLOGIES:
+----------------------
+Core Framework:
+
+React 19.2.0:
+- Purpose: UI framework for building user interfaces
+- What it does: Provides a component-based architecture for building interactive UIs
+- Usage in HU-SIMS: Used for all page components, reusable UI components, and the entire frontend interface
+- Key features: Virtual DOM for performance, component lifecycle management, hooks for state and side effects
+
+TypeScript 5.9.3:
+- Purpose: Static type checking for JavaScript
+- What it does: Adds type safety to JavaScript, catching errors at compile time
+- Usage in HU-SIMS: All frontend code is written in TypeScript for type safety
+- Key features: Interface definitions, type inference, generics, better IDE support
+
+Vite 7.2.4:
+- Purpose: Build tool and development server
+- What it does: Provides fast development server with hot module replacement (HMR) and optimized production builds
+- Usage in HU-SIMS: Development server for local development and production build tool
+- Key features: Instant server start, lightning-fast HMR, optimized bundling
+
+UI Components & Styling:
+
+Material UI (MUI) 7.3.7:
+- Purpose: Comprehensive React component library implementing Material Design
+- What it does: Provides pre-built, customizable UI components following Google's Material Design guidelines
+- Usage in HU-SIMS: Used for buttons, forms, tables, dialogs, cards, and most UI elements
+- Key features: Consistent design system, accessibility support, theming capabilities
+
+@mui/icons-material 7.3.7:
+- Purpose: Material Design icon library
+- What it does: Provides over 1,000 Material Design icons as React components
+- Usage in HU-SIMS: Used throughout the application for navigation, actions, and visual indicators
+- Key features: SVG icons, tree-shakeable, customizable size and color
+
+@mui/material 7.3.7:
+- Purpose: Core Material UI component library
+- What it does: Provides the main set of Material Design components
+- Usage in HU-SIMS: Primary UI component library for all interface elements
+- Key features: Grid system, typography, form components, data display components
+
+Tailwind CSS 4.1.18:
+- Purpose: Utility-first CSS framework
+- What it does: Provides utility classes for rapid UI development without writing custom CSS
+- Usage in HU-SIMS: Used for custom styling, layout, and responsive design alongside Material UI
+- Key features: Utility classes, responsive design prefixes, custom theme configuration
+
+@tailwindcss/postcss 4.1.18:
+- Purpose: PostCSS integration for Tailwind CSS
+- What it does: Processes Tailwind CSS directives and generates optimized CSS
+- Usage in HU-SIMS: Build-time processing of Tailwind CSS
+- Key features: CSS purging, autoprefixing, minification
+
+@emotion/react 11.14.0:
+- Purpose: CSS-in-JS library for styling React components
+- What it does: Allows writing CSS directly in JavaScript/TypeScript with component-scoped styles
+- Usage in HU-SIMS: Used by Material UI for its styling system
+- Key features: Component-scoped styles, theme support, dynamic styling
+
+@emotion/styled 11.14.1:
+- Purpose: Styled component utility from Emotion
+- What it does: Provides a styled-components API for creating styled React components
+- Usage in HU-SIMS: Used by Material UI for creating styled components
+- Key features: Prop-based styling, theme access, component composition
+
+Radix UI (@radix-ui/react-label, @radix-ui/react-slot):
+- Purpose: Unstyled, accessible UI component primitives
+- What it does: Provides accessible, unstyled components that can be customized
+- Usage in HU-SIMS: Used for form labels and component composition in shadcn/ui
+- Key features: Accessibility-first, keyboard navigation, screen reader support
+
+State Management & Data:
+
+Zustand 5.0.11:
+- Purpose: Lightweight state management library
+- What it does: Provides a simple API for global state management without boilerplate
+- Usage in HU-SIMS: Manages authentication state, user data, and global application state
+- Key features: Simple API, minimal boilerplate, TypeScript support, devtools integration
+
+@tanstack/react-query 5.90.20 (React Query):
+- Purpose: Data fetching and caching library
+- What it does: Manages server state with caching, synchronization, and background updates
+- Usage in HU-SIMS: Handles all API calls, caching responses, and managing loading/error states
+- Key features: Automatic caching, background refetching, optimistic updates, pagination support
+
+Axios 1.13.4:
+- Purpose: HTTP client for making API requests
+- What it does: Provides a promise-based HTTP client with interceptors
+- Usage in HU-SIMS: Used for all HTTP requests to the backend API
+- Key features: Request/response interceptors, automatic JSON parsing, error handling, timeout support
+
+Form Handling:
+
+react-hook-form 7.71.1:
+- Purpose: Performant form library for React
+- What it does: Manages form state, validation, and submission with minimal re-renders
+- Usage in HU-SIMS: Used for all forms (login, registration, data entry)
+- Key features: Minimal re-renders, easy integration with validation libraries, TypeScript support
+
+@hookform/resolvers 5.2.2:
+- Purpose: Validation resolver integration for react-hook-form
+- What it does: Integrates external validation libraries with react-hook-form
+- Usage in HU-SIMS: Connects Zod validation with react-hook-form
+- Key features: Type-safe validation, error message mapping, schema integration
+
+zod 4.3.6:
+- Purpose: TypeScript-first schema validation library
+- What it does: Provides schema definition and validation with TypeScript inference
+- Usage in HU-SIMS: Validates form data, API responses, and data structures
+- Key features: TypeScript inference, composable schemas, error handling, async validation
+
+Routing & Navigation:
+
+react-router-dom 7.13.0:
+- Purpose: Client-side routing library for React
+- What it does: Enables navigation between different pages without page reloads
+- Usage in HU-SIMS: Manages all application routing and navigation
+- Key features: Dynamic routing, nested routes, route protection, URL parameters
+
+Charts & Visualization:
+
+apexcharts 5.10.4:
+- Purpose: Modern charting library
+- What it does: Creates interactive, responsive charts for data visualization
+- Usage in HU-SIMS: Used for dashboards, attendance reports, and performance analytics
+- Key features: Responsive design, animation support, multiple chart types, theme customization
+
+react-apexcharts 2.1.0:
+- Purpose: React wrapper for ApexCharts
+- What it does: Provides React component interface for ApexCharts
+- Usage in HU-SIMS: Integrates ApexCharts into React components
+- Key features: React props interface, automatic updates, TypeScript support
+
+Internationalization:
+
+i18next 26.0.6:
+- Purpose: Internationalization framework
+- What it does: Provides translation and localization capabilities
+- Usage in HU-SIMS: Manages multi-language support for the application
+- Key features: Translation namespaces, interpolation, pluralization, fallbacks
+
+react-i18next 17.0.4:
+- Purpose: React integration for i18next
+- What it does: Provides React hooks and components for i18next
+- Usage in HU-SIMS: Used in React components for translations
+- Key features: useTranslation hook, Trans component, namespace support
+
+i18next-browser-languagedetector 8.2.1:
+- Purpose: Browser language detection for i18next
+- What it does: Automatically detects user's browser language
+- Usage in HU-SIMS: Detects user's preferred language on application load
+- Key features: Browser language detection, query string detection, localStorage support
+
+Icons:
+
+lucide-react 0.563.0:
+- Purpose: Lightweight icon library
+- What it does: Provides beautiful, consistent icons as React components
+- Usage in HU-SIMS: Used for navigation icons, action buttons, and visual indicators
+- Key features: Tree-shakeable, customizable, consistent style, SVG-based
+
+@mui/icons-material:
+- Purpose: Material Design icon set
+- What it does: Provides Google's Material Design icons as React components
+- Usage in HU-SIMS: Used alongside Lucide icons for Material Design consistency
+- Key features: 1,000+ icons, Material Design guidelines, accessibility support
+
+Animations:
+
+framer-motion 12.31.0:
+- Purpose: Animation library for React
+- What it does: Provides declarative animations and gestures
+- Usage in HU-SIMS: Used for page transitions, micro-interactions, and animations
+- Key features: Declarative API, gesture support, layout animations, SVG animations
+
+Notifications:
+
+react-hot-toast 2.6.0:
+- Purpose: Toast notification library
+- What it does: Displays toast notifications for user feedback
+- Usage in HU-SIMS: Shows success, error, and info notifications throughout the app
+- Key features: Lightweight, customizable, queue management, promise support
+
+Utilities:
+
+date-fns 4.1.0:
+- Purpose: Date manipulation library
+- What it does: Provides comprehensive date/time utilities
+- Usage in HU-SIMS: Used for date formatting, calculations, and display
+- Key features: Immutable operations, timezone support, localization, modular functions
+
+clsx 2.1.1:
+- Purpose: Class name utility
+- What it does: Conditionally joins class names together
+- Usage in HU-SIMS: Manages conditional CSS class names
+- Key features: Conditional classes, deduplication, TypeScript support
+
+tailwind-merge 3.4.0:
+- Purpose: Tailwind CSS class merging utility
+- What it does: Intelligently merges Tailwind CSS classes, removing conflicts
+- Usage in HU-SIMS: Combines Tailwind classes without style conflicts
+- Key features: Conflict resolution, TypeScript support, tailwind.config awareness
+
+class-variance-authority 0.7.1:
+- Purpose: Component variant management
+- What it does: Manages component variants with type safety
+- Usage in HU-SIMS: Creates reusable component variants (buttons, cards, etc.)
+- Key features: Type-safe variants, compound variants, default variants
+
+tailwindcss-animate 1.0.7:
+- Purpose: Animation utilities for Tailwind CSS
+- What it does: Provides animation utilities for Tailwind
+- Usage in HU-SIMS: Adds animation capabilities to Tailwind CSS
+- Key features: Pre-built animations, customizable, easy integration
+
+Development Tools:
+
+ESLint 9.39.2:
+- Purpose: JavaScript/TypeScript linter
+- What it does: Identifies and reports on code patterns and potential errors
+- Usage in HU-SIMS: Enforces code quality and consistency
+- Key features: Configurable rules, auto-fixing, plugin ecosystem
+
+typescript-eslint 8.46.4:
+- Purpose: TypeScript linting plugin for ESLint
+- What it does: Provides TypeScript-specific linting rules
+- Usage in HU-SIMS: Lints TypeScript code with type-aware rules
+- Key features: Type-aware linting, TypeScript-specific rules, better error detection
+
+@vitejs/plugin-react 5.1.1:
+- Purpose: React plugin for Vite
+- What it does: Enables React support in Vite with JSX transformation
+- Usage in HU-SIMS: Allows Vite to process React components and JSX
+- Key features: Fast HMR, JSX transformation, React Fast Refresh
+
+BACKEND TECHNOLOGIES:
+---------------------
+Core Framework:
+
+Node.js:
+- Purpose: JavaScript runtime environment for server-side code
+- What it does: Executes JavaScript code outside the browser, enabling server-side development
+- Usage in HU-SIMS: Runtime environment for the entire backend application
+- Key features: Event-driven, non-blocking I/O, npm package ecosystem, cross-platform
+
+Express 4.22.1:
+- Purpose: Web application framework for Node.js
+- What it does: Provides robust features for web and mobile applications
+- Usage in HU-SIMS: Main framework for building RESTful API endpoints
+- Key features: Routing, middleware support, easy template integration, robust routing
+
+dotenv 17.2.3:
+- Purpose: Environment variable management
+- What it does: Loads environment variables from .env file into process.env
+- Usage in HU-SIMS: Manages configuration (database URLs, API keys, secrets)
+- Key features: Security for sensitive data, environment-specific configurations, easy configuration
+
+Database:
+
+Mongoose 9.1.5:
+- Purpose: MongoDB object modeling (ODM) for Node.js
+- What it does: Provides a schema-based solution to model application data
+- Usage in HU-SIMS: Interacts with MongoDB database, defines data models and schemas
+- Key features: Schema validation, middleware support, type casting, query building
+- Models in HU-SIMS: User, Student, Teacher, Parent, AcademicRecord, Attendance, Timetable, Message, Announcement, Certificate, Report, and more
+
+MongoDB Atlas:
+- Purpose: Cloud-hosted MongoDB database service
+- What it does: Provides fully managed MongoDB database in the cloud
+- Usage in HU-SIMS: Stores all application data in a scalable, secure cloud database
+- Key features: Automatic backups, global distribution, security features, scaling
+
+Authentication & Security:
+
+jsonwebtoken 9.0.3 (JWT):
+- Purpose: JSON Web Token generation and verification
+- What it does: Creates and verifies JWT tokens for authentication
+- Usage in HU-SIMS: Generates access tokens for authenticated users, verifies tokens on protected routes
+- Key features: Token signing, verification, expiration handling, payload encoding
+- Token usage: Bearer tokens in Authorization header for API authentication
+
+bcryptjs 3.0.3:
+- Purpose: Password hashing library
+- What it does: Securely hashes passwords using bcrypt algorithm
+- Usage in HU-SIMS: Hashes user passwords before storing, verifies passwords during login
+- Key features: Salt rounds for security, slow hashing (prevents brute force), async operations
+- Security: Uses 10 salt rounds for password hashing in HU-SIMS
+
+cors 2.8.6:
+- Purpose: Cross-Origin Resource Sharing middleware
+- What it does: Enables CORS for Express applications
+- Usage in HU-SIMS: Allows frontend (Vercel) to communicate with backend (Render)
+- Key features: Configurable origins, credentials support, preflight handling
+- Configuration: Whitelists frontend URLs for secure cross-origin requests
+
+File Handling:
+
+multer 2.1.1:
+- Purpose: Middleware for handling multipart/form-data (file uploads)
+- What it does: Processes file uploads in Node.js applications
+- Usage in HU-SIMS: Handles profile image uploads, document uploads, and file submissions
+- Key features: File size limits, file type validation, storage configuration
+- Storage: Configured to store files in local uploads directory
+
+cloudinary 2.10.0:
+- Purpose: Cloud-based image and video management service
+- What it does: Provides cloud storage, transformation, and delivery of media files
+- Usage in HU-SIMS: Stores and serves profile images, documents, and other media files
+- Key features: Automatic optimization, responsive delivery, secure URLs, transformations
+- Benefits: Reduces server load, provides CDN, automatic backups
+
+Email Services:
+
+nodemailer 6.10.1:
+- Purpose: Email sending module for Node.js
+- What it does: Sends emails using SMTP or other transport methods
+- Usage in HU-SIMS: Sends verification emails, password reset emails, and notifications
+- Key features: SMTP support, HTML emails, attachments, template support
+- SMTP Provider: Gmail SMTP configured for email delivery
+
+Gmail SMTP:
+- Purpose: Email service provider for SMTP
+- What it does: Provides SMTP server for sending emails
+- Usage in HU-SIMS: Backend uses Gmail SMTP to send transactional emails
+- Configuration: Requires app password for authentication with 2FA enabled
+- Email types: Verification emails, password reset, notifications, announcements
+
+Document Generation:
+
+pdfkit 0.18.0:
+- Purpose: PDF generation library for Node.js
+- What it does: Creates PDF documents programmatically
+- Usage in HU-SIMS: Generates report cards, certificates, and official documents
+- Key features: Text, images, graphics, vector graphics, encryption
+- Use cases: Academic reports, attendance reports, certificates
+
+exceljs 4.4.0:
+- Purpose: Excel file generation and manipulation library
+- What it does: Creates, reads, and modifies Excel files (.xlsx)
+- Usage in HU-SIMS: Generates Excel reports, exports data, handles bulk uploads
+- Key features: Workbook/worksheet management, styling, formulas, data validation
+- Use cases: Student data export, attendance reports, grade reports
+
+API Documentation:
+
+swagger-jsdoc 6.2.8:
+- Purpose: Swagger/OpenAPI specification generator
+- What it does: Generates OpenAPI specification from JSDoc comments
+- Usage in HU-SIMS: Documents API endpoints with automatic spec generation
+- Key features: JSDoc comments, automatic schema generation, OpenAPI 3.0 support
+- Documentation: Generates API documentation at /api-docs endpoint
+
+swagger-ui-express 5.0.1:
+- Purpose: Swagger UI middleware for Express
+- What it does: Serves interactive API documentation UI
+- Usage in HU-SIMS: Provides interactive API documentation at /api-docs
+- Key features: Try-it-out functionality, request/response examples, schema visualization
+- Access: Available at http://localhost:5001/api-docs (development) and production URL
+
+Testing:
+
+jest 29.7.0:
+- Purpose: JavaScript testing framework
+- What it does: Provides testing utilities for JavaScript/Node.js applications
+- Usage in HU-SIMS: Unit testing for controllers, models, and middleware
+- Key features: Snapshot testing, mocking, async/await support, coverage reports
+- Coverage target: 75% for branches, functions, lines, and statements
+
+supertest 6.3.4:
+- Purpose: HTTP assertion library for Node.js
+- What it does: Provides high-level abstractions for testing HTTP servers
+- Usage in HU-SIMS: Integration testing for API endpoints
+- Key features: Express integration, assertion library, request/response testing
+- Testing: Tests API endpoints with mock requests and validates responses
+
+nodemon 3.1.11:
+- Purpose: Development tool that automatically restarts Node.js applications
+- What it does: Monitors file changes and restarts the server automatically
+- Usage in HU-SIMS: Development server auto-restart during development
+- Key features: Fast restart, file watching, configurable ignore patterns
+- Command: npm run dev for development with auto-restart
+
+DEPLOYMENT:
+------------
+Frontend: Vercel (cloud hosting platform)
+Backend: Render (cloud hosting platform)
+Database: MongoDB Atlas (cloud database)
+
+================================================================================
+4. USER ROLES AND PERMISSIONS
+================================================================================
+
+The system implements a role-based access control (RBAC) system with 5 roles:
+
+1. SYSTEM ADMIN (SystemAdmin)
+   Purpose: Technical system management, user accounts, security, backups
+   Permissions:
+   - User account creation and role assignment (full access)
+   - Student account management (READ, WRITE, EDIT only)
+   - Teacher account management (READ, WRITE, EDIT only)
+   - Parent account management (READ, WRITE, EDIT only)
+   - Messages (READ, WRITE)
+   - System settings (full access)
+   - EXCLUDED: Academic records, attendance, timetables, reports, certificates
+
+2. SCHOOL ADMIN (SchoolAdmin)
+   Purpose: School operations, academic administration, day-to-day management
+   Permissions:
+   - Users (READ, WRITE, EDIT, DELETE)
+   - Students (full access)
+   - Teachers (READ, WRITE, EDIT)
+   - Parents (full access)
+   - Academic records (full access)
+   - Attendance (full access)
+   - Timetables (full access)
+   - Reports (READ, WRITE, EDIT, DELETE)
+   - Messages (READ, WRITE)
+   - Certificates (READ, WRITE, APPROVE)
+   - Settings (READ, EDIT)
+
+3. TEACHER (Teacher)
+   Purpose: Classroom operations, grading, attendance, student communication
+   Permissions:
+   - Users (READ only)
+   - Students (READ only)
+   - Teachers (READ only)
+   - Parents (READ only)
+   - Academic records (READ, WRITE, EDIT)
+   - Attendance (READ, WRITE, EDIT)
+   - Timetables (READ only)
+   - Reports (READ, WRITE)
+   - Messages (READ, WRITE)
+   - Certificates (READ only)
+
+4. STUDENT (Student)
+   Purpose: Access to personal academic information and school communication
+   Permissions:
+   - Students (READ only - own records)
+   - Teachers (READ only)
+   - Academic records (READ only - own records)
+   - Attendance (READ only - own records)
+   - Timetables (READ only)
+   - Reports (READ only - own reports)
+   - Messages (READ, WRITE)
+   - Certificates (READ only)
+
+5. PARENT (Parent)
+   Purpose: Access to linked child records, progress, and school communication
+   Permissions:
+   - Students (READ only - linked children)
+   - Teachers (READ only)
+   - Parents (READ only)
+   - Academic records (READ only - linked children)
+   - Attendance (READ only - linked children)
+   - Timetables (READ only)
+   - Reports (READ only - linked children)
+   - Messages (READ, WRITE)
+   - Certificates (READ only - linked children)
+
+PERMISSION TYPES:
+- READ: View data
+- WRITE: Create new data
+- EDIT: Modify existing data
+- DELETE: Remove data
+- APPROVE: Approve/reject submissions
+- MANAGE: Full administrative control
+- ADMIN: Highest level permission
+
+RESOURCE TYPES:
+- users: User account management
+- students: Student records
+- teachers: Teacher records
+- parents: Parent records
+- academic-records: Grades and academic performance
+- attendance: Attendance tracking
+- timetables: Class schedules
+- reports: Performance reports
+- messages: Internal communication
+- certificates: Certificate generation
+- settings: System configuration
+
+================================================================================
+5. FEATURES BY ROLE
+================================================================================
+
+SYSTEM ADMIN FEATURES:
+----------------------
+Dashboard:
+- System overview with statistics
+- Active user count
+- System health monitoring
+- Security alerts
+
+User Management:
+- Create, edit, delete users
+- Assign roles and permissions
+- Activate/deactivate accounts
+- User profile management
+- Bulk user operations
+
+Role & Permissions Management:
+- View permission matrix
+- Modify role permissions
+- View user count per role
+- Permission audit trail
+
+System Settings:
+- Site name and description
+- Timezone configuration
+- Date format settings
+- Email verification settings
+- Session timeout configuration
+
+Security Settings:
+- Two-factor authentication (2FA)
+- Password expiry policies
+- Password complexity requirements
+- IP whitelist management
+- Login notifications
+
+Backup & Recovery:
+- Automated backup scheduling
+- Manual backup creation
+- Backup download
+- Backup restoration
+- Backup retention management
+
+System Health Monitoring:
+- API server status
+- Database health
+- Storage usage
+- Memory usage
+- CPU usage
+- Backup status
+
+System Logs:
+- Audit log viewing
+- System event tracking
+- Error logs
+- User activity logs
+
+Contact Messages:
+- View contact form submissions
+- Respond to messages
+- Update message status
+- Delete messages
+
+SCHOOL ADMIN FEATURES:
+----------------------
+Dashboard:
+- School overview statistics
+- Student enrollment numbers
+- Teacher count
+- Attendance summary
+- Recent activities
+
+Class Management:
+- Create and manage classes
+- Class section management
+- Grade/stream assignment
+- Class scheduling
+
+Student Management:
+- Student enrollment
+- Student profile management
+- Academic record tracking
+- Bulk student upload (Excel)
+- Student status management
+
+Teacher Management:
+- Teacher profile management
+- Subject assignment
+- Class assignment
+- Teacher availability
+
+Parent Management:
+- Parent account management
+- Student-parent linking
+- Parent communication
+
+Attendance Management:
+- Daily attendance marking
+- Attendance reports
+- Absence alerts
+- Attendance analytics
+
+Grades & Academic Records:
+- Grade entry and management
+- Academic performance tracking
+- Report card generation
+- Grade analytics
+
+Timetable Management:
+- Automatic timetable generation
+- Manual timetable creation
+- Timetable versioning
+- Conflict detection
+- Publish/unpublish timetables
+- Timetable export
+
+Messages:
+- Internal messaging
+- Message threads
+- Read/unread status
+- Message search
+
+Announcements:
+- Create announcements
+- Target audience selection
+- Announcement scheduling
+- Announcement history
+
+Exam Schedule:
+- Exam scheduling
+- Exam room assignment
+- Exam invigilation
+- Exam calendar
+
+Reports:
+- Academic performance reports
+- Attendance reports
+- Custom report generation
+- Report export (PDF/Excel)
+- Report archiving
+
+Settings:
+- School settings
+- Academic year configuration
+- System configuration
+
+TEACHER FEATURES:
+-----------------
+Dashboard:
+- Class overview
+- Student list
+- Upcoming schedule
+- Recent activities
+
+Student Management:
+- View assigned students
+- Student profile access
+- Academic record viewing
+
+Attendance:
+- Mark class attendance
+- View attendance history
+- Attendance reports
+
+Grades:
+- Enter student grades
+- View grade history
+- Grade analytics
+- Report card generation
+
+Materials:
+- Upload learning materials
+- Organize by subject
+- Material sharing
+
+Timetable:
+- View personal schedule
+- View class timetables
+- Schedule conflicts
+
+Messages:
+- Send messages to students/parents
+- Receive messages
+- Message threads
+
+Announcements:
+- View school announcements
+- Create class announcements
+
+Exam Schedule:
+- View exam schedule
+- Exam preparation tracking
+
+Reports:
+- Generate class reports
+- Student performance reports
+- Attendance reports
+
+Profile:
+- Personal profile management
+- Password change
+- Appearance settings
+
+STUDENT FEATURES:
+-----------------
+Dashboard:
+- Personal overview
+- Recent grades
+- Attendance summary
+- Upcoming events
+
+Grades:
+- View personal grades
+- Grade history
+- Performance trends
+- Report cards
+
+Attendance:
+- View attendance record
+- Attendance summary
+- Absence alerts
+
+Materials:
+- Access learning materials
+- Download resources
+- Material organization
+
+Timetable:
+- View class schedule
+- Personal schedule
+- Subject information
+
+Messages:
+- Send messages to teachers
+- Receive messages
+- Message notifications
+
+Reports:
+- Academic reports
+- Attendance reports
+- Performance reports
+
+Profile:
+- Personal information
+- Password change
+- Appearance settings
+
+PARENT FEATURES:
+----------------
+Dashboard:
+- Child overview
+- Recent activities
+- Notifications
+
+Grades:
+- View child's grades
+- Grade history
+- Performance trends
+- Report cards
+
+Attendance:
+- View child's attendance
+- Attendance summary
+- Absence alerts
+
+Timetable:
+- View child's schedule
+- Class information
+
+Messages:
+- Communicate with teachers
+- Receive school messages
+- Message notifications
+
+Alerts:
+- Absence alerts
+- Performance alerts
+- School announcements
+
+Reports:
+- Child's academic reports
+- Attendance reports
+- Progress reports
+
+Profile:
+- Personal information
+- Password change
+- Linked children management
+================================================================================
+6. BACKEND API ENDPOINTS
+================================================================================
+
+The HU-SIMS backend has **201 total API endpoints** organized into 15 modules:
+
+Authentication (/api/auth) - 11 endpoints:
+- POST /login - User login
+- POST /verify-2fa - Two-factor authentication verification
+- POST /logout - User logout
+- POST /verify-email - Email verification and password setup
+- POST /resend-verification - Resend verification email
+- POST /forgot-password - Request password reset
+- POST /reset-password - Reset password with token
+- GET /me - Get current user profile
+- PUT /me - Update current user profile
+- PUT /appearance - Update appearance settings
+- POST /change-password - Change password (authenticated)
+
+Users (/api/users) - 2 endpoints:
+- POST / - Create a new user (Admin only)
+- GET / - Get all users (Admin only)
+
+Students (/api/students) - 16 endpoints:
+- GET /profile - Get student's own profile
+- GET /grades - Get student's own grades
+- GET /average - Calculate student's average marks
+- GET /attendance - Get student's own attendance records
+- GET /schedule - Get student's timetable/schedule
+- GET /announcements - Get announcements for students
+- GET /parents - Get student's linked parents
+- GET /certificates - Get student's certificates
+- GET /reports - Get student's reports
+- GET /by-student-id/:studentId - Get student by custom ID (Admin/Teacher)
+- POST / - Create student (Admin only)
+- GET /:id/academic-documents/:documentId/download - Download academic document
+- PUT /:id - Update student (Admin/Teacher)
+- DELETE /:id - Delete student (Admin only)
+- POST /:id/link-parent - Link parent to student (Admin only)
+- DELETE /:id/unlink-parent/:parentId - Unlink parent from student (Admin only)
+
+Teachers (/api/teachers) - 16 endpoints:
+- POST / - Create teacher (Admin only)
+- GET / - Get all teachers (Admin only)
+- PUT /:id - Update teacher (Admin only)
+- DELETE /:id - Delete teacher (Admin only)
+- GET /profile - Get teacher's own profile
+- GET /classes - Get teacher's assigned classes
+- GET /students - Get students assigned to the teacher
+- GET /classes/:grade/:section/students - Get students in a class
+- GET /schedule - Get teacher's schedule
+- GET /grades - Get teacher's grades
+- POST /grades - Add grade for a student
+- POST /grades/bulk - Bulk add grades for a class
+- GET /attendance - Get teacher's attendance records
+- POST /attendance - Mark attendance for a class
+- POST /reports/class - Generate class progress report
+- GET /announcements - Get announcements for teachers
+- GET /approvals/pending - Get pending grade approvals
+
+Parents (/api/parents) - 19 endpoints:
+- POST / - Create parent (Admin only)
+- GET / - Get all parents (Admin/Teacher)
+- GET /profile - Get parent's own profile
+- GET /children - Get parent's linked children
+- GET /children/:childId - Get a single child's information
+- GET /link-requests - Get parent's link requests status
+- GET /children/:childId/grades - Get child's grades
+- GET /children/:childId/average - Get child's average marks
+- GET /children/:childId/attendance - Get child's attendance
+- GET /children/:childId/certificates - Get child's certificates
+- GET /children/:childId/reports - Get child's reports
+- GET /announcements - Get announcements for parents
+- POST /messages - Send message to teacher
+- GET /student/:studentId - Get parent by student (Admin/Teacher)
+- GET /:parentId/children - Get children for parent (Admin/Teacher/Parent)
+- GET /:id - Get parent by ID (Admin/Teacher)
+- PUT /:id - Update parent (Admin only)
+- DELETE /:id - Delete parent (Admin only)
+- POST /:id/link-student - Link student to parent (Admin only)
+- DELETE /:id/unlink-student/:studentId - Unlink student from parent (Admin only)
+
+Admin Users (/api/admin/users) - 15 endpoints:
+- GET / - Get all users (Admin only)
+- POST / - Create a new user (Admin only)
+- POST /bulk - Bulk create students from CSV data (Admin only)
+- GET /students - Get all students with pagination and filters (Admin/Teacher)
+- GET /students-by-class - Get students filtered by grade and stream (Admin/Teacher)
+- GET /:id - Get user by ID (Admin only)
+- PUT /:id - Update user (Admin only)
+- DELETE /:id - Delete user (SystemAdmin only)
+- POST /:id/resend-verify - Resend verification email (Admin only)
+- POST /:id/deactivate - Deactivate user (Admin only)
+- POST /:id/activate - Activate user (Admin only)
+- POST /:id/reset-password - Reset user password (Admin only)
+- POST /:id/request-link - Request to link parent to a student (Parent/Admin)
+- POST /students/:id/manage-link - Approve or reject parent link request (Admin/Student)
+- GET /students/:id/parent-requests - Get pending parent link requests (Admin/Student)
+- GET /students/:id/parent-links - Get linked parents for a student (Admin/Student/Parent)
+
+Academic Records (/api/academic-records) - 20 endpoints:
+- GET / - Get all academic records
+- POST / - Create academic record with marks components
+- GET /grades - Get all grades (academic records) with filters
+- POST /grades - Create a new grade (academic record)
+- POST /grades/bulk - Bulk create grades
+- PUT /grades/:id - Update grade
+- DELETE /grades/:id - Delete grade
+- GET /:id - Get academic record by ID
+- PUT /:id - Update academic record marks
+- DELETE /:id - Delete academic record
+- POST /:id/submit - Submit grade for approval
+- POST /:id/approve - Approve grade (Admin)
+- POST /:id/reject - Reject grade (Admin)
+- POST /:id/unlock - Unlock grade for editing (Admin)
+- POST /:id/lock - Lock grade (Admin)
+- GET /approvals/pending - Get pending approvals (Admin)
+- GET /performance/student - Get student performance
+- GET /performance/class - Get class performance statistics
+- GET /honor-roll/status - Get student honor roll status
+- POST /honor-roll/update - Update honor roll status for a semester (Admin/Teacher)
+- GET /honor-roll/list - Get honor roll list for a semester
+
+Timetables (/api/timetable) - 20 endpoints:
+- GET / - Get all timetables
+- POST / - Create timetable
+- POST /generate/precheck - Precheck generation
+- POST /generate - Generate timetable
+- GET /versions - Get timetable versions
+- POST /versions/compare - Compare timetable versions
+- GET /schedule/teacher - Get teacher schedule
+- GET /schedule/class - Get class schedule
+- POST /check-conflicts - Check for timetable conflicts
+- GET /classes - Get all unique classes
+- GET /years - Get all academic years
+- GET /:id - Get timetable by ID
+- PUT /:id - Update timetable
+- POST /:id/publish - Publish timetable
+- POST /:id/unpublish - Unpublish timetable
+- POST /:id/lock - Set timetable lock
+- POST /:id/rollback - Rollback timetable version
+- DELETE /:id - Delete timetable
+- POST /:id/periods - Add period to timetable
+- DELETE /:id/periods - Remove period from timetable
+
+Attendance (/api/attendance) - 14 endpoints:
+- POST /mark - Mark single student attendance
+- POST /bulk - Bulk mark attendance for entire class
+- POST /sync - Sync offline attendance records
+- GET / - Get attendance records
+- GET /:id - Get attendance record by ID
+- PUT /:id - Update attendance record
+- DELETE /:id - Delete attendance record
+- GET /summary/student - Get student attendance summary
+- GET /summary/school - Get school-wide attendance rate (last 30 days)
+- GET /summary/school-admin-dashboard - Get school admin attendance dashboard
+- GET /summary/at-risk-trend - Get at-risk students trend
+- GET /summary/classes - Get attendance analytics across all classes (Admin)
+- GET /summary/class - Get class attendance summary
+- GET /report/daily - Get daily attendance report
+- GET /sync/pending - Get unsynced offline records (Admin only)
+
+Reports (/api/reports) - 12 endpoints:
+- POST /transcript - Generate student transcript
+- POST /report-card - Generate student report card
+- POST /class-progress - Generate class progress report
+- POST /academic-performance - Generate academic performance report
+- POST /attendance-summary - Generate attendance summary report
+- GET / - Get all reports
+- GET /:id - Get report by ID
+- GET /:id/export - Export report (JSON format)
+- POST /:id/official - Mark report as official (Admin)
+- DELETE /:id - Delete report
+- POST /:id/archive - Archive report
+- POST /:id/revert - Revert report to draft
+
+Messages (/api/messages) - 16 endpoints:
+- POST / - Send direct message
+- POST /broadcast - Send broadcast message to multiple users
+- GET / - Get inbox messages
+- GET /sent - Get sent messages
+- GET /starred - Get starred messages
+- GET /conversations - Get conversations
+- GET /recipients - Get allowed recipients
+- GET /unread - Get unread message count
+- PUT /:id/read - Mark as read
+- PUT /:id/unread - Mark as unread
+- PUT /:id/star - Star message
+- PUT /:id/unstar - Unstar message
+- POST /bulk-delete - Bulk delete messages
+- GET /:id - Get message by ID
+- POST /:id/reply - Reply to message
+- DELETE /:id - Delete message
+
+Announcements (/api/announcements) - 12 endpoints:
+- GET /public - Get published announcements for landing page (no auth required)
+- GET / - Get announcements visible to current user
+- GET /admin - Get all announcements (Admin only)
+- POST /admin - Create a new announcement (Admin only)
+- GET /admin/:id - Get announcement by ID (Admin only)
+- PUT /admin/:id - Update announcement (Admin only)
+- DELETE /admin/:id - Delete announcement (Admin only)
+- POST /admin/:id/toggle-publish - Toggle announcement published status (Admin only)
+- GET /dashboard/stats - Get dashboard statistics (Admin/Teacher)
+- GET /dashboard/activity - Get recent activity (Admin only)
+- GET /:id - Get announcement by ID
+- PUT /:id/read - Mark as read
+
+Certificates (/api/certificates) - 11 endpoints:
+- POST / - Create certificate
+- POST /generate-completion - Generate completion certificate
+- POST /generate-transfer - Generate transfer certificate
+- POST /generate-character - Generate character certificate
+- POST /generate-bonafide - Generate bonafide certificate
+- GET / - Get all certificates
+- GET /:id - Get certificate by ID
+- POST /:id/issue - Issue certificate (Admin only)
+- POST /:id/cancel - Cancel certificate (Admin only)
+- POST /verify - Verify certificate authenticity (no auth required)
+- GET /:id/export - Export certificate
+
+Exam Schedules (/api/exam-schedules) - 9 endpoints:
+- GET / - Get all exam schedules
+- POST / - Create exam schedule
+- GET /date-range - Get exams by date range
+- POST /auto-generate - Auto-generate exam schedule
+- POST /regenerate - Regenerate/Optimize exam schedule
+- GET /:id - Get exam schedule by ID
+- PUT /:id - Update exam schedule
+- DELETE /:id - Delete exam schedule
+- GET /student/:studentId/upcoming - Get upcoming exams for student
+
+Academic Years (/api/academic-years) - 8 endpoints:
+- GET / - Get all academic years
+- POST / - Create new academic year (SystemAdmin, SchoolAdmin)
+- GET /active - Get active academic year
+- GET /:id - Get academic year by ID
+- PUT /:id - Update academic year (SystemAdmin, SchoolAdmin)
+- DELETE /:id - Delete academic year (SystemAdmin, SchoolAdmin)
+- PUT /:id/activate - Set academic year as active (SystemAdmin, SchoolAdmin)
+- PUT /:id/semester/:semesterName - Update semester information (SystemAdmin, SchoolAdmin)
+
+**TOTAL API ENDPOINTS: 201**
+
+SYSTEM ENDPOINTS (/api/system):
+--------------------------------
+GET /stats - Get system statistics
+GET /settings - Get system settings
+POST /settings - Update system settings
+GET /backups - Get backup information
+POST /backups/config - Configure backup settings
+POST /backups/run - Run manual backup
+GET /backups/download/:filename - Download backup
+POST /backups/restore - Restore from backup
+GET /audit-logs - Get audit logs
+GET /health - System health check
+
+CONTACT ENDPOINTS (/api/contact):
+----------------------------------
+GET / - Get all contact messages
+GET /:id - Get contact message by ID
+POST / - Submit contact form
+PUT /:id/respond - Respond to contact message
+PUT /:id/status - Update message status
+DELETE /:id - Delete contact message
+
+NOTIFICATION READ STATE ENDPOINTS (/api/notification-read-states):
+-------------------------------------------------------------------
+GET / - Get notification read states
+POST / - Mark notification as read
+PUT /:id - Update read state
+
+================================================================================
+7. FRONTEND PAGES AND COMPONENTS
+================================================================================
+
+DASHBOARD LAYOUT COMPONENTS:
+----------------------------
+- DashboardLayout.tsx - Main layout wrapper with sidebar navigation
+- NotificationBell.tsx - Notification bell with unread count
+- LanguageSelector.tsx - Language selection dropdown
+
+AUTH PAGES:
+-----------
+- LoginPage.tsx - Login page with email/password
+- RegisterPage.tsx - Registration page
+- ForgotPasswordPage.tsx - Password reset request
+- ResetPasswordPage.tsx - Password reset with token
+- VerifyEmailPage.tsx - Email verification page
+
+DASHBOARD PAGES BY ROLE:
+-------------------------
+
+SystemAdminDashboard.tsx:
+- User management tab
+- System settings tab
+- Security settings tab
+- Backup & recovery tab
+- System health tab
+- Contact messages tab
+
+SchoolAdminDashboard.tsx:
+- Overview dashboard
+- Classes management
+- Students management
+- Teachers management
+- Parents management
+- Attendance marking
+- Grades management
+- Timetable management
+- Messages
+- Announcements
+- Exam schedule
+- Reports
+- Settings
+
+TeacherDashboard.tsx:
+- Overview dashboard
+- Students list
+- Attendance marking
+- Grades entry
+- Materials management
+- Timetable view
+- Messages
+- Announcements
+- Exam schedule
+- Reports
+- Profile
+
+StudentDashboard.tsx:
+- Overview dashboard
+- Grades view
+- Attendance view
+- Materials access
+- Timetable view
+- Messages
+- Reports
+- Profile
+
+ParentDashboard.tsx:
+- Overview dashboard
+- Children's grades
+- Children's attendance
+- Alerts
+- Timetable
+- Messages
+- Reports
+- Profile
+
+FEATURE PAGES:
+--------------
+
+User Management:
+- UserListPage.tsx - List and manage users
+- ProfilePage.tsx - User profile management
+
+Student Management:
+- StudentListPage.tsx - List and manage students
+- BulkUploadPage.tsx - Bulk upload students via Excel
+
+Teacher Management:
+- TeacherListPage.tsx - List and manage teachers
+
+Parent Management:
+- ParentListPage.tsx - List and manage parents
+- ParentChildGradesPage.tsx - View child's grades
+- ParentChildAttendancePage.tsx - View child's attendance
+
+Class Management:
+- ClassesPage.tsx - Manage classes and sections
+
+Academic Management:
+- GradesPage.tsx - Teacher grade entry
+- SchoolAdminGradesPage.tsx - Admin grade management
+- StudentGradesPage.tsx - Student grade view
+- ExamSchedulePage.tsx - Exam scheduling
+
+Attendance:
+- AttendanceMarkingPage.tsx - Mark attendance
+- StudentAttendancePage.tsx - View attendance
+
+Timetable:
+- TimetablePage.tsx - Timetable management and viewing
+
+Materials:
+- MaterialsPage.tsx - Learning materials management
+
+Communication:
+- MessagesPage.tsx - Internal messaging
+- AnnouncementsPage.tsx - Announcement management
+- ParentAlertsPage.tsx - Parent alerts
+
+Reports:
+- ReportsPage.tsx - Report generation and viewing
+
+Certificates:
+- CertificatesPage.tsx - Certificate generation
+
+Settings:
+- SettingsPage.tsx - General settings
+- AcademicYearPage.tsx - Academic year management
+
+System Admin:
+- RolesPage.tsx - Role and permissions management
+- SecurityPage.tsx - Security settings
+- SystemLogsPage.tsx - System logs viewing
+
+REUSABLE COMPONENTS:
+--------------------
+- FormModal.tsx - Modal for forms
+- ConfirmDialog.tsx - Confirmation dialog
+- Toast.tsx - Toast notifications
+- Breadcrumbs.tsx - Navigation breadcrumbs
+
+UI COMPONENTS (from libraries):
+--------------------------------
+Material UI Components:
+- Button, TextField, Select, MenuItem
+- Table, TableBody, TableCell, TableHead, TableRow
+- Dialog, DialogTitle, DialogContent, DialogActions
+- Card, CardContent, CardHeader
+- Grid, Box, Typography
+- Tabs, Tab
+- Avatar, Badge
+- IconButton, Menu, MenuItem
+- Drawer, AppBar, Toolbar
+- Chip, Divider
+- CircularProgress, LinearProgress
+
+Radix UI Components:
+- Label, Slot
+
+Custom Components:
+- Various form components
+- Data tables with pagination
+- Charts and visualizations
+- File upload components
+- Date pickers
+- Search components
+
+================================================================================
+8. DATA MODELS
+================================================================================
+
+USER MODEL:
+-----------
+- _id: ObjectId (unique identifier)
+- username: String (unique, required)
+- password: String (hashed with bcrypt)
+- role: Enum [SystemAdmin, SchoolAdmin, Teacher, Student, Parent]
+- email: String (unique, required, lowercase)
+- status: Enum [Active, Inactive, Pending]
+- isVerified: Boolean (default: false)
+- mustSetPassword: Boolean (default: true)
+- firstName: String
+- lastName: String
+- phone: String
+- gender: Enum [Male, Female, Other]
+- address: { street, city, region }
+- profileImage: String (URL)
+- signature: String (URL)
+- appearanceSettings: {
+    darkMode: Boolean
+    colorTheme: String
+    fontSize: Enum [small, medium, large, extraLarge]
+    density: Enum [compact, comfortable, spacious]
+    borderRadius: Enum [none, small, medium, large]
+    showAnimations: Boolean
+    sidebarCollapsed: Boolean
+  }
+- studentProfile: { studentId, grade, stream, section }
+- teacherProfile: { subjects, classes }
+- parentProfile: { linkedChildren, occupation }
+- createdAt: Date
+- updatedAt: Date
+
+STUDENT MODEL:
+--------------
+- user: ObjectId (ref: User)
+- studentId: String (unique)
+- grade: String
+- stream: String
+- section: String
+- enrollmentDate: Date
+- guardian: ObjectId (ref: User - Parent)
+- academicRecords: [ObjectId]
+- createdAt: Date
+- updatedAt: Date
+
+TEACHER MODEL:
+--------------
+- user: ObjectId (ref: User)
+- employeeId: String (unique)
+- subjects: [String]
+- classes: [String]
+- qualifications: [String]
+- experience: Number
+- hireDate: Date
+- createdAt: Date
+- updatedAt: Date
+
+PARENT MODEL:
+-------------
+- user: ObjectId (ref: User)
+- linkedChildren: [ObjectId] (ref: Student)
+- occupation: String
+- workplace: String
+- relationship: String
+- createdAt: Date
+- updatedAt: Date
+
+ACADEMIC RECORD MODEL:
+----------------------
+- student: ObjectId (ref: Student)
+- subject: String
+- grade: String
+- score: Number
+- semester: String
+- academicYear: String
+- teacher: ObjectId (ref: Teacher)
+- remarks: String
+- createdAt: Date
+- updatedAt: Date
+
+ATTENDANCE MODEL:
+-----------------
+- student: ObjectId (ref: Student)
+- class: String
+- date: Date
+- status: Enum [Present, Absent, Late, Excused]
+- markedBy: ObjectId (ref: User)
+- remarks: String
+- createdAt: Date
+- updatedAt: Date
+
+TIMETABLE MODEL:
+----------------
+- class: String (required)
+- section: String
+- stream: String
+- academicYear: String (required)
+- semester: Enum [Semester 1, Semester 2] (required)
+- schedule: [{
+    day: Enum [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
+    period: Number (1-8)
+    subject: String
+    teacher: ObjectId (ref: User)
+    room: String
+    startTime: String
+    endTime: String
+  }]
+- status: Enum [Draft, Published]
+- version: Number
+- versionGroup: String
+- isLocked: Boolean
+- generatedBySystem: Boolean
+- generationWarnings: [String]
+- createdBy: ObjectId (ref: User)
+- createdAt: Date
+- updatedAt: Date
+
+MESSAGE MODEL:
+--------------
+- sender: ObjectId (ref: User)
+- recipient: ObjectId (ref: User)
+- subject: String
+- content: String
+- isRead: Boolean
+- readAt: Date
+- replyTo: ObjectId (ref: Message)
+- attachments: [String]
+- createdAt: Date
+- updatedAt: Date
+
+ANNOUNCEMENT MODEL:
+--------------------
+- title: String
+- content: String
+- targetAudience: [String] (roles)
+- priority: Enum [Low, Medium, High, Urgent]
+- createdBy: ObjectId (ref: User)
+- isActive: Boolean
+- expiryDate: Date
+- createdAt: Date
+- updatedAt: Date
+
+CERTIFICATE MODEL:
+-------------------
+- student: ObjectId (ref: Student)
+- type: String
+- title: String
+- description: String
+- dateIssued: Date
+- issuedBy: ObjectId (ref: User)
+- status: Enum [Pending, Approved, Rejected]
+- certificateUrl: String
+- createdAt: Date
+- updatedAt: Date
+
+REPORT MODEL:
+-------------
+- title: String
+- type: String
+- description: String
+- generatedBy: ObjectId (ref: User)
+- parameters: Object
+- reportData: Object
+- fileUrl: String
+- format: Enum [PDF, Excel]
+- createdAt: Date
+- updatedAt: Date
+
+EXAM SCHEDULE MODEL:
+---------------------
+- title: String
+- subject: String
+- class: String
+- date: Date
+- startTime: String
+- endTime: String
+- room: String
+- invigilator: ObjectId (ref: Teacher)
+- academicYear: String
+- semester: String
+- createdAt: Date
+- updatedAt: Date
+
+ACADEMIC YEAR MODEL:
+--------------------
+- name: String
+- startDate: Date
+- endDate: Date
+- isCurrent: Boolean
+- semesters: [{
+    name: String
+    startDate: Date
+    endDate: Date
+  }]
+- createdAt: Date
+- updatedAt: Date
+
+MATERIAL MODEL:
+----------------
+- title: String
+- description: String
+- subject: String
+- grade: String
+- type: Enum [Document, Video, Link, Other]
+- fileUrl: String
+- uploadedBy: ObjectId (ref: User)
+- createdAt: Date
+- updatedAt: Date
+
+ABSENCE ALERT MODEL:
+---------------------
+- student: ObjectId (ref: Student)
+- date: Date
+- reason: String
+- notifiedParents: [ObjectId]
+- status: Enum [Pending, Resolved]
+- reportedBy: ObjectId (ref: User)
+- createdAt: Date
+- updatedAt: Date
+
+PERMISSION MODEL:
+------------------
+- role: Enum [SystemAdmin, SchoolAdmin, Teacher, Student, Parent]
+- permissions: Map (resource -> [actions])
+- createdAt: Date
+- updatedAt: Date
+
+AUDIT LOG MODEL:
+----------------
+- user: ObjectId (ref: User)
+- action: String
+- resource: String
+- details: Object
+- ipAddress: String
+- userAgent: String
+- timestamp: Date
+
+CONTACT MESSAGE MODEL:
+-----------------------
+- name: String
+- email: String
+- subject: String
+- message: String
+- status: Enum [New, Read, Replied, Archived]
+- adminResponse: String
+- createdAt: Date
+- updatedAt: Date
+
+NOTIFICATION READ STATE MODEL:
+-------------------------------
+- user: ObjectId (ref: User)
+- notificationType: String
+- resourceId: ObjectId
+- isRead: Boolean
+- readAt: Date
+- createdAt: Date
+- updatedAt: Date
+
+SCHOOL CLASS MODEL:
+-------------------
+- name: String
+- grade: String
+- section: String
+- stream: String
+- classTeacher: ObjectId (ref: Teacher)
+- academicYear: String
+- capacity: Number
+- createdAt: Date
+- updatedAt: Date
+
+REVOKED TOKEN MODEL:
+---------------------
+- token: String
+- userId: ObjectId
+- revokedAt: Date
+- expiresAt: Date
+
+VERIFICATION TOKEN MODEL:
+--------------------------
+- userId: ObjectId
+- token: String
+- type: Enum [email, password]
+- expiresAt: Date
+- createdAt: Date
+
+================================================================================
+9. SECURITY FEATURES
+================================================================================
+
+AUTHENTICATION:
+----------------
+- JWT (JSON Web Token) based authentication
+- Token expiration (7 days default)
+- Bearer token in Authorization header
+- Token revocation support
+- Session management
+
+PASSWORD SECURITY:
+-------------------
+- bcryptjs hashing (salt rounds: 10)
+- Minimum password length: 8 characters
+- Password complexity requirements (configurable)
+- Password expiry policies
+- Password reset via email
+
+EMAIL VERIFICATION:
+-------------------
+- Email verification required for account activation
+- Verification token generation
+- Token expiration (24 hours)
+- Resend verification email functionality
+- Nodemailer with Gmail SMTP
+
+TWO-FACTOR AUTHENTICATION (2FA):
+---------------------------------
+- Optional 2FA for enhanced security
+- Challenge-response mechanism
+- Time-limited verification codes
+- Configurable for admin accounts
+
+ROLE-BASED ACCESS CONTROL (RBAC):
+----------------------------------
+- 5 user roles with distinct permissions
+- Resource-action permission model
+- Permission checks on all protected routes
+- Dynamic permission matrix
+- Permission audit trail
+
+API SECURITY:
+-------------
+- CORS (Cross-Origin Resource Sharing) configuration
+- IP whitelist support
+- Rate limiting capability
+- Request validation
+- SQL injection prevention (MongoDB)
+- XSS protection
+
+DATA PROTECTION:
+-----------------
+- Input sanitization
+- Output encoding
+- File upload validation
+- Secure file storage (Cloudinary)
+- Sensitive data hashing
+
+SESSION SECURITY:
+-----------------
+- Secure cookie settings
+- Session timeout configuration
+- Concurrent session management
+- Session revocation on logout
+
+AUDIT TRAIL:
+------------
+- Comprehensive audit logging
+- User action tracking
+- IP address logging
+- User agent logging
+- Timestamp for all events
+
+BACKUP & RECOVERY:
+-------------------
+- Automated backup scheduling
+- Manual backup creation
+- Backup encryption
+- Backup retention policies
+- Disaster recovery procedures
+
+================================================================================
+10. DEPLOYMENT INFORMATION
+================================================================================
+
+DEVELOPMENT ENVIRONMENT:
+------------------------
+Frontend:
+- URL: http://localhost:5173
+- Build tool: Vite dev server
+- Hot module replacement enabled
+
+Backend:
+- URL: http://localhost:5001
+- Auto-restart: Nodemon
+- API docs: http://localhost:5001/api-docs
+
+PRODUCTION ENVIRONMENT:
+------------------------
+Frontend:
+- Platform: Vercel
+- URL: https://hunb-sims.vercel.app
+- Build: Vite production build
+- CDN: Vercel Edge Network
+
+Backend:
+- Platform: Render
+- URL: https://hu-sims-backend.onrender.com
+- Runtime: Node.js
+- Process manager: PM2 (via Render)
+
+Database:
+- Platform: MongoDB Atlas
+- Cluster: Cloud-hosted MongoDB
+- Replication: Enabled
+- Backup: Automated daily backups
+
+ENVIRONMENT VARIABLES:
+----------------------
+Backend (.env):
+- PORT: Server port (5001)
+- JWT_SECRET: JWT signing secret
+- JWT_EXPIRES_IN: Token expiration (7d)
+- MONGO_URI: MongoDB connection string
+- SMTP_HOST: SMTP server host
+- SMTP_PORT: SMTP server port (587)
+- SMTP_USER: SMTP username
+- SMTP_PASS: SMTP password
+- SMTP_FROM: From email address
+- FRONTEND_URL: Frontend URL for CORS
+
+Frontend (.env):
+- VITE_API_URL: Backend API URL
+- VITE_APP_NAME: Application name
+
+DEPLOYMENT COMMANDS:
+---------------------
+Frontend (Vercel):
+- Build command: npm run build
+- Output directory: dist
+- Install command: npm install
+
+Backend (Render):
+- Build command: npm install
+- Start command: node server.js
+- Health check: /health endpoint
+
+CI/CD PIPELINE:
+---------------
+- GitHub integration
+- Automatic deployment on push
+- Environment-specific configurations
+- Build failure notifications
+- Rollback capability
+
+MONITORING:
+------------
+- Render dashboard monitoring
+- Vercel analytics
+- MongoDB Atlas monitoring
+- Custom health check endpoints
+- System logs collection
+
+SCALING:
+--------
+Frontend:
+- Edge CDN for static assets
+- Automatic scaling via Vercel
+- Image optimization
+- Code splitting
+
+Backend:
+- Vertical scaling via Render
+- Database connection pooling
+- Caching strategies
+- Load balancing (future)
+
+BACKUP STRATEGY:
+----------------
+Database:
+- Daily automated backups (MongoDB Atlas)
+- Point-in-time recovery (7 days)
+- Manual backup on demand
+- Backup retention: 30 days
+
+Application:
+- Configuration backups
+- File storage backups (Cloudinary)
+- Backup download capability
+- Restore procedures documented
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================
+
+For more information, contact:
+- Email: abeniman740@gmail.com
+- GitHub: https://github.com/Abenil6/HU-SIMS
+- Frontend: https://hunb-sims.vercel.app
+- Backend: https://hu-sims-backend.onrender.com
+
+Last Updated: April 2026
+Version: 1.0.0

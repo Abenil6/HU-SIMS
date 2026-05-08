@@ -1,0 +1,2004 @@
+
+
+===== PAGE 1 =====
+i
+College of Computing and Informatics
+Department of Information Science
+Student Research Project Phase I
+A Web-based Student Information Management for Haramaya
+University Non-Boarding School
+[by]
+S No Student name Id No
+1 Abenezer Aschalew 0065/15
+2 Abdulahi Yesuf 1968/14
+3 Addisu Gemeda 2063/14
+4 Yosef Tiruha 1090/15
+Advisor Mr. Wabi J.
+December 2025
+Haramaya University, Ethiopia
+
+===== PAGE 2 =====
+ii
+Declaration
+We, Abenezer Aschalew, Abdulahi Yesuf, Addisu Gemeda and Yosef Tiruha hereby
+confirm that the final project documentation submitted to the Department of
+Information Science, Haramaya University, is an honest and accurate representation
+of our work. We affirm that all the content is original and has been completed with
+dedication and integrity as part of our final project phase I at Haramaya University.
+________________________ ___________________ _________________
+Name of Advisor Signature Date
+_________________________ ___________________ _________________
+_________________________ ___________________ _________________
+_________________________ ___________________ _________________
+_________________________ ___________________ _________________
+Name of student Signature Date
+
+===== PAGE 3 =====
+iii
+Acknowledgment
+We begin by expressing our profound gratitude to the Almighty for the strength and
+guidance to complete this work. This project is the culmination of collective effort,
+and we are deeply indebted to those who supported us throughout the process. We
+would like to extend our sincere appreciation to our advisor, Mr. Wabi Jifara, for his
+invaluable expertise and consistent mentor ship. Additionally, we thank our
+classmates for their constructive feedback and suggestions, which were instrumental
+in refining this documentation. Finally, our thanks go to everyone who provided direct
+or indirect assistance in bringing this project to fruition.
+
+===== PAGE 4 =====
+iv
+Table of Contents
+Declaration .................................................................................................................... ii
+Acknowledgment ..........................................................................................................iii
+List of Figures ............................................................................................................ viii
+List of Tables ................................................................................................................ ix
+Abbreviations .................................................................................................................x
+Abstract .........................................................................................................................xi
+Chapter One ................................................................................................................... 1
+Introduction ....................................................................................................................1
+1.1 Background of the Project and the Organization .....................................................1
+1.2 Statement of the Problem .........................................................................................2
+1.3 Objective of the Project ........................................................................................... 3
+1.3.1 General Objective ............................................................................................. 3
+1.3.2 Specific Objectives ........................................................................................... 3
+1.4 Feasibility Study ...................................................................................................... 3
+1.4.1 Operational Feasibility ......................................................................................3
+1.4.2 Technical Feasibility .........................................................................................4
+1.4.3 Economic Feasibilty ......................................................................................... 4
+1.4.4 Behavioral/Political Feasibility ........................................................................ 5
+1.4.4 Schedule Feasibility ..........................................................................................5
+1.5 Significance of the Project .......................................................................................6
+1.6 Methodology of the Project ..................................................................................... 7
+1.6.1 Data Source .......................................................................................................7
+1.6.2 Data Collection Methods .................................................................................. 7
+1.6.3. Fact Finding Techniques ..................................................................................8
+1.6.4 Software Development Methodology ...............................................................9
+1.6.5 Development Tools ...........................................................................................9
+
+===== PAGE 5 =====
+v
+1.6.6 Testing Procedures ..........................................................................................10
+1.6.7 Implementation Plan .......................................................................................11
+1.6.8 Scope of the System ........................................................................................11
+1.6.9 Limitation of the System ................................................................................ 12
+1.6.10 Ethical Consideration of the Project ............................................................. 12
+Chapter Two ................................................................................................................ 13
+Description of the Existing System ............................................................................. 13
+2.1 Overview of the Existing System .......................................................................... 13
+2.2 Players in the Current System ................................................................................14
+2.3 Business Rules ....................................................................................................... 15
+2.4 Main Functions to the Existing System ................................................................. 16
+2.5 Bottlenecks of the Existing System (Using PIECES Framework) ........................ 18
+2.5.1 Performance (Response Time) ....................................................................... 18
+2.6 Forms and other documents of the existing systems ............................................. 18
+2.7 Proposed solution for the new system that addresses problems of the existing
+system .......................................................................................................................... 19
+2.8 Requirements of the Proposed System .................................................................. 20
+2.6.1 Functional Requirements ................................................................................ 20
+2.6.2Non-Functional Requirements .........................................................................20
+Chapter Three .............................................................................................................. 22
+System Analysis ...........................................................................................................22
+3.1 Introduction ............................................................................................................22
+3.1 System Requirement Specifications (SRS) ........................................................... 22
+3.2.1. Use case Modelling ........................................................................................22
+3.2.2 Use case documentation/description ...............................................................23
+3.2.3. Sequence diagram ..........................................................................................27
+3.2.4. Activity Diagram ........................................................................................... 28
+
+===== PAGE 6 =====
+vi
+3.2.6. User Interface Prototyping .............................................................................30
+3.2.7. Supplementary specifications ........................................................................ 31
+Data relating to students will remain confidential and inaccessible to the third party.
+Only the relevant information will be accessed by the users. The system will adhere to
+Data handling and privacy ethical standardsChapter Four .......................................... 32
+System Design ............................................................................................................. 32
+4.1 Introduction ............................................................................................................32
+4.2 Class Type Architecture ........................................................................................ 32
+4.2.1 User Interface Layer ....................................................................................... 32
+4.2.2 Process (Controller) Layer ..............................................................................33
+4.2.3 Business (Domain) Layer ............................................................................... 33
+4.2.4 Persistent Layer .............................................................................................. 34
+4.3 Class Modeling ...................................................................................................... 35
+4.4 State Chart Modeling .............................................................................................36
+4.5 Collaboration Modeling/Diagram ..........................................................................38
+4.6 Component Diagram ..............................................................................................39
+4.7 Deployment Diagram .............................................................................................40
+4.8 Persistent Modeling ............................................................................................... 41
+4.9 User Interface Design ............................................................................................ 45
+4.9.1 Form Design ................................................................................................... 46
+4.9.2 Report Design ................................................................................................. 46
+4.9.3 Dialog and Interface Design ........................................................................... 46
+Chapter Five .................................................................................................................47
+Implementation and Testing ........................................................................................ 47
+5.1 Introduction ............................................................................................................47
+5.2 Final Testing of The System ..................................................................................47
+5.2.1 Unit Testing .................................................................................................... 48
+5.2.2 System and Integration Testing ...................................................................... 48
+
+===== PAGE 7 =====
+vii
+5.3 Hardware software acquisitions/specifications ......................................................48
+5.4 User manual preparation ........................................................................................49
+5.5 Training ..................................................................................................................50
+5.6 Installation Process ................................................................................................ 51
+5.7 Start-Up Strategy ................................................................................................... 51
+Chapter Six .................................................................................................................. 52
+Conclusion and Recommendation ............................................................................... 52
+6.1 Conclusion ............................................................................................................. 52
+6.2 Recommedation ..................................................................................................... 52
+References ....................................................................................................................54
+
+===== PAGE 8 =====
+viii
+List of Figures
+Figure 1 : Usecase Diagram ................................................................................23
+Figure 2 : Login Sequence Diagram .................................................................... 28
+Figure 3 : Grade Submission Sequence Diagram ............................................... 28
+Figure 4 : Activity Diagram for Login .................................................................29
+Figure 5 : Activity Diagram for Student Registration ......................................... 29
+Figure 6 : UI Prototyping .....................................................................................30
+Figure 7 :Class Modeling .....................................................................................36
+Figure 8 : State chart for Login ............................................................................37
+Figure 9 :State Chart for Registration and Updating Student Info ...................... 38
+Figure 10 : Collaboration Diagram .....................................................................39
+Figure 11 : Component Diagram ......................................................................... 40
+Figure 12 : Deployment Diagram ........................ Error! Bookmark not defined.
+
+===== PAGE 9 =====
+ix
+List of Tables
+Table 1 : Estimated Budget BreakDown ............................................................... 5
+Table 2 : Time Schedule ....................................................................................... 6
+Table 3 : Use Case Description ............................................................................27
+Table 4 : Persistent Design ................................................................................. 45
+
+===== PAGE 10 =====
+x
+Abbreviations
+API: Application Programming Interface
+ETB: Ethiopian Birr (used in the budget section)
+HU: Haramaya University
+ICT: Information and Communication Technology
+IDE: Integrated Development Environment
+JSON: JavaScript Object Notation
+PIECES: A framework used for analysing system bottlenecks (Performance,
+Information, Economics, Control, Efficiency, and Service)
+SDLC: Software Development Life Cycle
+SIMS: Student Information Management System
+SRS: System Requirement Specifications
+UI: User Interface
+UML: Unified Modelling Language
+
+===== PAGE 11 =====
+xi
+Abstract
+The operation of the HU non-Boarding Secondary School depends heavily on the
+managing of student academic and administrative information. The current student
+record keeping system is based on manual and paper-based system at HU Non-
+Boarding Secondary School that has in turn created challenges with delays in
+registering students and preparing student reports, data inconsistency, record loss
+risk, and high workload. With the increasing number of the students, the current
+system has become ineffective and hard to sustain. Considering this problem this
+project aims with designing of a web-based Student Information Management System
+to streamline the manner in which student information is stored, accessed, processed
+and collected. The proposed system will automate the major school activities such as
+student registration, attendance tracking, academic record management, schedule
+arrangement, report and transcript creation and communication between
+administrators, teachers, students and parents. The system is developed using the
+Agile methodology to support iterative development and continuous user feedback. It
+is implemented using the MERN stack, comprising MongoDB, Express.js, Node.js,
+and React.js, to ensure a scalable, secure, and user-friendly web application. The
+information used in the system analysis was collected using interviews, observations,
+and reviewing documents to make sure that the system is used to meet actual
+operational requirements. System design is based on the layered architecture and is
+implemented with the help of the modern web technologies so that it could be usable,
+secure and scaled. Role-based access control is also included to control sensitive
+information and provide a user with access to functions corresponding to his/her
+duties. Through the substitution of manual operations with a centralized digital one,
+the proposed system will decrease the paperwork, reduce the number of errors,
+increase the accuracy of data, and improve the service delivery. The project can also
+offer a viable and scalable solution that would facilitate future growth and help to
+make schools management more efficient.
+
+===== PAGE 12 =====
+Page | 1
+Chapter One
+Introduction
+1.1 Background of the Project and the Organization
+Haramaya University Non-Boarding Secondary School is a government secondary
+school that was formed by the management of Haramaya University. The school is in
+the university within the Maya City in the Oromia Regional State in Ethiopia. It was
+established some six years ago as part of a national program to contemplate the
+Decline of the quality of the secondary education in the country. In this initiative, the
+public universities were supposed to have model secondary schools to improve the
+standard of education and equip the students with national exams and higher
+education standards. The school offers secondary education to students in Grade 9-
+Grade 12. All are currently running with 1 section with overall number of students is
+more than 158 students. The school has shown good results in academics since its
+establishment. The Grade 12 students have taken the national secondary school
+leaving exams consecutively over two years and all students have passed them
+successfully. This performance indicates the goals of the school being a model school
+that fosters the ideal academic performance and preparedness to join the universities.
+Haramaya University Non-Boarding Secondary School is administratively run by a
+director and a vice director. The management of the school and homeroom teachers
+are the ones who mostly work with student academic and administrative records.
+Currently, the school has a complete manual system of dealing with student
+information. All the information pertaining to students, such as registration records,
+attendance, academic performance, disciplinary performances, and promotion, are
+kept in hardcopy and kept in the office of the director. The computers present in the
+school are only used in doing simple things like transcript preparation, reports, and
+official letters through simple office programs. Such documents are kept in hard copy.
+The school also enjoys the advantage of having constant access to electricity and the
+internet because it is situated in the university campus, but due to the lack of an
+integrated digital system, the school has had multiple operational problems. The
+problems associated with manual record management are that it exposes data to loss
+
+===== PAGE 13 =====
+Page | 2
+and inconsistency, introduces lags in accessing student information, and on the side of
+the school management and teachers, puts a huge administrative burden (Mr. Ahmed
+Dado (Asst. Prof), personal communication, Dec. 12, 2025). This project will be
+developed as a response to such challenges by proposing the development of a web-
+based Student Information Management System. The system is designed in the view
+of its future implementation in Haramaya University Non-Boarding Secondary School.
+The Proposed system will enhance efficiency, accuracy, security, and access to
+student information and hence facilitate expedited service delivery to various
+activities like the preparation of transcripts, process withdrawal, scholarship records,
+and academic reporting.
+1.2 Statement of the Problem
+HU Non-Boarding Secondary School is a fully manual system that is used to manage
+all the information of the students. As a result, student registration and the preparation
+of the academic report take a lot of time and effort since the records are physically
+kept in the director’s office and have to be searched and updated manually. Student
+files are sometimes mixed up or hard to find, especially at the time of registration, and
+there have been incidents of lost records for which writing the documents on the
+computer and then storing them as hard copies is the only way to solve the problem.
+This method of working increases the administrative workload of the school
+management, hampers timely service delivery, and causes complaints from students
+who find it difficult to get transcripts, reports, and other official documents. In
+addition, the lack of a centralized digital system hinders the implementation of the
+management's plans and makes the current method less and less viable with the
+increase in the number of students (Mr. Ahmed Dado (Asst. Prof), personal
+communication, Dec. 12, 2025).
+The major problems identified in the existing system include:
+ Inefficiency and delays in student registration and report preparation due to
+manual record handling and slow retrieval of information.
+ Data inconsistency and risk of loss: resulting from missing records duplicated
+information, and repeated manual rewriting of student documents.
+ High administrative workload and poor service delivery: which limit
+management efficiency and lead to student dissatisfaction.
+
+===== PAGE 14 =====
+Page | 3
+1.3 Objective of the Project
+1.3.1 General Objective
+To design and develop a web-based SIMS for Haramaya university non-boarding
+Secondary School
+1.3.2 Specific Objectives
+ Develop a system that supports student registration and student profile
+management.
+ To analyze both the current and proposed systems and determine the projects
+Requirements.
+ To design the interfaces and database of the project that contain Students’ detail
+information
+ To develop a system that supports student registration manage, store, retrieve,
+and process student-related information
+ To test and evaluate the developed system using unit testing, integration, and
+system testing.
+1.4 Feasibility Study
+A feasibility study is an analysis undertaken to evaluate genuineity of a proposed
+system being developed and executed in an organization. It evaluates the feasibility of
+the project based on operation, technical, economic, behavioral and scheduling issues.
+The feasibility study is intended to help in ensuring that the proposed system is
+feasible, economical, acceptable to the users and that it can operate within the
+available resources and time limits to address the organizational requirements [1].
+1.4.1 Operational Feasibility
+Operational feasibility is a term used to refer to the degree to which a given system
+can be acceptable to its users and also be successfully incorporated into the routine
+operations of an organization. It analyses the compatibility of the system with the
+current work practices, user competencies as well as company processes and the
+readiness of users to embrace the new system [1]. The proposed system is
+
+===== PAGE 15 =====
+Page | 4
+operationally viable. According to the interviews held with the management of the
+school, the director and vice director are entirely in support of the computerized
+student information management system introduction (Mr. Ahmed Dado (Asst. Prof),
+personal communication, Dec. 12, 2025). They have basic computer literacy and
+have knowledge on using digital means in administrative activities. Educators and
+especially homeroom teachers who have the direct engagement in the management of
+student records have been willing to embrace a digital system especially when they
+are well trained. The school is already familiar with ICT-related activities, as it has an
+ICT room, and short trainings of users of the systems are acceptable and feasible.
+Consequently, the suggested system will fit in the day to day running of the school
+without much opposition.
+1.4.2 Technical Feasibility
+Technical feasibility will determine the availability of the necessary technological
+resources, including hardware and software, network infrastructure and technical
+expertise required to develop and deploy the proposed system successfully. It deals
+with the systems consistency with the existing structures and the technical
+competence of the organizations to manage it [1]. The availability of the infrastructure
+has made the project technically possible. Computers and internet connectivity would
+be available to the school to use in administration and the internet connectivity is
+reliable since the school is located in Haramaya University campus. Moreover, via the
+infrastructure of the university, stable power supply is provided. The university can
+also provide technical assistance where need be. The assessment did not identify any
+significant technical limitations, including old hardware or a lack of bandwidth. These
+circumstances ensure that the creation of a web-based system and its further
+implementation is technically feasible.
+1.4.3 Economic Feasibility
+Economic feasibility would determine if the perceived benefits of a proposed system
+are worth the costs of developing, implementing, and maintaining the system. It lays
+emphasis on cost-effectiveness and financial implications of the system to the
+organization [1].
+
+===== PAGE 16 =====
+Page | 5
+The system relies on free, open-source software tools, significantly reducing
+development costs.
+Estimated Budget Breakdown:
+Item Estimated Cost
+Laptop & accessories Already available
+Internet connection Free Using Computer Laboratory
+Development tools Free
+Hosting (optional) Free tiers on Vercel
+Miscellaneous 300 ETB(Optional)
+Table 1: Estimated Budget Breakdown
+1.4.4 Behavioral/Political Feasibility
+The behavioral or political feasibility looks at the amount of organizational support,
+user acceptance and consistency with institutional policies. It evaluates the resistance
+to change that may occur and it also determines the compatibility of the proposed
+system in the political and cultural context of the organization [1]. The proposed
+system aligns with national digital transformation goals and supports better school
+governance. Teachers, students, parents, and administrators benefit from improved
+transparency and efficiency, leading to positive acceptance. No political or cultural
+barriers are expected.
+1.4.5 Schedule Feasibility
+Schedule feasibility is used to assess the capabilities of a proposed system to be
+created and installed within the desired time period. It considers the deadlines of
+projects, availability of resources as well as organizational constraints in order to be
+completed on time [1].
+
+===== PAGE 17 =====
+Page | 6
+Table 2: Time Schedule
+1.4 Significance of the Project
+The creation of a web-based Student Information Management System of University
+Non-Boarding Secondary School at Haramaya University has a great significance
+since it will work towards solving the existing inefficiencies and issues of manual
+record management. All the stakeholders such as the director, vice director,
+homeroom teacher and students will find the system beneficial since it will be able to
+automate the management of student data, as well as enhance the overall efficiency in
+administration. It will attach to each other functions like student registration, report
+preparation, and transcript generation to minimize delays and minimize the number of
+errors. The system will also form the basis of further development, as it will make it
+possible to manage the increase in the student population and the complexity of the
+administrative needs that will become more and more extensive.
+The most significant advantages of the suggested system are:
+ Better administration like registration, report generation and preparation of
+transcripts.
+ More accurate and consistent student records, and fewer errors and lost data.
+
+
+===== PAGE 18 =====
+Page | 7
+ Less workload and time can be spent by staff on academic supervision and
+support of the student, the management and the teachers can be able to attend to it.
+ Increased scalability, which offers a foundation to grow in the future and
+integrate more easily with the university-level reporting and management systems.
+ Provide facilities for generating transcripts and academic reports in a timely
+manner.
+ Improve fast searching and retrieval of student records.
+ Reduce paperwork and reliance on physical file storage.
+ Enhance data accuracy, consistency, and security of student information.
+1.5 Methodology of the Project
+1.5.2 Data Source
+Data sources refer to the origins from which information is obtained for analysis,
+system design, and decision-making. In system development, data sources are
+typically categorized as primary or secondary. Primary data sources provide firsthand,
+original information collected directly from stakeholders or users through methods
+such as interviews, surveys, or observation. Secondary data sources, on the other hand,
+consist of information already collected and recorded, such as existing documents,
+reports, registers, and historical records [2]
+1.6.2 Data Collection Methods
+To gather data that will help develop the Student Information Management System,
+the techniques that will be used to collect the data depend on the source type:
+Primary Data Collection: The desired information was gathered through primary
+data, so the collected information was based on the direct contact with the members of
+the school staff to comprehend the existing manual processes and to define the
+requirements of the system
+Interviews: Interviews were carried out with the director, vice director and
+homeroom teachers in order to get the information regarding the student registration,
+record management, report generation and administrative issues (Mr. Ahmed Dado
+(Asst. Prof), personal communication, Dec. 12, 2025).
+
+===== PAGE 19 =====
+Page | 8
+Observation: Direct observation of the manual operations was conducted to
+determine inefficiencies in the workflow, bottlenecks and how the student records
+would be practically handled.
+Secondary Data Collection: The secondary information was obtained using the
+existing school documents to learn about the historical trends, data structure, and
+reporting conditions:
+Document Analysis: The existing student registers, transcripts, report forms, and
+other administrative records were reviewed, with the purpose of detecting the data
+format, data flow, and storage patterns.
+1.6.3. Fact Finding Techniques
+Fact-finding techniques are methods used to gather detailed and accurate information
+about an existing system to guide the development of a new system. In this project,
+multiple techniques were applied to understand the current manual student
+information system and identify user requirements.
+Interview: Our group conducted interviews with the director, vice director, and
+homeroom teachers. These interviews focused on understanding student registration
+processes, record management, report preparation, and administrative challenges. The
+feedback collected directly from the staff provided valuable insights into the problems
+of the existing system and the desired features of the new system.
+Observation: Direct observation of the school’s manual operations was performed.
+Our team examined how student records were stored, how registration and report
+preparation were carried out, and how teachers and administrators interacted with
+these records. Observation helped identify workflow inefficiencies, data handling
+delays, and areas prone to errors.
+Document Analysis: Existing school documents, including student registers,
+transcripts, academic reports, and other administrative records, were analyzed. This
+helped the team understand historical data patterns, the structure of records, and
+reporting requirements. Document analysis ensured that the system design would
+align with the school’s current practices while improving accuracy and accessibility.
+
+===== PAGE 20 =====
+Page | 9
+1.6.4 Software Development Methodology
+The methodology of software development employed in this project is the Agile
+approach, which is an iterative and incremental technique of delivering software in
+mini-cycles and that can enable constant feedback and modification. Agile focuses on
+flexibility, integration, and change responsiveness through creating the system in
+small workable units instead of one massive release. This enables the development
+team to clarify requirements, do early testing and incorporate user feedback in the
+process to enhance both the quality and relevancy of the end product [3].
+In this project, We Will be Implementing Agile SDLC to organize the development in
+the iterative parts with each of the parts being dedicated to particular features, like
+student registration, attendance management, and reporting modules. The team will
+discuss the progress after every iteration, test features, and modify future plans,
+depending on the information they receive about stakeholders. This will make sure
+that the system conforms to arising needs and functional modules are delivered in
+pieces and tested all along.
+1.6.5 Development Tools
+React.js
+React.js is a JavaScript library that is applied in the development of user interfaces,
+and, more specifically, single-page applications via a component-based architecture,
+which allows users to create efficient renderers and state management [4]. React.js
+will be employed in this system to design the frontend interfaces, including the login
+pages, student registration forms, and director and vice director dashboards as well as
+the student records and report viewing pages.
+Node.js
+Node.js is a JavaScript runtime environment used on the server which enables the
+execution of JavaScript on the server, outside the browser, making it scalable and
+high-performance network applications [5]. The proposed system will create and use
+Node.js to address the operations of the backend, receive and process client requests
+on the React frontend, conduct business logic, and handle the user interface-database
+communication.
+Express.js
+
+===== PAGE 21 =====
+Page | 10
+Express.js is a web application framework, which is lightweight and works with the
+Node.js that simplifies the development process on server-side by offering routing,
+middlewares and request-response handling features to it [6]. In this system the
+Express.js will be utilized in making application programming interfaces (APIs) to do
+operations like registration of students, updating the student information, retrieving
+the student reports, as well as handling the authentication and authorization.
+MongoDB
+MongoDB is a document-oriented database management system which is NoSQL and
+stores data in flexible documents in the form of JSON and this is useful in handling
+large and dynamic data [7]. MongoDB will be employed in the proposed system to
+store student personal information, academic records, grade, and reports, which
+allows student data to be easily updated and accessed directly in a short duration of
+time.
+Visual Studio Code
+Visual Studio Code is an IDE that provides integration of code editing, debugging,
+and version control in a range of programming languages and frameworks [8]. The
+development team in this project is going to use Visual Studio Code to write, debug,
+and manage the source code of both the frontend and backend efficiently.
+Git
+Git is a distributed version management system that enables software program
+developers to monitor the modification of the source code, teamwork efficiently, and
+retain numerous versions of a software project [9]. Git can be applied in this system
+development to oversee the changes in the source code used by the group members,
+enhance collaboration, monitor the progress in the development process, and avoid
+the conflict of codes.
+1.6.6 Testing Procedures
+Testing will be conducted to make sure that the Student Information Management
+System is in proper operation, secure, and as required by the user. The testing
+procedure will concentrate on testing the basic system functions, such as user
+authentication, registering students, managing their attendance, processing academic
+records, managing their timetable, reporting, and sending messages. The testing plan
+will comprise of unit testing, integration testing and system testing. Individual system
+
+===== PAGE 22 =====
+Page | 11
+modules are tested by unit testing to ensure the correct output by using valid and
+invalid inputs. Integration testing is also done to make sure that there is the right
+interaction of the system components especially the front end, the backend services
+and the database. System testing is used to analyze the entire system to ensure that the
+functional and non-functional requirements are addressed such as role based access
+control, accuracy of data and reliability of the entire system.
+1.6.7 Implementation Plan
+The implementation plan explains how the proposed system should be ready to work
+in the operational environment of the school. The system will be implemented in a
+controlled environment and then fully used as a web-based application. The prelim
+implementation tasks involve setting up of system components, the database setup and
+testing system functionality. User training is a decent element of the implementation
+process. The training will be offered depending on the user roles so that the
+administrators, teachers, students, and parents are capable of using the system. The
+system is built bearing in mind the concept of scalability, maintenance to enable
+future deployment, expansion and integration as institutional requirements change
+with time.
+1.6.8 Scope of the System
+The proposed Web-Based Student Information Management System is scope-based
+and automates and manages the major academic and administrative functions in
+Haramaya University Non-Boarding Secondary School. The system will be
+engineered to facilitate student registration, student profile, record attendance, student
+academic record, generation of reports, and internal communication within the
+authorized users. It has role-based access control to administrators, teachers, students,
+and parents so that only those users could access features that are relevant to their
+roles. The system also helps in quicker information retrieval, accuracy of the data and
+communication in the school setting. Also, the system is built in a manner that is
+scalable to accommodate the future growth and implementation in other institutions of
+a similar nature.
+The Proposed system will perform the Following tasks:
+
+===== PAGE 23 =====
+Page | 12
+ Management of student registration and maintenance of personal and
+academic records.
+ Recording and tracking of student attendance by authorized teachers.
+ Storage, viewing, and reporting of academic results and attendance
+information.
+ Role-based access for administrators, teachers, students, and parents.
+ Communication between school stakeholders through a messaging feature.
+ Web-based, mobile-responsive access through standard web browsers with
+internet dependency.
+1.6.9 Limitation of the System
+Although the proposed system has advantages, there are some limitations to the
+system. The system is computer based thus requiring a reliable internet connection to
+access and use it. Even though it is mobile-responsive and can be used with mobile
+browsers, it does not have a specific mobile application in the existing
+implementation. More so, the system has been initially configured and deployed in the
+Haramaya University Non-Boarding Secondary School alone and further deployment
+to other schools was subject to more configuration and customization.
+1.6.10 Ethical Consideration of the Project
+All ethical concerns were put into consideration during the system development in
+order to have responsible and secure management of student information. The system
+also ensures privacy of data by limiting access to sensitive information using role-
+based authorization allowing users to access only data pertinent to them. Secure
+authentication controls unauthorized access, data manipulation, and misuse of
+academic records. The data gathered in interviews and observations was applied with
+the purpose of academic and system development without breaching the aspects of
+confidentiality and institutional integrity. These policies make sure that the system
+runs in a way that does not violate the rights of users, safeguards information about
+students and that the information systems are ethical in regard to education.
+
+===== PAGE 24 =====
+Page | 13
+Chapter Two
+Description of the Existing System
+2.1 Overview of the Existing System
+In HU Non-Boarding School, the majority of the academic and administrative
+functions are performed manually with the use of paper-based records. Important
+processes like student registration, student attendance, recording of grades, schedule
+control, communication with parents and generation of report are done by use of
+printed forms, classroom registers, notice boards and spreadsheet saved on the
+locations. Though these ways enable the school to operate, they are time-consuming,
+prone to errors and cannot enable one to quickly access, verify or analyze information
+easily. Components analysis of the existing practices and related issues is as follows:
+1. Student Registration and Enrollment: Registration forms are done on printed
+forms that are submitted in the admissions office by the parents or guardians. The
+student’s identifiers are done manually with an inconsistency in the results, without
+all the information provided and sometimes a duplicate record is taken.
+Challenge: Students records cannot be easily accessed or updated easily due to the
+absence of a central repository, thus this will add more workload to the administration.
+2. Classroom Attendance: Daily attendance of teachers is taken in physical books.
+Manual preparation of summaries is done and presented periodically to the
+administrative office.
+Challenge: It is impossible to tell parents about absenteeism immediately or to
+compare the attendance trends between terms, which postpones the intervention with
+low attendance students.
+3. Examinations and Grading: Exams are made, administered and marked. The
+teachers enter the grades in grade books and the grades are transcribed by the
+administrators into report cards.
+Challenge: The manual process with multi-steps is time-consuming and it is likely to
+cause transcription errors and thus delay the release of results as well as do not ensure
+the accuracy of the data.
+4.Timetable Management: The schedules of the classes are drawn on paper and put
+on the notice boards. Any modification is informed either orally to teachers and
+
+===== PAGE 25 =====
+Page | 14
+students. Issue: The use of verbal communication poses a risk of information not
+reaching all the stakeholders at the right time, bringing about confusion and missed
+classes.
+5Announcements and Communication: Announcements and Communication
+regarding school events, examination timetables, or other school policy changes are
+distributed through notice boards, assemblies, or through oral communication. Parents
+are also normally updated in the form of scheduled meetings or phone calls.
+Challenge: The lack of communication channels will lower the effectiveness of
+disseminating information, and may cause miscommunication or slow delivery of
+information to the parents and students.
+6.Storage of Records and Documents: The storage of important results such as
+report cards, transcripts, and historical records are kept in physical folders.
+Challenge: It is common that searching of archived records can be time consuming.
+Hard copy can be lost, damaged or lost. Lack of the ability to store records in a secure
+and centralized digital storage system renders the long-term record management
+unreliable.
+2.2 Players in the Current System
+The players in the current system. The current manual system at HU non Boarding
+School is associated with various important participants, each of whom has a
+particular role to fulfill and has a certain number of issues related to the utilization of
+paper-based operations.
+School Administrator (Director, Vice Directors): The administrators will oversee
+admissions, records of students, official reports, liaising with teachers and parents and
+organize examinations. With the existing manual system, they experience high
+workload in administration, they experience delays in preparation of reports and they
+find it difficult to track and retrieve the past records efficiently.
+Teachers: Teachers provide classes, record attendance, assess the work of the
+students, report grades and academic success not only to the administration but also to
+the parents. They are forced to spend a lot of time conducting administrative
+procedures through the manual processes and record keeping inconsistencies usually
+occur. This renders them incapable of analyzing the performance of students fast or
+coming up with correct reports.
+
+===== PAGE 26 =====
+Page | 15
+Students: students go to classes, do assignments, adhere to schedules, and monitor
+the progress of their studies. But in the manual system, they are still not able to get
+instant information on attendance and grades and have to make do with physical
+notices or oral communications to get schedules and school news.
+Parents / Guardians: Parents or guardians are involved in supporting the learning of
+their children, following the progress, attending meetings and communicating with the
+teachers in case of necessity. The manual system not only limits the access to student
+information in time but also does not allow one to get notifications regarding the
+absence or performance on time.
+2.3 Business Rules
+There are business rules that govern the manual processes of HU Non-Boarding
+School. These regulations will make sure that major operations like student
+registration, attendance, grading, report distribution as well as communication are
+done in a uniform and accurate manner. The key business rules of the current system
+consist of:
+BR1: Official Registration Protocol: In order to be admitted, all students should
+present a registered form with the supporting documents they need. Only physical
+verification by the school administration is finalized before registration.
+BR2: Recording of attendance: The teachers must record the daily attendance in
+physical registers. Any change made to the attendance record should be in a written
+form and should be accepted by the administration.
+BR3: Grade Submission: The teachers are required to submit the end-of-term grades
+in hard copy to the administration. The grades are keyed in the report books and
+subsequently, report cards are prepared.
+BR4: Report Dissemination: Distribution of official Semester reports to students is
+done. Parents must also pick the reports or meet with the meetings to get the reports.
+BR5: Timetable Publication: Timetables of classes are done by hand and placed in the
+notice boards. Any modifications should be spoken out and there is no assurance that
+all the stakeholders would be updated in time.
+BR6: Document Access: Student records are regarded confidential and they can only
+be accessed under an official administrative request. On Demand information retrieval
+will be restricted to the office hours.
+
+===== PAGE 27 =====
+Page | 16
+BR7: Announcement Protocol: the school or class-related announcements are shared
+through the notice boards, assemblies, or oral communications. Electronic
+broadcasting system of instant notifications does not exist.
+BR8: Channels of communication: The majority of the communication between
+students, teachers, parents and administrators is done either by meeting face to face or
+calling each other since it does not have a centralized way of handling queries or
+feedback.
+2.4 Main Functions to the Existing System
+The current system at HU non-Boarding School executes some key academic and
+administrative roles. They are mainly manual functions that are the core of the
+proposed digital system. The main functions include:
+Registration and record management of students.
+Registration in HU Non-Boarding School is done by means of collecting printed
+forms by parents or guardians and this involves student bio data, academic history and
+other important documents required. A unique identifier is given to each student, and
+all the records are stored in hard copy. These files are updated manually by the
+administration when there is a change in the information of students. Such a role also
+involves the handling of the historical data, including the previous academic
+performance, academic disciplinary records, and certificates which are kept in
+physical archives.
+Attendance and Class Management
+The classroom registers in terms of daily attendance are being written by teachers.
+Attendance records are summarized and based on the end of the day, this is reported
+to the administrative office. Classwork, seating, and assignment of subjects are done
+manually at the beginning of every term and displayed on notice boards. The
+attendance summaries are also applied to monitor the participation of the students and
+to make sure that the school rules are being adhered to.
+Evaluation and Processing of Results.
+The process of examination is manually done since the process of scheduling the
+examinations to marking the scripts. The scores are entered by teachers in grade
+books that are later utilized by the administrators to generate report cards and
+
+===== PAGE 28 =====
+Page | 17
+academic transcripts. This role is also related to keeping grade books across several
+terms and to producing cumulative outcomes on academic considerations. Promotion,
+scholarships or transfers are done with references to student performance records
+which are stored in physical files.
+Time Table/Subject Schedule.
+Schedules are developed by hand and include the subjects, the time of classes, the
+teachers, and the classroom assignments. All these schedules are put in the notice
+boards and teachers and students depend on them in carrying out their day to day
+academic tasks. Any alterations to schedules are either orally conveyed or through
+announcements during meetings. This role is to ensure that the activities of teaching
+and learning of the school are arranged and the resources like classrooms and teaching
+staff are distributed efficiently.
+Effective communication and announcements.
+The notice boards, the public address system, announcements in classrooms, and
+verbal communication are used to deliver the school-wide and class-specific
+announcements. This role involves reporting to students and teachers about the events
+that are to be organized, timetable of examinations, policies, and other essential
+announcements. It is also a process of coordination with parents to hold a meeting,
+consultation and feedback on the progress of students and what is happening in the
+school.
+Reporting and Analytics
+Administrative and academic reports preparation is done manually. School staff
+compiles attendance report, examination results, class performance reports, and other
+documents relating to compliance. These reports are applied to keep track of the
+student progress, to plan the academic activities and to make sure that school policies
+and regulations are adhered to. The record keeping process is done in hard copy files
+that form the formal accounting of the material that is to be audited and used as a
+reference.
+
+===== PAGE 29 =====
+Page | 18
+2.5 Bottlenecks of the Existing System (Using PIECES Framework)
+2.5.1 Performance (Response Time)
+The current manual system is time-consuming to handle student data, attendance
+records, examination scores in addition to report preparation. Every activity, including
+the creation of grades or class schedules, takes a lot of manual effort and time. The
+use of physical forms and manual calculation slows down the administration
+processes and makes the system less responsive in general.
+2.5.2 Input (Inaccurate/Redundant/Flexible) and Output (Inaccurate)
+The current system contains data input errors because the student records, attendance,
+and grades are manually entered. There is a tendency to have redundant information
+that includes several copies of registration forms or several entries of the same grade,
+which enhances the potential of inaccuracies. Report cards and performance
+summaries which are the output of this may be inaccurate due to errors in
+transcription and delays in consolidating the data. Also, the system is not flexible
+enough to accommodate any change in the student information or the schedule of
+classes.
+2.5.3 Security and Controls
+The manual system offers a low level of security and control over the student and
+academic records. Hard copies can be lost or damaged or accessed by unscrupulous
+people. Automated audit trails and access controls have not been implemented and it
+is hard to verify the records on its accuracy and integrity. Grading, attendance and
+reporting mistakes can escape the system until they are checked manually and this
+minimizes the overall control and accountability in the system.
+2.6 Forms and other documents of the existing systems
+The current system in Haramaya University Non-Boarding Secondary School is quite
+intensive as all the student information is managed using paper-based forms and
+documents. The types are student registration forms, attendance sheets, academic
+report forms and transcripts. The forms are standardized, that is, the same structure is
+used in all grades this makes it consistent in recording and reporting of the data. All
+the processed forms are held in the physical form in the director office, in the filing
+cabinets. The administrators or teachers have to handwrite the forms again and place
+
+===== PAGE 30 =====
+Page | 19
+them in the files back whenever it requires an update or correction. This will not only
+burden the administrative functions but also increase the chances of information loss,
+misplaced information or errors. The process of retrieving the information to make
+report, verify or make decisions is also time consuming as the personnel has to
+manually find the needed documents.
+2.7 Proposed solution for the new system that addresses problems of
+the existing system
+A Web-Based Student information Management System is recommended to counter
+the weaknesses of the manual system. The system is also aimed at automating and
+simplifying every academic and administrative operation of the school to offer
+efficiency, accuracy, and security.
+Some of the major characteristics of the proposed system are:
+ Student Registration: Registration of students can be done digitally, hence less
+paperwork and proper record keeping.
+ Attendance Management: It is possible to record and track daily attendance in
+real-time.
+ Academic Record Management: Grades and performance records are added
+straight into the system thus eliminating errors and duplication of data.
+ Report Generation: The transcripts, attendance summaries and academic
+performance reports can be generated within seconds without editing.
+ Messaging Capability: The system will allow communication between teachers,
+administrators, students, and parents.
+ Role-Based Access Control: This ensures privacy of data since users can only
+have access to information that is related to their roles.
+ Mobile Responsiveness: Web browsers can be used to access the system in
+desktops, laptops, or mobile services. Which Teachers can use their Mobile
+Phones to record attendances if they have access internet.
+
+===== PAGE 31 =====
+Page | 20
+2.8 Requirements of the Proposed System
+2.6.1 Functional Requirements
+Performance Requirements:
+The system should be efficient in processing the user requests such as registering
+students, recording their attendance, submitting grades, and generating reports.
+Everything must be done swiftly even in cases where more than one user will be using
+the system.
+Process Requirements:
+All the key school activities including the registration of students, the tracking of
+attendance, assignment of courses, scheduling of the school calendar, and the
+processing of grades should be automated in the system. The process of work should
+facilitate the communication between the administrators, teachers, students, and
+parents.
+Input-Related Requirements:
+The system should be capable of correct and consistent entry of student biodata,
+attendance tally and examination result and any other academic data. There must be
+mechanisms of validation that eliminate wrong or incomplete entries.
+Output-Related Requirements:
+The system must produce proper reports such as attendance reports, academic
+performance reports, grade sheets. The system should be able to give the outputs to
+authorized users either via the system portal or downloadable documents.
+Storage-Related Requirements:
+All the records of students and academics should be stored safely in a centralized
+database system. The data must be structured in a manner that it is easily retrieved,
+updated and archived so that they can be preserved and remain intact over a long
+period.
+2.6.2Non-Functional Requirements
+Performance:
+The system should ensure that response time is quick on all activities such as
+retrieving data, creation of reports and multiple users at a time. High usage time
+
+===== PAGE 32 =====
+Page | 21
+points, e.g. entry of results or end of term processing, have to be effectively managed.
+User Interface:
+The interface should be friendly, responsive and intuitive to the interface of all types
+of users (administrators, teachers and students as well as parents). The navigation
+ought to be easy to use and very little training would be needed.
+Security and Access Permissions:
+The system has to offer a secure access using the login credentials and role-based
+permissions. Sensitive data must be encrypted whereby only authorized persons ought
+to undertake certain functions based on their role.
+Backup and Recovery:
+The system has to provide frequent backup measures to avoid the loss of data. The
+recovery mechanisms must enable restoration of data in case system is failed or
+corrupted or even accidentally deleted in such a way that the data integrity and
+continuity of operations are not lost.
+
+===== PAGE 33 =====
+Page | 22
+Chapter Three
+System Analysis
+3.1 Introduction
+The development of a Student Information Management System can hardly do
+without system analysis. It entails reviewing the current manual system in Haramaya
+University Non-Boarding Secondary School, analysis of the issues with the current
+system, and a statement of the needs of the intended web-based system. This chapter
+models the existing and proposed systems based on the selected methodology, such as
+actors, use cases, diagrams, and conceptual models. Effective analysis will guarantee
+the new system is effective, safe and will satisfy the requirements of the
+administrators, teachers, students and parents.
+3.1 System Requirement Specifications (SRS)
+3.2.1. Use case Modelling
+The use case diagram is a system analysis diagram and is used to explain the
+behavioral description of the system by illustrating the interaction between the system
+and the user (actors). It aids in coming up with system requirements since it helps to
+visualize what the system is supposed to do in the eyes of the user and not its
+implementation [10]. Use case modeling is used in the suggested Web-Based Student
+Information Management System of the Haramaya University Non-Boarding
+Secondary School to explicitly specify the interaction between various users of the
+system. The key participants revealed in interviews are the Administrator, Teacher,
+Student, and Parent. Every actor has roles and functions that are assigned depending
+on how much they are allowed to access.
+
+===== PAGE 34 =====
+Page | 23
+SIMS FOR HU NON-BOARDING SCHOOL
+Figure 1: Use case Diagram
+3.2.2 Use case documentation/description
+ID
+Use Case
+Name
+Primary
+Actors
+Brief
+Description
+Preconditions
+Postcondition
+s
+Alternative
+Exceptional
+Actions
+UC-01 Login
+Admin,
+Teacher,
+Student,
+Parent
+Validates user
+credentials to
+grant access to
+the system.
+User must
+have a
+registered
+account in the
+system.
+User is
+authenticated
+and granted
+role-based
+access.
+A1: Invalid
+credentials; system
+displays an error
+message and allows
+retry.
+
+
+===== PAGE 35 =====
+Page | 24
+ID
+Use Case
+Name
+Primary
+Actors
+Brief
+Description
+Preconditions
+Postcondition
+s
+Alternative
+Exceptional
+Actions
+UC-02 Logout
+Admin,
+Teacher,
+Student,
+Parent
+Terminates the
+active user
+session
+securely.
+User must be
+logged in.
+User session
+ends and user
+is redirected
+to the login
+page.
+N/A
+UC-03
+Manage
+Users
+Admin
+Create, update,
+or delete system
+user accounts.
+Admin must
+be logged in.
+User account
+data is saved
+and updated
+in the
+database.
+A1: Validation
+error due to missing
+or incorrect
+information.
+UC-04
+Manage
+Student
+Records
+Admin
+Manage
+academic and
+personal student
+information.
+Admin must
+be logged in.
+Student
+records are
+updated and
+stored
+successfully.
+A1: Duplicate
+student ID or
+invalid data
+entered.
+UC-05
+Manage
+Courses
+&
+Classes
+Admin
+Create and
+manage
+courses, classes,
+and teacher
+assignments.
+Admin must
+be logged in.
+Course and
+class details
+are updated.
+A1: Teacher
+assignment conflict
+detected.
+UC-06
+Manage
+Timetabl
+es
+Admin
+Create and
+update class
+schedules and
+timetables.
+Admin must
+be logged in.
+Timetables
+are updated
+and
+published.
+A1: Scheduling
+conflict
+(overlapping rooms
+or time slots).
+
+===== PAGE 36 =====
+Page | 25
+ID
+Use Case
+Name
+Primary
+Actors
+Brief
+Description
+Preconditions
+Postcondition
+s
+Alternative
+Exceptional
+Actions
+UC-07
+Generate
+Reports
+Admin
+Generate
+academic and
+system activity
+reports.
+Admin must
+be logged in.
+Reports are
+generated and
+displayed.
+A1: No data found
+for selected criteria.
+UC-08
+Filter
+Reports
+Admin
+Filter generated
+reports based on
+specific criteria.
+Reports must
+already exist.
+Filtered
+reports are
+displayed.
+A1: Filter criteria
+returns zero results.
+UC-09
+Export
+Report
+Admin
+Export reports
+into
+downloadable
+formats (PDF,
+Excel, etc.).
+Report must
+be generated.
+Report file is
+downloaded
+successfully.
+A1: Selected export
+format is not
+supported.
+UC-10
+Take
+Attendan
+ce
+Teacher
+Record student
+attendance for
+assigned
+classes.
+Teacher must
+be assigned to
+the class.
+Attendance
+data is stored
+in the system.
+A1: Attendance
+already marked for
+the selected date.
+UC-11
+Record
+Grades
+Teacher
+Enter student
+grades for
+assessments.
+Students must
+be registered
+in the system.
+Grades are
+saved in the
+database.
+A1: Entered grade
+is outside valid
+range.
+UC-12
+Update
+Grades
+Teacher
+Modify or
+correct existing
+student grades.
+Grades must
+already exist.
+Grade records
+are updated
+successfully.
+A1: Grade record is
+locked (end of
+term).
+UC-13
+View
+Class
+Reports
+Teacher
+View class
+performance
+and attendance
+summaries.
+Reports must
+be available.
+Class reports
+are displayed.
+A1: Insufficient
+data to generate
+report.
+
+===== PAGE 37 =====
+Page | 26
+ID
+Use Case
+Name
+Primary
+Actors
+Brief
+Description
+Preconditions
+Postcondition
+s
+Alternative
+Exceptional
+Actions
+UC-14
+View
+Student
+Profile
+Teacher
+View individual
+student
+academic
+information.
+Student must
+exist in the
+system.
+Student
+profile details
+are displayed.
+A1: Student not
+found in teacher’s
+assigned class list.
+UC-15
+Messagin
+g
+(Teacher
+)
+Teacher
+Communicate
+with students or
+parents.
+Teacher must
+be logged in.
+Messages are
+sent or
+received
+successfully.
+A1: Recipient
+account is
+deactivated.
+UC-16
+Access
+Materials
+Student
+View or
+download
+assignments
+and learning
+materials.
+Materials
+must be
+uploaded and
+available.
+Materials are
+accessed or
+downloaded.
+A1: File link
+broken or
+permission denied.
+UC-17
+Submit
+Assignm
+ent
+Student
+Submit
+completed
+assignments via
+file upload.
+Assignment
+submission
+must be open.
+Assignment is
+submitted and
+confirmation
+shown.
+A1: File size too
+large or invalid file
+format.
+UC-18
+View
+Attendan
+ce
+Student
+View personal
+attendance
+history.
+Attendance
+records must
+exist.
+Attendance
+details are
+displayed.
+N/A
+UC-19
+View
+Student
+Grade
+Student,
+Parent
+View student
+academic
+grades and
+results.
+Grades must
+be recorded.
+Grades are
+displayed to
+authorized
+users.
+A1: Grades
+withheld due to
+administrative
+restrictions.
+UC-20
+View
+Announc
+ements
+Student,
+Parent
+View school-
+wide
+announcements.
+Announceme
+nts must
+exist.
+Announceme
+nts are
+displayed.
+N/A
+
+===== PAGE 38 =====
+Page | 27
+ID
+Use Case
+Name
+Primary
+Actors
+Brief
+Description
+Preconditions
+Postcondition
+s
+Alternative
+Exceptional
+Actions
+UC-21
+Message
+Teachers
+Parent
+Communicate
+with teachers
+regarding
+student
+progress.
+Parent must
+be linked to a
+student
+account.
+Message is
+delivered to
+the teacher.
+A1: Messaging
+feature disabled by
+admin.
+Table 3: Use Case Description
+3.2.3. Sequence diagram
+A sequence diagram shows the interaction of objects and system components with one
+another through time to achieve a given function. It is concerned with a sequence of
+communication between actors and system elements in a specific situation [10]. The
+proposed Web-Based Student Information Management System sequence diagrams
+are employed in order to model interactions flow of major operations which include
+security login, student registration, recording attendance and generation of reports.
+These diagrams assist in explaining the communication between the front end, Back
+end, and database with respect to every process.
+
+
+===== PAGE 39 =====
+Page | 28
+Figure 2: Login Sequence Diagram
+Figure 3: Grade Submission Sequence Diagram
+3.2.4. Activity Diagram
+Activity diagram is used to depict the flow of activities in a system. It presents the
+order of activities, decision making and parallel processes of carrying out a task [10].
+In this project, the key workflows, including student registration, attendance marking,
+academic records updating as well as report preparation are modeled using activity
+diagrams. They give an effective illustration of the workflow in the system, which
+starts and finishes.
+
+===== PAGE 40 =====
+Page | 29
+Figure 4: Activity Diagram for Login
+Figure 5: Activity Diagram for Student Registration
+
+
+===== PAGE 41 =====
+Page | 30
+3.2.6. User Interface Prototyping
+User interface (UI) prototyping is the work of building initial visual designs that show
+how the users will use an interface of a system. It assists the interested parties to get a
+clue of layout, navigation, and functionality prior to full development [10]. UI
+samples in this project are developed around administrator, teacher, student, and
+parent dashboard. Such prototypes are centered on being usable, clear and role based
+instead of ultimately visual design.
+Figure 6: UI Prototyping
+
+
+===== PAGE 42 =====
+Page | 31
+3.2.7. Supplementary specifications
+Performance Requirements
+The system will be able to reply to the requests of the user in reasonable time in a
+typical usage scenario. The system will be able to accommodate several users of the
+system at the same time without the performance of the system being greatly
+compromised. Generation of reports as well as retrieval of student records shall be
+done effectively.
+Access Control Requirements and Security.
+All users will be required to log in with a valid user name and a password into the
+system. The role-based access control will be implemented such that users are only
+allowed to access authorized functions. The students and parents will only be allowed
+to view information and not to update official records. Only authorized administrators
+will have access to administrative functions.
+Usability Requirements
+The system will have a user friendly and consistent interface. Role-specific navigation
+menus and dashboards will be simple to use. The system will be accessible to users
+with low computer literacy.
+Availability Requirements and Reliability Requirements
+The system will be accessible at the regular school hours of work. It will guarantee
+data integrity and eliminate the chances of unwanted loss of data. Error handling shall
+be done properly in order to ensure the system is stable.
+Backup and Recovery Requirement.
+The system will facilitate frequent data backup in order to avoid loss of student
+records. The backup information will be saved in a safe place and reinstated on
+demand. There will be recovery mechanisms just in case the system fails.
+Constraints and Assumptions.
+The system will be internet-based and reliant on the Internet access. The system will
+be available using normal web browsers. The system will not have a mobile
+application but will be mobile responsive. The system will be created to be deployed
+in future and scaled.
+
+===== PAGE 43 =====
+Page | 32
+Ethical and Privacy Issues
+Data relating to students will remain confidential and inaccessible to the third party.
+Only the relevant information will be accessed by the users. The system will adhere to
+Data handling and privacy ethical standards
+Chapter Four
+System Design
+4.1 Introduction
+This Chapter discusses about the plan for the HU Non-Boarding High School Student
+Info System. We're taking what we figured out about what the system needs to do and
+turning it into an actual design. We’re using UML to map out how everything fits
+together and how it behaves. Think of it as blueprints showing both the structure and
+the actions inside the system. The system is built in layers to keep things organized
+and make sure each part has its own job. This helps the system run better. we’ll go
+over the whole structure, how the classes work, the state charts, the parts that make it
+up, database setup, and how the user will see it all. The main thing is to make sure it
+can handle lots of users without slowing down and that other schools can use it later.
+This design should make the system easy to keep running smoothly and ready to grow
+as more people start using it.
+4.2 Class Type Architecture
+4.2.1 User Interface Layer
+The User Interface (UI) lets people talk to the system. It grabs what people input,
+shows info, and makes getting around easy. It doesn't mess with the important stuff or
+data. The main thing is that it’s easy to use, open to everyone, and quick. That way,
+anyone can use the system, no matter what device they're on. Keeping the UI separate
+from the main system helps keep things neat and makes the system easier to handle
+[11].
+The React is used in the User Interface Layer of Web Based Student Information
+Management System for HU Non-Boarding High School. js as part of the MERN
+stack. The system can be accessed using web browser along with responsive interface
+
+===== PAGE 44 =====
+Page | 33
+for Admin, Teacher, Student and Parent. This tier that contains functionalities that are
+crucial for the system such as managing student personal and academic records,
+attendance control, grade and exam management, course class and timetable
+management and reporting and analytics. a Student, Parent portals are available so
+that when any user(s), after being authenticated, can see academic results, break up,
+timetable and automatic reports. User Interface Layer interacts with the application
+layer by RESTful APIs only it doesn't interact directly with the database.
+4.2.2 Process (Controller) Layer
+Controller or Process Layer controls the flow of control in a system, accepting input
+from users, ordering related work to be done and coordinating communication
+between other layers of the system. This tier accepts incoming requests, validates
+them superficially and figures out what actions should be taken according to the
+system rules and user permissions. At the most fundamental level it enforces
+application workflows, takes care of authentication and authorization, and ensures
+that requests are handled in a coherent way as well as being secure.By separating
+control logic from presentation and business logic, the controller layer improves
+system modularity and simplifies maintenance[11]
+In the case of the Web Based Student Information Management System for HU Non-
+Boarding High School, the Controller or Process Layer is implemented with the help
+of Node.js and Express.js which is part of the popular MERN stack. Coming from the
+user interface, this layer receives RESTful API requests, steers the back-and-forth of
+information between the business side and the rest of the system. It’s also in charge of
+managing user identities using a combination of username and password and laying
+down rules so that Admins, Teachers, Students and Parents can only access what
+they’re supposed to. The controller layer is also responsible for sorting out where
+requests go, checking the validity of the data coming in, handling sessions or tokens
+and bailing out of errors.
+4.2.3 Business (Domain) Layer
+The business or domain layer is essentially the heart of the system, when building an
+application. It encapsulates the main logic, rules and operations that make up the
+application's domain, and is responsible for modelling real-world entities and their
+
+===== PAGE 45 =====
+Page | 34
+relationships, plus setting the way that data is processed, according to the
+organization's policies and needs. Coming rushing in after the fact to worry about the
+user interface or data storage isn’t really its job, it's all about what the system does,
+and doesn’t care about how it's presented or stored. Well-known for its ability to cut
+through the clutter and give clarity, consistency and reusability to systems, separating
+out the business logic into its own layer is definitely a good way to go, especially in
+large-scale applications. [11]
+Concerning the Web Based Student Information Management System for HU Non-
+Boarding High School, the Business (Domain) Layer forms the core of the system,
+where the logic for managing student information and academic activities is housed. It
+includes classes such as Student, Teacher, Parent, Subject, Class, Timetable,
+Attendance, Academic Record, and User Account, that encapsulate the main elements
+of the school environment. The rules of managing student records, calculating and
+storing grades, handling attendance data, and generating reports are here, the way
+school policies can control what's done within the system. Coming from the
+standpoint of roles, this layer makes sure that not much can be altered in a student’s
+academic record unless the person doing it is authorized to do so. The business layer
+sends its requests to the controller layer and relies on the persistence layer for data
+storage. It doesn't concern itself with how the data is shown or stored.
+4.2.4 Persistent Layer
+This layer is responsible for managing data storage and retrieval operations in a
+system. Coming between the business logic and the database, it conceals the
+underlying database specifics, allowing for the seamless storage, updating and
+retrieval of data, without exposing this information to other layers. In a layered
+system, it’s precisely this Persistence Layer that ensures the consistency, integrity and
+dependability of the data, and by isolating the persistence concerns from the business
+logic, also reduces the ‘tightly coupled’ design and gives systems a much more
+manageable, scalable and flexible nature. [11]
+In Web Based Student Information Management System for HU Non-Boarding High
+School, the Persistence Layer is supported by using MongoDB as part of the MERN
+stack. This layer is responsible for storing, retrieving and manipulating system
+data of students, teachers, parents, attendance information marks on the test timetable
+
+===== PAGE 46 =====
+Page | 35
+and user account details etc. Mongoose represents a available Object Data Modeling
+(ODM) library that is designed to work with data: defining the structure of the schema,
+handle relationships between these schemas and is used to translate objects in code to
+their representation back there where your application stores its data (in most cases an
+MongoDB database). The persistence layer provides a mechanism to carry out data
+operations that are requested by the business layer in an effective way, while
+preserving the integrity of the data and assisting performance. Static methods don't
+allow for easy extendibility or purging of the database.
+4.3 Class Modeling
+Class Modeling is an insinuation of its static aspect finding its top-level classes, their
+attributes, operations and relations. In UML, a class diagram is a visual representation
+of system entities and their interrelations that indicate how data and responsibilities
+are decomposed in the system domain in which they interact. Attributes specify the
+properties of each class, operations represent the behaviors associated with classes
+and relationships like association, aggregation, composition and inheritance explain
+how classes are linked to one another. Class modeling is the pattern of system
+implementation, which ensures consistency between system requirements and design,
+enhances clarity, maintainability and prospects for future extension of the system [11]
+for suggested Web Based Student Information Management System for HU Non-
+Boarding High School.
+
+===== PAGE 47 =====
+Page | 36
+Figure 7:Class Modeling
+4.4 State Chart Modeling
+State chart modeling is used to express the dynamic behavior of a system by
+illustrating how an object changes state in response to events over time. A state chart
+diagram in UML explains the various states of an object and the transitions between
+those states, as well as the events that cause these transitions [11]. Such modeling is
+particularly employed in systems in which entities go through a lifecycle, e.g., user
+accounts, student records, or academic processes. State chart diagrams, by drawing
+pictorial depictions of state transitions, support visualization of system behavior,
+validation of logic and diagnosis of potential errors in system operation.
+In Web Based Student Information Management System for HU Non-Boarding High
+School state chart modeling is adopted to describe how important system entities shift
+from one state to another side periodically during normal operation of the system,
+increasing clarity and facilitating accurate systems design.
+
+
+===== PAGE 48 =====
+Page | 37
+Figure 8: State chart for Login
+
+
+===== PAGE 49 =====
+Page | 38
+Figure 9:State Chart for Registration and Updating Student Info
+4.5 Collaboration Modeling/Diagram
+Collaboration diagrams (known as Communication Diagram in UML 2.x) are used to
+show how objects interact to perform the behavior of a particular use case, or a part of
+a use case. Along with sequence diagrams, collaboration are used by designers to
+define and clarify the roles of the objects that perform a particular flow of events of a
+use case. They are the primary source of information used to determining class
+responsibilities and interfaces [11].
+
+
+===== PAGE 50 =====
+Page | 39
+Figure 10: Collaboration Diagram
+4.6 Component Diagram
+UML Component diagrams are used in modeling the physical aspects of object-
+oriented systems that are used for visualizing, specifying, and documenting
+component-based systems and also for constructing executable systems through
+forward and reverse engineering. Component diagrams are essentially class diagrams
+that focus on a system's components that often used to model the static
+implementation view of a system [11].
+
+
+===== PAGE 51 =====
+Page | 40
+Figure 11: Component Diagram
+4.7 Deployment Diagram
+A UML deployment diagram is a diagram that shows the configuration of run time
+processing nodes and the components that live on them. Deployment diagrams is a
+kind of structure diagram used in modeling the physical aspects of an object-oriented
+system. They are often be used to model the static deployment view of a system
+(topology of the hardware) [11].
+
+===== PAGE 52 =====
+Page | 41
+4.8 Persistent Modeling
+Persistent database modeling is a form of data modeling in which data structures are
+designed to persist, as opposed to transient or ephemeral aspects of the system),
+outside an application’s runtime (they outlive instantiations or sessions). Data persists
+beyond crashes and forced terminations by users; it lives longer than objects and
+variables. Techniques include Entity-Relationship Diagrams (ERDs) for relational
+models, object modeling for Object-Oriented Databases (OODBMS), emphasizing
+object life-cycles; relationships; and structural integrity featured in system databases
+like SQL, No-SQL.
+User Collection
+Field Name Data Type Description
+userId ObjectId Unique identifier for the user
+username String Login username
+password String Encrypted password
+role String User role (Admin, Teacher, Student, Parent)
+email String User email address
+status String Active or Inactive
+createdAt Date Account creation date
+
+
+===== PAGE 53 =====
+Page | 42
+Student Collection
+Field Name Data Type Description
+studentId ObjectId Unique student identifier
+fullName String Student full name
+grade String Grade level (9–12)
+section String Class section
+dateOfBirth Date Student date of birth
+parentId ObjectId Linked parent account
+status String Active or Archived
+Parent Collection
+Field Name Data Type Description
+parentId ObjectId Unique parent identifier
+fullName String Parent full name
+phone String Contact number
+email String Parent email
+address String Residential address
+studentId ObjectId Linked student
+
+===== PAGE 54 =====
+Page | 43
+Teacher Collection
+Field Name Data Type Description
+teacherId ObjectId Unique teacher identifier
+fullName String Teacher full name
+subject String Subject taught
+email String Teacher email
+phone String Contact number
+status String Active or Inactive
+Attendance Collection
+Field Name Data Type Description
+attendanceId ObjectId Attendance record ID
+studentId ObjectId Student reference
+date Date Attendance date
+status String Present / Absent
+recordedBy ObjectId Teacher ID
+
+===== PAGE 55 =====
+Page | 44
+Academic Record Collection
+Field Name Data Type Description
+recordId ObjectId Academic record ID
+studentId ObjectId Student reference
+subject String Subject name
+score Number Marks obtained
+grade String Letter grade
+term String Semester or term
+Timetable Collection
+Field Name Data Type Description
+timetableId ObjectId Timetable identifier
+grade String Grade level
+section String Class section
+subject String Subject name
+teacherId ObjectId Assigned teacher
+timeSlot String Time and day
+Report Collection
+Field Name Data Type Description
+reportId ObjectId Report identifier
+
+===== PAGE 56 =====
+Page | 45
+Field Name Data Type Description
+generatedBy ObjectId Admin or system
+reportType String Attendance / Academic
+generatedDate Date Date generated
+fileFormat String PDF or Excel
+Messaging Collection
+Field Name Data Type Description
+messageId ObjectId Unique identifier for the message
+senderId ObjectId User ID of the message sender
+receiverId ObjectId User ID of the message receiver
+senderRole String Role of sender (Admin, Teacher, Student, Parent)
+receiverRole String Role of receiver
+subject String Message subject or title
+messageBody String Message content
+sentAt Date Date and time message was sent
+status String Sent / Read / Archived
+Table 4: Persistent Design
+4.9 User Interface Design
+The Web Based Student Information Management System has a user interface design
+that aims at providing usability, accessibility and responsiveness so that every user is
+able to interact with the system effectively. As the system will have multiple roles of
+
+===== PAGE 57 =====
+Page | 46
+users like administrators, teachers, students and parents, the interface will be role-
+based, where only the relevant features will be shown according to the users
+permissions. The system adheres to the responsive web design method in order to
+make sure that it works correctly in desktops, tablets, and mobile devices. React is
+used to create the user interface and enables reusable components and dynamically
+engage with the user to enhance user experience and system consistency.
+4.9.1 Form Design
+The Form design is a very important aspect of the system because it allows the user to
+key in and modify data correctly. The system has all forms that are made with the
+intention of simplicity, clarity and validation mechanisms to minimize errors made by
+the user. The most frequent ones are the forms of logging in, forms of student
+registration, the forms of entering attendance, forms of submitting grades, forms of
+creating timetables and the forms of messaging. The input fields, field indicators and
+validation messages are well identified in each form to assist the user in data input.
+Role-based access can be used to provide data integrity and security because only
+authorized persons can access and submit particular forms.
+4.9.2 Report Design
+Report design aims at making sense of system data to make a decision by providing
+them in an understandable, summarized, and meaningful way. The system will
+produce different reports like reports on attendance of students, reports on academic
+performance, classes, and high-level analytics of the administrators. Reports should
+be in an easy to read format, they should have appropriate headings, tables and a
+constant format. The system has a report viewing interface where users can access
+reports and export them in standard format (PDF or excel) when needed. Report
+access has user-role control to protect privacy of confidential information.
+4.9.3 Dialog and Interface Design
+Dialog and user interface design determines how the users will communicate with the
+system in terms of messages, notifications, and feedback. The dialog messages that
+are offered by the system include notification on login success or failure, confirmation
+
+===== PAGE 58 =====
+Page | 47
+dialog of important actions, error messages of invalid inputs, and success messages
+upon data submission. The navigation is maintained simple and uniform on every
+page through the use of menus and dashboards depending on the user role. The
+system has messaging features that facilitate communication between administrators,
+teachers, parents and students. In general, the interface design is consistent, clear, and
+easy to use to increase system acceptance and usability.
+Chapter Five
+Implementation and Testing
+5.1 Introduction
+Implementation and testing are significant steps in system development life cycle
+because they determine proper development of a system based on its design and
+functionality. This chapter is concerned with the implementation process and testing
+plans of the Web Based Student Information Management System of the HU Non-
+Boarding High School. It maps the arrangement of the system components (based on
+the chosen technologies) and explains the testing actions that would facilitate the
+assurance of system functionality, reliability, and performance. Implementation
+planning and systematic testing should be carried out in order to make sure that the
+system is able to meet the requirements of the user and that the overall quality of it
+should be maintained.
+5.2 Final Testing of The System
+In case of the Web Based Student Information Management System the testing is
+directed to test the main functionality of the system like authentication and user
+management, student information, attendance, academic records, timetable, reporting,
+and messaging. Proper testing enhances the quality of systems because it will be
+ensured that all the parts and the entire system are functioning well in the conditions
+as expected.
+
+===== PAGE 59 =====
+Page | 48
+5.2.1 Unit Testing
+Unit testing involves testing part or modules of a system/ system to make sure that
+every component works as it should. Unit testing in the Web Based Student
+Information Management System for HU non Boarding School will be used in core
+modules in the system which include user login, user management, student record
+processing, attendance management, academic record processing, timetable
+management, reporting and messaging. The validation of each unit is performed by
+the means of valid and invalid inputs and checking whether the outputs are as desired.
+Unit testing can be used to identify errors at a young age and overall quality of the
+system through ensuring that each small component of the system is correct.
+5.2.2 System and Integration Testing
+Integration testing takes place to determine whether various modules of a system have
+the proper functionality after they are put together. This type of testing focuses on the
+interaction of the front-end and back-end parts, and communication channels between
+the back-end services and the database. System testing then comes in which overall
+testing of the system is carried out that all the functional requirements and non-
+functional requirements are met. In the case of the Web-Based Student Information
+Management System for HU non-Boarding School, the integration and system testing
+will be used to ensure that there is a proper data flow, role based access control as
+well as the concurrent system behavior by all user roles.
+5.3 Hardware software acquisitions/specifications
+The System takes important hardware and software resources to support its
+functioning and operation. Hardware requirements include server equipment that will
+support web app and database applications, as well as client systems (desktop
+computers, laptops, tablets, or smartphones) with internet access. In software terms,
+the system is designed to use modern web technologies, such as MongoDB to manage
+the database and Express.js and Node.js to develop the backend and React to develop
+the frontend. Additional software (like web browsers, integrated development
+environments and version control systems) are also essential to development and
+
+===== PAGE 60 =====
+Page | 49
+maintenance. The right choice of hardware and software is central to the attainment of
+system reliability, scalability, and efficiency in performance.
+5.4 User manual preparation
+This section explains how various users will use the Web Based SIMS for the HU
+non-Boarding School by a step wise account of interaction with the system. This
+system is developed with role-based access in place of which every user can only
+interrelate with functions that are pertinent to his or her duties.
+Administrator Usage
+The administrator can log in by first accessing the login page where he/she enters a
+valid username and password to use the system. When an administrator successfully
+logs in, he or she is redirected to the admin dashboard where he or she sees system
+overview information. The administrator can create and manage user accounts of
+teachers, students and parents, preset roles, permissions and changes system settings,
+all from the dashboard. With its help, the administrator will be able to enroll new
+students, maintain records of students, schedule classes, and compile such reports as
+attendance summaries and academic performance reports. The administrator is also
+able to check the system messages and also to send messages to other users through
+the messaging option before leaving the system.
+Teacher Usage
+A teacher gets into the system with the help of credentials assigned. On logging in,
+the teacher dashboard appears, which includes assigned classes, and subjects. The
+teacher is able to keep track of daily attendance by checking a class and marking
+students present or absent. The teacher is also able to add and amend academic
+records of students, see the school timetables and create academic or attendance
+records to classes assigned. Moreover, the teacher is able to send and receive
+messages to and with the administrators, students and parents through the messaging
+module. Once the tasks are done, the teacher logs out safely.
+
+===== PAGE 61 =====
+Page | 50
+Student Usage
+To use the system, a student logs on to the system with his or her username and
+password. Upon successful authentication, the student dashboard appears, and it lists
+personal and academic information. The student is able to access his or her profile
+description, attendance history, school performance, and the schedule of classes, all,
+of course, using the dashboard. The student is also able to read messages posted by
+teachers or administrators and reply in case it is allowed. The system will be modeled
+in such a way that students can only see the information but not alter official
+academic records. The student leaves the system when he or she logs out.
+Parent Usage
+A parent accesses the system with credentials associated to his/her child. In the
+parent dashboard, the parent is given access to the academic performance of the
+student, attendance history, and timetable of the student once the parent logs in.
+Parents have access to monitoring progress, reviewing reports, and being announced
+or reported by teachers and the administrators. The messaging tool enables the parents
+to get in touch with the teachers or the school leaders whenever they have to. Once
+the parent browses the required information he/she logs out of the system.
+General System Navigation
+The system has a user friendly interface that has a uniform and responsive interface
+that all users communicate with. Navigation menus and dashboards are role specific
+and hence they are easy and secure. The typical actions of the system that include
+login, logout, reading information and sending a message have standardized
+interaction patterns to ensure that there is less confusion to the user and the system
+becomes easier to use.
+5.5 Training
+Training is a critical practice that will make the users know how to use and operate
+the system effectively and appropriately. In the case of Our SIMS System, training
+will be conducted based on the user roles to deal with various duties and interaction
+with systems. Administrators are also given a comprehensive instruction on how to
+manage the user accounts, keep the student records, arrange the timetable, and also
+create the system reports and a check on the general running of the system. Teachers
+will be trained about how to enter and update attendance, academic outcomes, access
+
+===== PAGE 62 =====
+Page | 51
+class schedules, and communicate with students and parents using the messaging
+option. Students and parents are instructed in using the system to access dashboards
+and get in touch with school staff to access information about academic performance
+and attendance and exchange messages. Adequate training will reduce the number of
+user errors, user confidence will be promoted and effective system adoption in the
+school environment will be facilitated.
+5.6 Installation Process
+The installation process outlines the steps required to prepare the system for
+operational use in a real environment. For the Web Based Student Information
+Management System, installation involves setting up the necessary software and
+hardware infrastructure to support system functionality. This includes configuring a
+web server environment, setting up backend services using Node.js and Express, and
+preparing the MongoDB database for data storage. The frontend application is
+configured to allow access through standard web browsers. Basic security
+configurations, such as access control and system settings, are also established during
+installation. A well-defined installation process helps ensure system stability, security,
+and readiness for use.
+5.7 Start-Up Strategy
+The start-up strategy explains how the system would be rolled out to the users in a
+systematic and managed way. For Web Based Student Information Management
+System for HU non-boarding school, the implementation will be done in stages to
+ensure a smooth adoption process and reduce possible difficulties. At first,
+administrators would start manipulating the system and create user accounts, student
+records, schedules, and system preferences. Once the administrators are prepared, the
+teachers would be given access to handle attendance and academic records. Lastly, the
+students and parents would also gain access to access academic information,
+attendance records, schedules, and use the messaging feature. The user feedback
+would be gathered during the initial usage period to identify which areas need
+improvement to facilitate the system improvements in the future. This step by step
+start-up plan is useful in maintaining stability and usefulness of the system in the
+school setting.
+
+===== PAGE 63 =====
+Page | 52
+Chapter Six
+Conclusion and Recommendation
+6.1 Conclusion
+The proposed Web-Based Student Information Management System (SIMS) of
+Haramaya University Non-Boarding Secondary School will deal with the issues that
+are found in the current manual system. The school is currently using paper-based
+processes to register students, keep academic records, manage attendance, prepare
+reports and communicated and this is the reason why the school loses data, slows
+down and the administration is overworked.
+A web-based solution, planned through careful system analysis, modeling and design,
+will do:
+ Manage student records digitally, in a centralized and organized form.
+ Automate major functions of the institution including registration, attendance,
+updating of academic records, and generating of reports.
+ Offer role-based dashboards to administrators, teachers, students and parents so
+that only the relevant information can be accessed by the user.
+ Integrate a messaging platform to be used in communication.
+The documentation and design proves that a web-based system could contribute to
+efficiency, error reduction, as well as access to information in time, be mobile-
+responsive, and scalable to use in the future.
+All in all, the project offers an analyzed, feasible, and applicable solution to
+modernize the information management of students in the school.
+6.2 Recommendations
+According to the analysis and system design, the following recommendations can be
+proposed on the basis of further development and implementation:
+ Planning System Implementation.
+ Implement the system in phases with proper software and hardware requirement.
+Delegating the maintenance and deployment to trained personnel.
+
+===== PAGE 64 =====
+Page | 53
+ Future Enhancements: Create a mobile solution to access offline and facilitate
+the use of students or teachers. Enhance reporting and analytics capabilities to
+track the student performance trend. User Training and Support
+ Make training sessions to the administrators, teachers, students and parents to
+acclimatize them to the system.
+ Include extensive user guides and instructions on-line.
+ Data Security and Privacy: Implement access control based on their roles to
+ensure the privacy of student data. Create safe backup and recovery procedures to
+curb possible loss of data.
+ Continuous Improvement
+ Gather user responses post implementation to promote functionality and usability.
+The system design should be maintained with updated web technologies to be able to
+be sustained over the long term.
+Future versions of the project could include cloud deployment, multi-user
+concurrency handling, alert Mechanisms, AI-driven analytics for forecasting student
+performance and Third-party integrations like google workspace etc. This project is
+also recommended for students and researchers who want to strengthen their skills in
+system analysis, requirement modeling, and structured documentation. It is
+particularly useful for academic projects where understanding system workflows, data
+relationships, and user interactions is more important than full implementation.
+
+===== PAGE 65 =====
+Page | 54
+References
+[1] K. C. Laudon and J. P. Laudon, Management Information Systems:
+Managing the Digital Firm, 15th ed. Boston, MA, USA: Pearson
+Education, 2018.
+[2] “Sources of Data Collection | Primary and Secondary Sources,”
+GeeksforGeeks, 2025. [Online]. Available:
+https://www.geeksforgeeks.org/sources-of-data-collection/
+[3] S. Robinson, K. Brush, and V. Silverthorne, “Agile Software
+Development,” TechTarget, Oct. 18, 2024. [Online]. Available:
+https://www.techtarget.com/searchsoftwarequality/definition/agile-
+software-development
+[4] Meta Platforms, “React Documentation,” 2024. [Online]. Available:
+https://react.dev
+[5] OpenJS Foundation, “Node.js Documentation,” 2024. [Online].
+Available: https://nodejs.org/en/docs
+[6] OpenJS Foundation, “Express.js Documentation,” 2024. [Online].
+Available: https://expressjs.com
+[7] MongoDB Inc., “MongoDB Manual,” 2024. [Online]. Available:
+https://www.mongodb.com/docs
+[8] Microsoft, “Visual Studio Code Documentation,” 2024. [Online].
+Available: https://code.visualstudio.com/docs
+[9] Git SCM, “Git Documentation,” 2024. [Online]. Available: https://git-
+scm.com/doc
+[10] K. E. Kendall and J. E. Kendall, Systems Analysis and Design, 9th ed.
+Boston, MA, USA: Pearson, 2014.
+
+===== PAGE 66 =====
+Page | 55
+[11] IEEE Std 830-1998, IEEE Recommended Practice for Software
+Requirements Specifications. New York, NY, USA: IEEE, 1998.

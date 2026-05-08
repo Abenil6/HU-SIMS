@@ -8,7 +8,7 @@ describe('Exam Schedule Controller', () => {
   let adminToken;
   let teacherToken;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const admin = await createAdminUser(app);
     adminToken = admin.token;
 

@@ -846,7 +846,7 @@ export function GradesPage() {
 
     const initialData: Record<string, MarksState> = {};
     studentsInGrade.forEach((student: any) => {
-      const studentId = student.studentId || student.studentProfile?.studentId || student.id || student._id;
+      const studentId = student.id || student._id || student.studentId || student.studentProfile?.studentId;
       if (studentId) {
         initialData[studentId] = emptyMarks();
       }
@@ -892,6 +892,8 @@ export function GradesPage() {
               academicYear: activeAcademicYear,
               assessmentType: comp.assessmentType,
               score,
+              maxScore: comp.max,
+              weight: comp.weight,
               status: "Pending" as const,
             });
           }
@@ -989,7 +991,7 @@ export function GradesPage() {
         });
 
         if (student) {
-          const studentId = student.studentId || student.studentProfile?.studentId || student.id || student._id;
+          const studentId = student.id || student._id || student.studentId || student.studentProfile?.studentId;
           if (studentId) {
             importedData[studentId] = {
               midMarks: midExamIndex !== -1 ? values[midExamIndex]?.trim() || "" : "",
@@ -2552,13 +2554,13 @@ export function GradesPage() {
                         .filter((s: any) => {
                           const studentGrade = normalizeGradeValue(s?.studentProfile?.grade || s?.grade || "");
                           const studentStream = String(s?.studentProfile?.stream || s?.stream || "").trim();
-                          const studentId = s.studentId || s.studentProfile?.studentId || s.id || s._id;
+                          const studentId = s.id || s._id || s.studentId || s.studentProfile?.studentId;
                           return studentGrade === normalizeGradeValue(bulkGrade) &&
                                  (!gradeRequiresStream(bulkGrade) || studentStream === bulkStream) &&
                                  studentId in bulkGradesData;
                         })
                         .map((student: any) => {
-                          const studentId = student.studentId || student.studentProfile?.studentId || student.id || student._id;
+                          const studentId = student.id || student._id || student.studentId || student.studentProfile?.studentId;
                           const studentName = `${student.firstName || ""} ${student.lastName || ""}`.trim();
                           const marks = bulkGradesData[studentId] || emptyMarks();
                           const total = calculateRowTotal(marks);
