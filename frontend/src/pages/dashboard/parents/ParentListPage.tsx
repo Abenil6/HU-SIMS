@@ -32,6 +32,7 @@ import {
   useUpdateParent,
   useDeleteParent,
 } from "@/hooks/parents/useParents";
+import { createParentSchema, updateParentSchema } from "@/lib/validation";
 
 export function ParentListPage() {
   const { t } = useTranslation();
@@ -247,13 +248,25 @@ export function ParentListPage() {
     if (isViewMode) return;
     setIsSubmitting(true);
     try {
+      // Validate using zod schema
+      const validationResult = selectedParent
+        ? updateParentSchema.safeParse(values)
+        : createParentSchema.safeParse(values);
+
+      if (!validationResult.success) {
+        const errors = validationResult.error.issues;
+        const firstError = errors[0];
+        toast.error(`${firstError.path.join(".")}: ${firstError.message}`);
+        return;
+      }
+
       if (selectedParent) {
         await updateParent.mutateAsync({
           id: (selectedParent as any)._id || selectedParent.id,
-          data: values as any,
+          data: validationResult.data as any,
         });
       } else {
-        await createParent.mutateAsync(values as any);
+        await createParent.mutateAsync(validationResult.data as any);
       }
       setFormModalOpen(false);
     } catch {

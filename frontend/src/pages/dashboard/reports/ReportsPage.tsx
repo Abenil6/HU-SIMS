@@ -50,6 +50,12 @@ import {
 } from "@/services/reportService";
 import { apiGet } from "@/services/api";
 import { useAuthStore } from "@/stores/authStore";
+import {
+  reportCardGenerationSchema,
+  studentTranscriptGenerationSchema,
+  classReportGenerationSchema,
+  attendanceSummaryGenerationSchema,
+} from "@/lib/validation";
 
 interface StudentRecord {
   id?: string;
@@ -275,65 +281,73 @@ export function ReportsPage() {
     setFormModalOpen(false);
 
     try {
-      const academicYear = String(values.academicYear || "2025-2026");
-      const semester = values.semester === "2" ? "Semester 2" : "Semester 1";
-      const grade = String(values.grade || "10");
+      let validationResult;
 
+      // Validate based on report type
       if (selectedReportType === "student_report_card") {
-        if (!values.studentId) {
-          toast.error("Please select a student for report card generation");
+        validationResult = reportCardGenerationSchema.safeParse(values);
+        if (!validationResult.success) {
+          const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+          toast.error(errorMessages);
           return;
         }
         await reportService.generateReportCard({
-          studentId: String(values.studentId),
-          academicYear,
-          semester,
-          behaviorGrade: String(values.behaviorGrade || "B") as "A" | "B" | "C",
+          studentId: validationResult.data.studentId,
+          academicYear: validationResult.data.academicYear,
+          semester: validationResult.data.semester === "2" ? "Semester 2" : "Semester 1",
+          behaviorGrade: validationResult.data.behaviorGrade,
         });
       } else if (selectedReportType === "student_transcript") {
-        if (!values.studentId) {
-          toast.error("Please select a student for transcript generation");
+        validationResult = studentTranscriptGenerationSchema.safeParse(values);
+        if (!validationResult.success) {
+          const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+          toast.error(errorMessages);
           return;
         }
         await reportService.generateStudentTranscriptOfficial({
-          studentId: String(values.studentId),
+          studentId: validationResult.data.studentId,
         });
       } else if (
         selectedReportType === "class_statistics" ||
         selectedReportType === "academic_performance"
       ) {
+        validationResult = classReportGenerationSchema.safeParse(values);
+        if (!validationResult.success) {
+          const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+          toast.error(errorMessages);
+          return;
+        }
         if (selectedReportType === "class_statistics") {
           await reportService.generateClassProgress({
-            grade,
-            academicYear,
-            semester,
+            grade: validationResult.data.grade,
+            academicYear: validationResult.data.academicYear,
+            semester: validationResult.data.semester === "2" ? "Semester 2" : "Semester 1",
           });
         } else {
           await reportService.generateAcademicPerformance({
-            grade,
-            academicYear,
-            semester,
+            grade: validationResult.data.grade,
+            academicYear: validationResult.data.academicYear,
+            semester: validationResult.data.semester === "2" ? "Semester 2" : "Semester 1",
           });
         }
       } else if (selectedReportType === "attendance_summary") {
-        const month = String(values.month || "01").padStart(2, "0");
-        const reportScope = String(values.reportScope || "class");
-        
-        if (reportScope === "student") {
-          if (!values.studentId || typeof values.studentId !== "string") {
-            toast.error("Please select a student for individual report");
-            return;
-          }
+        validationResult = attendanceSummaryGenerationSchema.safeParse(values);
+        if (!validationResult.success) {
+          const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+          toast.error(errorMessages);
+          return;
+        }
+        if (validationResult.data.reportScope === "student") {
           await reportService.generateAttendanceSummary({
-            academicYear,
-            month,
-            studentId: values.studentId,
+            academicYear: validationResult.data.academicYear,
+            month: validationResult.data.month,
+            studentId: validationResult.data.studentId!,
           });
         } else {
           await reportService.generateAttendanceSummary({
-            academicYear,
-            month,
-            grade,
+            academicYear: validationResult.data.academicYear,
+            month: validationResult.data.month,
+            grade: validationResult.data.grade,
           });
         }
       } else {

@@ -69,6 +69,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useParents } from "@/hooks/parents/useParents";
 import { GRADES, STREAMS } from "@/constants/academic";
+import { studentListEditSchema } from "@/lib/validation";
 
 const ACADEMIC_DOC_MAX_SIZE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_ACADEMIC_DOC_TYPES = new Set([
@@ -221,43 +222,6 @@ const normalizeStudentFormPayload = (
         ? emergencyContact
         : undefined,
   };
-};
-
-const validateStudentFormPayload = (
-  payload: Record<string, unknown>,
-): string | null => {
-  if (!payload.firstName || !payload.lastName) {
-    return "First name and last name are required";
-  }
-
-  if (!payload.gender) {
-    return "Gender is required";
-  }
-
-  if (!payload.dob) {
-    return "Date of birth is required";
-  }
-
-  if (!payload.grade) {
-    return "Grade is required";
-  }
-
-  if (!payload.enrollmentDate) {
-    return "Enrollment date is required";
-  }
-
-  const grade = String(payload.grade);
-  const stream = String(payload.stream || "");
-
-  if ((grade === "11" || grade === "12") && !stream) {
-    return "Stream is required for Grade 11 and Grade 12 students";
-  }
-
-  if (grade !== "11" && grade !== "12" && stream) {
-    return "Stream should only be set for Grade 11 and Grade 12 students";
-  }
-
-  return null;
 };
 
 const normalizeGradeValue = (value: unknown) =>
@@ -714,10 +678,12 @@ export function StudentListPage() {
     setIsSubmitting(true);
     try {
       const payload = normalizeStudentFormPayload(values);
-      const validationError = validateStudentFormPayload(payload);
-
-      if (validationError) {
-        toast.error(validationError);
+      
+      // Validate with zod schema
+      const validationResult = studentListEditSchema.safeParse(payload);
+      if (!validationResult.success) {
+        const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+        toast.error(errorMessages);
         return;
       }
 
@@ -727,7 +693,7 @@ export function StudentListPage() {
         await updateStudent.mutateAsync({
           id: studentId,
           data: {
-            ...(payload as any),
+            ...validationResult.data,
             academicDocumentsToAdd: pendingDocumentUploads.map((entry) => ({
               category: entry.category,
               title: entry.title,
@@ -737,7 +703,7 @@ export function StudentListPage() {
           },
         });
       } else {
-        await createStudent.mutateAsync(payload as any);
+        await createStudent.mutateAsync(validationResult.data);
       }
       setFormModalOpen(false);
       setPendingDocumentUploads([]);

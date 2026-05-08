@@ -298,12 +298,6 @@ export function CreateStudentWizard({
         toast.error(`${firstError.path.join(".")}: ${firstError.message}`);
         return false;
       }
-
-      // Additional validation: at least one contact method
-      if (!values.phone && !values.email) {
-        toast.error("At least one contact method (phone or email) is required");
-        return false;
-      }
     }
 
     if (activeStep === 2) {
@@ -471,7 +465,22 @@ export function CreateStudentWizard({
   };
 
   const handleFinalSubmit = async () => {
-    if (!validateStep()) return;
+    // Validate all steps before final submission
+    const currentStepBackup = activeStep;
+
+    // Validate each step
+    for (let step = 0; step < steps.length; step++) {
+      setActiveStep(step);
+      if (!validateStep()) {
+        // Restore the step where validation failed
+        setActiveStep(step);
+        return;
+      }
+    }
+
+    // Restore original step
+    setActiveStep(currentStepBackup);
+
     await onSubmit(buildStudentPayload(values));
   };
 

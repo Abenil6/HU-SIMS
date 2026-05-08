@@ -16,6 +16,17 @@ const numbersOnlySchema = z
   .max(15, "Must be at most 15 digits")
   .regex(/^\+?[\d\s\-()]+$/, "Must contain only numbers, spaces, hyphens, parentheses, and optional + prefix");
 
+// Numbers only (optional)
+const numbersOnlyOptionalSchema = z
+  .union([
+    z.literal(""),
+    z.string()
+      .min(10, "Must be at least 10 digits")
+      .max(15, "Must be at most 15 digits")
+      .regex(/^\+?[\d\s\-()]+$/, "Must contain only numbers, spaces, hyphens, parentheses, and optional + prefix"),
+  ])
+  .optional();
+
 // Email validation
 const emailSchema = z
   .string()
@@ -25,11 +36,14 @@ const emailSchema = z
 
 // Phone validation (optional)
 const phoneOptionalSchema = z
-  .string()
-  .max(30, "Phone must be at most 30 characters")
-  .regex(/^\+?[\d\s\-()]*$/, "Must contain only numbers, spaces, hyphens, parentheses, and optional + prefix")
-  .optional()
-  .or(z.literal(""));
+  .union([
+    z.literal(""),
+    z.string()
+      .min(10, "Phone must be at least 10 digits")
+      .max(30, "Phone must be at most 30 characters")
+      .regex(/^\+?[\d\s\-()]+$/, "Must contain only numbers, spaces, hyphens, parentheses, and optional + prefix"),
+  ])
+  .optional();
 
 // Password validation
 const passwordSchema = z
@@ -153,6 +167,12 @@ export const studentContactInfoSchema = z.object({
   addressCity: z.string().optional(),
   addressSubCity: z.string().optional(),
   addressHouseNumber: z.string().optional(),
+}).refine((data) => {
+  // At least one contact method must be provided
+  return !!(data.phone && data.phone !== "") || !!(data.email && data.email !== "");
+}, {
+  message: "At least one contact method (phone or email) is required",
+  path: ["phone"],
 });
 
 export const studentGuardianSchema = z.object({
@@ -164,7 +184,7 @@ export const studentGuardianSchema = z.object({
   primaryGuardianAddress: z.string().optional(),
   secondaryGuardianName: lettersOnlySchema.optional().or(z.literal("")),
   secondaryGuardianRelationship: z.string().optional(),
-  secondaryGuardianPhone: numbersOnlySchema.optional().or(z.literal("")),
+  secondaryGuardianPhone: numbersOnlyOptionalSchema,
   secondaryGuardianEmail: emailSchema.optional().or(z.literal("")),
   secondaryGuardianOccupation: z.string().optional(),
   secondaryGuardianAddress: z.string().optional(),
@@ -246,6 +266,106 @@ export const createAnnouncementSchema = z.object({
   expiryDate: z.string().optional(),
 });
 
+// ==================== PARENT SCHEMAS ====================
+
+export const createParentSchema = z.object({
+  firstName: lettersOnlySchema,
+  lastName: lettersOnlySchema,
+  email: emailSchema,
+  phone: phoneOptionalSchema,
+  gender: z.enum(["Male", "Female", "Other"]).optional(),
+  relationship: z.string().min(1, "Relationship is required"),
+  occupation: z.string().max(120, "Occupation must be at most 120 characters").optional(),
+  workplace: z.string().max(120, "Workplace must be at most 120 characters").optional(),
+});
+
+export const updateParentSchema = createParentSchema.partial();
+
+// ==================== STUDENT LIST EDIT SCHEMA ====================
+
+export const studentListEditSchema = z.object({
+  firstName: lettersOnlySchema,
+  lastName: lettersOnlySchema,
+  email: emailSchema.optional().or(z.literal("")),
+  phone: phoneOptionalSchema,
+  gender: z.enum(["Male", "Female", "Other"]),
+  dob: z.string().min(1, "Date of birth is required"),
+  grade: z.string().min(1, "Grade is required"),
+  stream: z.string().optional(),
+  section: z.string().optional(),
+  academicYear: z.string().optional(),
+  admissionDate: z.string().min(1, "Admission date is required"),
+  enrollmentType: z.enum(["New Admission", "Transfer Student"]).optional(),
+  placeOfBirthWoreda: z.string().optional(),
+  placeOfBirthZone: z.string().optional(),
+  placeOfBirthRegion: z.string().optional(),
+  nationality: z.string().optional(),
+  addressRegion: z.string().optional(),
+  addressCity: z.string().optional(),
+  addressSubCity: z.string().optional(),
+  addressHouseNumber: z.string().optional(),
+  primaryGuardianName: lettersOnlySchema,
+  primaryGuardianRelationship: z.string().min(1, "Relationship is required"),
+  primaryGuardianPhone: numbersOnlySchema,
+  primaryGuardianEmail: emailSchema.optional().or(z.literal("")),
+  primaryGuardianOccupation: z.string().optional(),
+  primaryGuardianAddress: z.string().optional(),
+}).refine((data) => {
+  const grade = String(data.grade);
+  const stream = String(data.stream || "");
+  if ((grade === "11" || grade === "12") && !stream) {
+    return false;
+  }
+  if (grade !== "11" && grade !== "12" && stream) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Stream must be provided only for Grade 11 and Grade 12",
+  path: ["stream"],
+});
+
+// ==================== REPORT SCHEMAS ====================
+
+// Report Card Generation Schema
+export const reportCardGenerationSchema = z.object({
+  studentId: z.string().min(1, "Student is required"),
+  semester: z.enum(["1", "2"], { message: "Semester is required" }),
+  academicYear: z.string().min(1, "Academic year is required"),
+  behaviorGrade: z.enum(["A", "B", "C"], { message: "Behavior grade is required" }),
+});
+
+// Student Transcript Generation Schema
+export const studentTranscriptGenerationSchema = z.object({
+  studentId: z.string().min(1, "Student is required"),
+});
+
+// Class Statistics/Performance Generation Schema
+export const classReportGenerationSchema = z.object({
+  grade: z.enum(["9", "10", "11", "12"], { message: "Grade is required" }),
+  semester: z.enum(["1", "2"], { message: "Semester is required" }),
+  academicYear: z.string().min(1, "Academic year is required"),
+});
+
+// Attendance Summary Generation Schema
+export const attendanceSummaryGenerationSchema = z.object({
+  month: z.string().regex(/^(0[1-9]|1[0-2])$/, "Valid month is required"),
+  academicYear: z.string().min(1, "Academic year is required"),
+  reportScope: z.enum(["class", "student"], { message: "Report scope is required" }),
+  grade: z.enum(["9", "10", "11", "12"]).optional(),
+  studentId: z.string().optional(),
+}).refine((data) => {
+  if (data.reportScope === "student" && !data.studentId) {
+    return false;
+  }
+  if (data.reportScope === "class" && !data.grade) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Student is required for individual reports, grade is required for class reports",
+});
+
 // ==================== TYPE EXPORTS ====================
 
 export type LoginFormData = z.infer<typeof loginSchema>;
@@ -271,3 +391,10 @@ export type AddGradeData = z.infer<typeof addGradeSchema>;
 export type BulkAddGradesData = z.infer<typeof bulkAddGradesSchema>;
 export type MarkAttendanceData = z.infer<typeof markAttendanceSchema>;
 export type CreateAnnouncementData = z.infer<typeof createAnnouncementSchema>;
+export type CreateParentData = z.infer<typeof createParentSchema>;
+export type UpdateParentData = z.infer<typeof updateParentSchema>;
+export type StudentListEditData = z.infer<typeof studentListEditSchema>;
+export type ReportCardGenerationData = z.infer<typeof reportCardGenerationSchema>;
+export type StudentTranscriptGenerationData = z.infer<typeof studentTranscriptGenerationSchema>;
+export type ClassReportGenerationData = z.infer<typeof classReportGenerationSchema>;
+export type AttendanceSummaryGenerationData = z.infer<typeof attendanceSummaryGenerationSchema>;

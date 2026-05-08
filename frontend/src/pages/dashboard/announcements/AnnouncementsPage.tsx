@@ -38,6 +38,7 @@ import {
   useDeleteAnnouncement,
   usePublishAnnouncement,
 } from "@/hooks/announcements/useAnnouncements";
+import { createAnnouncementSchema } from "@/lib/validation";
 
 interface AnnouncementItem {
   id: string;
@@ -413,18 +414,21 @@ export function AnnouncementsPage() {
           ],
         }}
         onSubmit={async (values) => {
-          const payload = {
-            title: values.title as string,
-            content: values.content as string,
-            type: values.type as string,
-            priority: values.priority as string,
-            targetRoles: (values.targetRoles as string[]) || [],
-          };
-
-          if (!payload.targetRoles.length) {
-            toast.error("Select at least one audience role.");
+          // Validate with zod schema
+          const validationResult = createAnnouncementSchema.safeParse(values);
+          if (!validationResult.success) {
+            const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+            toast.error(errorMessages);
             return;
           }
+
+          const payload = {
+            title: validationResult.data.title,
+            content: validationResult.data.content,
+            type: validationResult.data.type,
+            priority: validationResult.data.priority,
+            targetRoles: validationResult.data.targetRoles,
+          };
 
           if (editingAnnouncement) {
             await updateMutation.mutateAsync({
