@@ -131,8 +131,32 @@ export const systemAdminCreateUserSchema = z.object({
   path: ["stream"],
 });
 
-// System Admin Dashboard User Update Schema
-export const systemAdminUpdateUserSchema = systemAdminCreateUserSchema.partial();
+// System Admin Dashboard User Update Schema (create separate schema to avoid .partial() with refinements)
+export const systemAdminUpdateUserSchema = z.object({
+  firstName: lettersOnlySchema.optional(),
+  lastName: lettersOnlySchema.optional(),
+  email: emailSchema.optional(),
+  phone: phoneOptionalSchema,
+  role: z.enum(["SystemAdmin", "SchoolAdmin", "Teacher", "Student", "Parent"]).optional(),
+  grade: z.string().optional(),
+  stream: z.string().optional(),
+  status: z.enum(["active", "inactive"]).optional(),
+}).refine((data) => {
+  // If role is Student and grade is 11 or 12, stream is required
+  if (data.role === "Student") {
+    const grade = String(data.grade || "");
+    if ((grade === "11" || grade === "12") && !data.stream) {
+      return false;
+    }
+    if (grade !== "11" && grade !== "12" && data.stream) {
+      return false;
+    }
+  }
+  return true;
+}, {
+  message: "Stream is required for Grade 11 and Grade 12 students",
+  path: ["stream"],
+});
 
 export const updateUserSchema = createUserSchema.partial().extend({
   status: z.enum(["active", "inactive", "pending", "Active", "Inactive", "Pending"]).optional(),
