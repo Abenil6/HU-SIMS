@@ -23,6 +23,7 @@ import { DataTable } from "@/components/ui/DataTable";
 import type { Column } from "@/components/ui/DataTable";
 import toast from "react-hot-toast";
 import classService, { type SchoolClass } from "@/services/classService";
+import { createClassSchema, updateClassSchema } from "@/lib/validation";
 
 type ClassData = SchoolClass;
 
@@ -95,15 +96,25 @@ export function ClassesPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: () =>
-      classService.createClass({
+    mutationFn: async () => {
+      const validationResult = createClassSchema.safeParse({
         name: formData.name,
         grade: formData.grade,
         stream: formData.stream,
         capacity: formData.capacity,
+        classTeacher: formData.classTeacher,
         subjects: formData.subjects,
         status: formData.status,
-      }),
+      });
+
+      if (!validationResult.success) {
+        const errors = validationResult.error.issues;
+        const firstError = errors[0];
+        throw new Error(`${firstError.path.join(".")}: ${firstError.message}`);
+      }
+
+      return classService.createClass(validationResult.data);
+    },
     onSuccess: () => {
       toast.success("Class created successfully");
       queryClient.invalidateQueries({ queryKey: ["classes"] });
@@ -113,15 +124,25 @@ export function ClassesPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: () =>
-      classService.updateClass(selectedClass!.id, {
+    mutationFn: async () => {
+      const validationResult = updateClassSchema.safeParse({
         name: formData.name,
         grade: formData.grade,
         stream: formData.stream,
         capacity: formData.capacity,
+        classTeacher: formData.classTeacher,
         subjects: formData.subjects,
         status: formData.status,
-      }),
+      });
+
+      if (!validationResult.success) {
+        const errors = validationResult.error.issues;
+        const firstError = errors[0];
+        throw new Error(`${firstError.path.join(".")}: ${firstError.message}`);
+      }
+
+      return classService.updateClass(selectedClass!.id, validationResult.data);
+    },
     onSuccess: () => {
       toast.success("Class updated successfully");
       queryClient.invalidateQueries({ queryKey: ["classes"] });

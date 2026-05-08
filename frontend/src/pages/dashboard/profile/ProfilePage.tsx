@@ -41,6 +41,7 @@ import {
   normalizeAppearanceSettings,
 } from "@/lib/appearance";
 import { usePublicConfig } from "@/hooks/usePublicConfig";
+import { profileUpdateSchema, changePasswordSchema } from "@/lib/validation";
 
 const ROLE_COPY = {
   SystemAdmin: {
@@ -276,6 +277,23 @@ export function ProfilePage() {
 
   const handleSave = async () => {
     try {
+      // Validate profile data if not updating appearance
+      if (tabValue !== 3) {
+        const validationResult = profileUpdateSchema.safeParse({
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          email: profileData.email,
+          phone: profileData.phone,
+        });
+
+        if (!validationResult.success) {
+          const errors = validationResult.error.issues;
+          const firstError = errors[0];
+          toast.error(`${firstError.path.join(".")}: ${firstError.message}`);
+          return;
+        }
+      }
+
       const updated =
         tabValue === 3
           ? await authService.updateAppearance(appearanceSettings)
@@ -314,19 +332,17 @@ export function ProfilePage() {
   };
 
   const handlePasswordChange = async () => {
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error("New passwords do not match");
-      return;
-    }
+    // Validate using zod schema
+    const validationResult = changePasswordSchema.safeParse({
+      currentPassword: passwordData.currentPassword,
+      newPassword: passwordData.newPassword,
+      confirmPassword: passwordData.confirmPassword,
+    });
 
-    const minLength = config?.minPasswordLength || 8;
-    if (passwordData.newPassword.length < minLength) {
-      toast.error(`Password must be at least ${minLength} characters long`);
-      return;
-    }
-
-    if (!passwordData.currentPassword.trim()) {
-      toast.error("Current password is required");
+    if (!validationResult.success) {
+      const errors = validationResult.error.issues;
+      const firstError = errors[0];
+      toast.error(`${firstError.path.join(".")}: ${firstError.message}`);
       return;
     }
 

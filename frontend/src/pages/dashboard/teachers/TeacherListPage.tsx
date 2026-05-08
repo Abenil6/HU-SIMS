@@ -38,6 +38,7 @@ import {
   useUpdateTeacher,
   useDeleteTeacher,
 } from "@/hooks/teachers/useTeachers";
+import { createTeacherSchema, updateTeacherSchema } from "@/lib/validation";
 
 const mapTeacherToFormValues = (teacher: Teacher | null) => {
   if (!teacher) {
@@ -164,13 +165,25 @@ export function TeacherListPage() {
         subject: subjectsArray[0] || "",
       };
 
+      // Validate using zod schema
+      const validationResult = selectedTeacher
+        ? updateTeacherSchema.safeParse(data)
+        : createTeacherSchema.safeParse(data);
+
+      if (!validationResult.success) {
+        const errors = validationResult.error.issues;
+        const firstError = errors[0];
+        toast.error(`${firstError.path.join(".")}: ${firstError.message}`);
+        return;
+      }
+
       if (selectedTeacher) {
         await updateTeacher.mutateAsync({
           id: selectedTeacher._id || selectedTeacher.id,
-          data: data as any,
+          data: validationResult.data as any,
         });
       } else {
-        await createTeacher.mutateAsync(data as any);
+        await createTeacher.mutateAsync(validationResult.data as any);
       }
       setFormModalOpen(false);
       setSelectedTeacher(null);
@@ -550,6 +563,7 @@ export function TeacherListPage() {
                   setFormValues((prev) => ({ ...prev, firstName: e.target.value }))
                 }
                 required
+                helperText="Letters only (min 2 chars)"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -562,6 +576,7 @@ export function TeacherListPage() {
                   setFormValues((prev) => ({ ...prev, lastName: e.target.value }))
                 }
                 required
+                helperText="Letters only (min 2 chars)"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -575,6 +590,7 @@ export function TeacherListPage() {
                   setFormValues((prev) => ({ ...prev, email: e.target.value }))
                 }
                 required
+                helperText="Valid email address"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -586,6 +602,7 @@ export function TeacherListPage() {
                 onChange={(e) =>
                   setFormValues((prev) => ({ ...prev, phone: e.target.value }))
                 }
+                helperText="Numbers only (optional)"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -616,7 +633,7 @@ export function TeacherListPage() {
                     qualification: e.target.value,
                   }))
                 }
-                helperText="e.g., BSc, MSc, PhD"
+                helperText="e.g., BSc, MSc, PhD (min 2 chars)"
                 required
               />
             </Grid>

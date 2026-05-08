@@ -24,6 +24,13 @@ import type {
   CreateAcademicDocumentInput,
   CreateStudentData,
 } from "@/services/studentService";
+import {
+  studentPersonalInfoSchema,
+  studentContactInfoSchema,
+  studentGuardianSchema,
+  studentAcademicInfoSchema,
+  studentEnrollmentSchema,
+} from "@/lib/validation";
 
 const steps = [
   "Personal Information",
@@ -255,62 +262,80 @@ export function CreateStudentWizard({
 
   const validateStep = (): boolean => {
     if (activeStep === 0) {
-      if (!values.firstName || !values.fatherName || !values.grandfatherName) {
-        toast.error("Student first, father, and grandfather names are required");
-        return false;
-      }
-      if (!values.gender || !values.dob) {
-        toast.error("Gender and date of birth are required");
+      const validationResult = studentPersonalInfoSchema.safeParse({
+        firstName: values.firstName,
+        fatherName: values.fatherName,
+        grandfatherName: values.grandfatherName,
+        gender: values.gender,
+        dob: values.dob,
+        placeOfBirthWoreda: values.placeOfBirthWoreda,
+        placeOfBirthZone: values.placeOfBirthZone,
+        placeOfBirthRegion: values.placeOfBirthRegion,
+        nationality: values.nationality,
+      });
+
+      if (!validationResult.success) {
+        const errors = validationResult.error.issues;
+        const firstError = errors[0];
+        toast.error(`${firstError.path.join(".")}: ${firstError.message}`);
         return false;
       }
     }
 
     if (activeStep === 1) {
-      if (!values.email) {
-        toast.error("Student email is required");
+      const validationResult = studentContactInfoSchema.safeParse({
+        phone: values.phone,
+        email: values.email,
+        addressRegion: values.addressRegion,
+        addressCity: values.addressCity,
+        addressSubCity: values.addressSubCity,
+        addressHouseNumber: values.addressHouseNumber,
+      });
+
+      if (!validationResult.success) {
+        const errors = validationResult.error.issues;
+        const firstError = errors[0];
+        toast.error(`${firstError.path.join(".")}: ${firstError.message}`);
         return false;
       }
-      if (!values.addressRegion || !values.addressCity) {
-        toast.error("Region and city/town are required");
+
+      // Additional validation: at least one contact method
+      if (!values.phone && !values.email) {
+        toast.error("At least one contact method (phone or email) is required");
         return false;
       }
     }
 
     if (activeStep === 2) {
-      if (
-        !values.primaryGuardianName ||
-        !values.primaryGuardianRelationship ||
-        !values.primaryGuardianPhone ||
-        !values.primaryGuardianEmail
-      ) {
-        toast.error("Primary guardian name, relationship, phone, and email are required");
+      const validationResult = studentGuardianSchema.safeParse({
+        primaryGuardianName: values.primaryGuardianName,
+        primaryGuardianRelationship: values.primaryGuardianRelationship,
+        primaryGuardianPhone: values.primaryGuardianPhone,
+        primaryGuardianEmail: values.primaryGuardianEmail,
+        primaryGuardianOccupation: values.primaryGuardianOccupation,
+        primaryGuardianAddress: values.primaryGuardianAddress,
+        secondaryGuardianName: values.secondaryGuardianName,
+        secondaryGuardianRelationship: values.secondaryGuardianRelationship,
+        secondaryGuardianPhone: values.secondaryGuardianPhone,
+        secondaryGuardianEmail: values.secondaryGuardianEmail,
+        secondaryGuardianOccupation: values.secondaryGuardianOccupation,
+        secondaryGuardianAddress: values.secondaryGuardianAddress,
+      });
+
+      if (!validationResult.success) {
+        const errors = validationResult.error.issues;
+        const firstError = errors[0];
+        toast.error(`${firstError.path.join(".")}: ${firstError.message}`);
         return false;
       }
 
+      // Additional validation: email uniqueness
       const studentEmail = values.email.trim().toLowerCase();
       const primaryGuardianEmail = values.primaryGuardianEmail.trim().toLowerCase();
       const secondaryGuardianEmail = values.secondaryGuardianEmail.trim().toLowerCase();
 
       if (studentEmail && primaryGuardianEmail === studentEmail) {
         toast.error("Primary guardian email must be different from the student email");
-        return false;
-      }
-
-      const secondaryStarted = [
-        values.secondaryGuardianName,
-        values.secondaryGuardianPhone,
-        values.secondaryGuardianEmail,
-        values.secondaryGuardianRelationship,
-      ].some(Boolean);
-
-      if (
-        secondaryStarted &&
-        (!values.secondaryGuardianName ||
-          !values.secondaryGuardianRelationship ||
-          !values.secondaryGuardianPhone ||
-          !values.secondaryGuardianEmail)
-      ) {
-        toast.error("Complete all secondary guardian fields or leave them empty");
         return false;
       }
 
@@ -321,10 +346,22 @@ export function CreateStudentWizard({
     }
 
     if (activeStep === 3) {
-      if (!values.grade) {
-        toast.error("Grade level is required");
+      const validationResult = studentAcademicInfoSchema.safeParse({
+        grade: values.grade,
+        stream: values.stream,
+        previousSchoolName: values.previousSchoolName,
+        previousGradeCompleted: values.previousGradeCompleted,
+        entranceExamResult: values.entranceExamResult,
+      });
+
+      if (!validationResult.success) {
+        const errors = validationResult.error.issues;
+        const firstError = errors[0];
+        toast.error(`${firstError.path.join(".")}: ${firstError.message}`);
         return false;
       }
+
+      // Additional validation: stream requirement for grades 11-12
       if (requiresStream(values.grade) && !values.stream) {
         toast.error("Stream is required for Grade 11 and Grade 12");
         return false;
@@ -332,8 +369,16 @@ export function CreateStudentWizard({
     }
 
     if (activeStep === 4) {
-      if (!values.admissionDate || !values.academicYear || !values.enrollmentType) {
-        toast.error("Admission date, academic year, and enrollment type are required");
+      const validationResult = studentEnrollmentSchema.safeParse({
+        admissionDate: values.admissionDate,
+        academicYear: values.academicYear,
+        enrollmentType: values.enrollmentType,
+      });
+
+      if (!validationResult.success) {
+        const errors = validationResult.error.issues;
+        const firstError = errors[0];
+        toast.error(`${firstError.path.join(".")}: ${firstError.message}`);
         return false;
       }
     }

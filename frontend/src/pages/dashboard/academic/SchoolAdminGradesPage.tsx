@@ -617,6 +617,7 @@ export function SchoolAdminGradesPage() {
         toolbar: { show: false },
         events: {
           dataPointSelection: (_event, _chart, config) => {
+            if (!config) return;
             const subject = subjectDistribution.subjects[config.dataPointIndex];
             const band = subjectDistribution.series[config.seriesIndex]?.name;
             if (!subject || !band) return;
@@ -672,6 +673,7 @@ export function SchoolAdminGradesPage() {
       tooltip: {
         y: {
           formatter: (value, ctx) => {
+            if (!ctx) return `${value} records`;
             const isPassRateSeries = ctx.seriesIndex === 5;
             return isPassRateSeries ? `${value}% pass rate` : `${value} records`;
           },

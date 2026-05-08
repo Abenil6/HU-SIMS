@@ -27,6 +27,10 @@ import {
 import toast from "react-hot-toast";
 import { authService } from "@/services/authService";
 import { usePublicConfig } from "@/hooks/usePublicConfig";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { resetPasswordSchema } from "@/lib/validation";
+import type { ResetPasswordFormData } from "@/lib/validation";
 
 const colors = {
   sage: "#8FA998",
@@ -90,13 +94,24 @@ export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
 
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const { config } = usePublicConfig();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      token: token || "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
   useEffect(() => {
     if (!token) {
@@ -105,33 +120,15 @@ export function ResetPasswordPage() {
     }
   }, [token, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit = async (data: ResetPasswordFormData) => {
     if (!token) {
       toast.error("Invalid reset token");
       return;
     }
 
-    if (!password) {
-      toast.error("Please enter a new password");
-      return;
-    }
-
-    const minLength = config?.minPasswordLength || 8;
-    if (password.length < minLength) {
-      toast.error(`Password must be at least ${minLength} characters`);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
     setLoading(true);
     try {
-      await authService.resetPassword(token, password);
+      await authService.resetPassword(token, data.password);
       setSuccess(true);
       toast.success("Password reset successfully!");
     } catch (error: any) {
@@ -299,14 +296,14 @@ export function ResetPasswordPage() {
                   </Typography>
                 </Box>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                   <TextField
                     fullWidth
                     label="New Password"
                     type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter new password"
+                    placeholder="Enter new password (min 8 characters)"
+                    error={!!errors.password}
+                    helperText={errors.password?.message}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -325,16 +322,16 @@ export function ResetPasswordPage() {
                       ),
                     }}
                     sx={{ mb: 2 }}
-                    required
+                    {...register("password")}
                   />
 
                   <TextField
                     fullWidth
                     label="Confirm New Password"
                     type={showConfirmPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm new password"
+                    error={!!errors.confirmPassword}
+                    helperText={errors.confirmPassword?.message}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -359,7 +356,7 @@ export function ResetPasswordPage() {
                       ),
                     }}
                     sx={{ mb: 3 }}
-                    required
+                    {...register("confirmPassword")}
                   />
 
                   <Button

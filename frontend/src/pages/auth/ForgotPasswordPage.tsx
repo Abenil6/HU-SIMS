@@ -19,6 +19,10 @@ import { motion } from "framer-motion";
 import { ArrowBack, Email, School, Lock } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import { authService } from "@/services/authService";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { forgotPasswordSchema } from "@/lib/validation";
+import type { ForgotPasswordFormData } from "@/lib/validation";
 
 const colors = {
   sage: "#8FA998",
@@ -107,21 +111,26 @@ const darkTheme = createTheme({
 
 export function ForgotPasswordPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [email, setEmail] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
+  });
 
-    if (!email) {
-      toast.error("Please enter your email address");
-      return;
-    }
+  const watchedEmail = watch("email");
 
+  const onSubmit = async (data: ForgotPasswordFormData) => {
     setLoading(true);
     try {
-      await authService.forgotPassword(email);
+      await authService.forgotPassword(data.email);
+      setEmail(data.email);
       setEmailSent(true);
       toast.success("Password reset link sent to your email!");
     } catch (error: any) {
@@ -244,14 +253,14 @@ export function ForgotPasswordPage() {
                       </Typography>
                     </Box>
 
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit(onSubmit)}>
                       <TextField
                         fullWidth
                         label="Email Address"
                         type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter your registered email"
+                        error={!!errors.email}
+                        helperText={errors.email?.message}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
@@ -260,7 +269,7 @@ export function ForgotPasswordPage() {
                           ),
                         }}
                         sx={{ mb: 3 }}
-                        required
+                        {...register("email")}
                       />
 
                       <Button

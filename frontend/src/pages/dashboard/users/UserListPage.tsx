@@ -46,6 +46,7 @@ import {
   useDeleteUser,
   useUpdateUserStatus,
 } from "@/hooks/users/useUsers";
+import { createUserSchema, updateUserSchema } from "@/lib/validation";
 
 const ROLES = [
   { value: "SystemAdmin", label: "System Admin" },
@@ -208,10 +209,11 @@ export function UserListPage() {
 
   // Form fields
   const formFields: FormField[] = [
-    { name: "firstName", label: "First Name", type: "text", required: true },
-    { name: "lastName", label: "Last Name", type: "text", required: true },
+    { name: "firstName", label: "First Name", type: "text", required: true, helperText: "Letters only" },
+    { name: "lastName", label: "Last Name", type: "text", required: true, helperText: "Letters only" },
     { name: "email", label: "Email", type: "email", required: true },
-    { name: "phone", label: "Phone", type: "text" },
+    { name: "username", label: "Username", type: "text", required: true, helperText: "Letters, numbers, dots, hyphens, underscores" },
+    { name: "phone", label: "Phone", type: "text", helperText: "Numbers only" },
     {
       name: "gender",
       label: "Gender",
@@ -235,6 +237,7 @@ export function UserListPage() {
         firstName: selectedUser.firstName,
         lastName: selectedUser.lastName,
         email: selectedUser.email,
+        username: (selectedUser as any).username || "",
         phone: selectedUser.phone || "",
         gender: selectedUser.gender || "",
         role: selectedUser.role,
@@ -243,6 +246,7 @@ export function UserListPage() {
         firstName: "",
         lastName: "",
         email: "",
+        username: "",
         phone: "",
         gender: "",
         role: "Teacher",
@@ -285,13 +289,25 @@ export function UserListPage() {
   const handleFormSubmit = async (values: Record<string, unknown>) => {
     setIsSubmitting(true);
     try {
+      // Validate using zod schema
+      const validationResult = selectedUser
+        ? updateUserSchema.safeParse(values)
+        : createUserSchema.safeParse(values);
+
+      if (!validationResult.success) {
+        const errors = validationResult.error.issues;
+        const firstError = errors[0];
+        toast.error(`${firstError.path.join(".")}: ${firstError.message}`);
+        return;
+      }
+
       if (selectedUser) {
         await updateUser.mutateAsync({
           id: selectedUser.id,
-          data: values as any,
+          data: validationResult.data as any,
         });
       } else {
-        await createUser.mutateAsync(values as any);
+        await createUser.mutateAsync(validationResult.data as any);
       }
       setFormModalOpen(false);
     } catch {

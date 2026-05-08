@@ -48,6 +48,7 @@ import {
   messageService,
   type MessageRecipient,
 } from "@/services/messageService";
+import { sendMessageSchema, replyMessageSchema } from "@/lib/validation";
 
 interface MessageItem {
   id: string;
@@ -537,6 +538,18 @@ export function MessagesPage() {
       return;
     }
 
+    // Validate using zod schema
+    const validationResult = replyMessageSchema.safeParse({
+      content: replyContent.trim(),
+    });
+
+    if (!validationResult.success) {
+      const errors = validationResult.error.issues;
+      const firstError = errors[0];
+      toast.error(`${firstError.path.join(".")}: ${firstError.message}`);
+      return;
+    }
+
     const replyRecipientId =
       selectedMessage.folder === "sent"
         ? selectedMessage.recipientId || selectedMessage.recipients?.[0]?.id || ""
@@ -546,7 +559,7 @@ export function MessagesPage() {
       setIsReplying(true);
       const response = await messageService.replyMessage(
         selectedMessage.id,
-        replyContent.trim(),
+        validationResult.data.content,
         selectedMessage.category,
         replyRecipientId || undefined,
       ) as MessageMutationResponse;
@@ -964,17 +977,22 @@ export function MessagesPage() {
         initialValues={composeInitialValues}
         onValuesChange={setComposeValues}
         onSubmit={async (values) => {
-          if (!values.recipientId || !values.content || !values.subject) {
-            toast.error("Recipient, subject, and message are required.");
-            return;
-          }
-
-          await sendMessage.mutateAsync({
+          // Validate using zod schema
+          const validationResult = sendMessageSchema.safeParse({
             recipientId: values.recipientId as string,
             category: values.category as string,
             subject: values.subject as string,
             content: values.content as string,
           });
+
+          if (!validationResult.success) {
+            const errors = validationResult.error.issues;
+            const firstError = errors[0];
+            toast.error(`${firstError.path.join(".")}: ${firstError.message}`);
+            return;
+          }
+
+          await sendMessage.mutateAsync(validationResult.data);
           setComposeValues(composeInitialValues);
           setComposeFormKey((current) => current + 1);
           setFormModalOpen(false);
