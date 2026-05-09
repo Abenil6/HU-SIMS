@@ -1300,7 +1300,7 @@ export function GradesPage() {
               : "Enter and manage student grades (Mid 20 · Final 40 · Assignment 20 · Quiz 20)"
         }
         action={
-          canManageGrades ? (
+          canManageGrades && !isTeacher ? (
             <Box sx={{ display: "flex", gap: 2 }}>
               <Button
                 variant="contained"
@@ -1755,7 +1755,7 @@ export function GradesPage() {
                             )}
                           </Box>
                         </TableCell>
-                        {canManageGrades && (
+                        {canManageGrades && !isTeacher && (
                           <TableCell align="center">
                             <IconButton
                               size="small"
