@@ -4,6 +4,8 @@ const Attendance = require('../models/Attendance');
 const User = require('../models/User');
 const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
+const path = require('path');
+const fs = require('fs');
 
 const SEMESTERS = ['Semester 1', 'Semester 2'];
 const BEHAVIOR_GRADES = ['A', 'B', 'C'];
@@ -616,13 +618,25 @@ const buildReportHtml = (report, exportData) => {
     </style>
   `;
 
+  const logoPath = path.join(__dirname, '../../frontend/public/hu.png');
+  let logoHtml = '<div class="logo-placeholder">HU</div>';
+  
+  if (fs.existsSync(logoPath)) {
+    try {
+      const logoBase64 = fs.readFileSync(logoPath, { encoding: 'base64' });
+      logoHtml = `<img src="data:image/png;base64,${logoBase64}" alt="HU Logo" style="height: 80px; width: auto; object-fit: contain;" />`;
+    } catch (error) {
+      console.error('Failed to read logo for report:', error);
+    }
+  }
+
   const schoolHeader = `
     <div class="school-header">
       <div class="school-info">
         <h1 class="school-name">HU Non-Boarding School</h1>
         <p class="school-subtitle">Building a Digital Future</p>
       </div>
-      <div class="logo-placeholder">HU</div>
+      ${logoHtml}
     </div>
   `;
 
@@ -1807,7 +1821,15 @@ exports.exportReport = async (req, res) => {
       const doc = new PDFDocument({ margin: 40, size: 'A4' });
       doc.pipe(res);
 
-      doc.fontSize(16).text('School Report Export', { align: 'left' });
+      const logoPath = path.join(__dirname, '../../frontend/public/hu.png');
+      if (fs.existsSync(logoPath)) {
+        doc.image(logoPath, 480, 40, { width: 60 });
+      }
+
+      doc.fontSize(16).text('HU Non-Boarding School', { align: 'left' });
+      doc.fontSize(10).text('Building a Digital Future', { align: 'left' });
+      doc.moveDown(0.5);
+      doc.fontSize(14).text('School Report Export', { align: 'left' });
       doc.moveDown(0.6);
       doc.fontSize(12).text(`Report Type: ${report.reportType || '-'}`);
       doc.text(`Academic Year: ${report.academicYear || '-'}`);
