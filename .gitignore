@@ -76,6 +76,7 @@ backend/seed*.js
 # script files
 backend/scripts/
 backend/debug*.js
-backend/check*.js
+# backend/check*.js
+backend/activateStudents.js
 backend/cleanDatabase.js
 backend/seed_output.txt
