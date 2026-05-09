@@ -180,6 +180,7 @@
     "deleteAnnouncement": "Eeggala Haqi",
     "deleteAnnouncementConfirm": "{{title}} haqiisuu barbaaddaa? Sirni deebi'i hin danda'u.",
     "timetable": "Sagantaa Yeroo",
+    "calendar": "Kaalaandara",
     "weeklySchedule": "Sagantaa ji'aa fi qabaji haawaa",
     "generateTimetable": "Sagantaa Yeroo Uum",
     "versions": "Qubxii",
@@ -388,7 +389,10 @@
       "searchStudents": "Barattoota barbaadi...",
       "searchTeachers": "Barataa barbaadi...",
       "noStudents": "Barattoota hin argamu",
-      "noTeachers": "Barsiisoota hin argamne"
+      "noTeachers": "Barsiisoota hin argamne",
+      "schoolAdminDashboard": "Daashibordii Bulchiinsa Barnootaa",
+      "schoolAdminDashboardSubtitle": "Bulchiinsa mana barnootaa, galmee barattootaa, ramaddii barsiisotaa fi hojiiwwan bulchiinsaa",
+      "pendingAlerts": "Dhiirri Eegatamaa"
     }
   },
   "materials": {

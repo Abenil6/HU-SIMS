@@ -832,11 +832,10 @@ export function SchoolAdminDashboard() {
   return (
     <Box>
       <Typography variant="h4" fontWeight={700} mb={1}>
-        School Admin Dashboard
+        {t('pages.dashboard.schoolAdminDashboard')}
       </Typography>
       <Typography variant="body1" color="text.secondary" mb={3}>
-        School management, student records, teacher assignments, and
-        administrative operations
+        {t('pages.dashboard.schoolAdminDashboardSubtitle')}
       </Typography>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -974,7 +973,7 @@ export function SchoolAdminDashboard() {
                   {pendingAlertsCount}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Pending Alerts
+                  {t('pages.dashboard.pendingAlerts')}
                 </Typography>
               </Box>
             </Box>
@@ -991,7 +990,7 @@ export function SchoolAdminDashboard() {
           <Tab label={t('pages.dashboard.students')} icon={<School />} iconPosition="start" />
           <Tab label={t('pages.dashboard.teachers')} icon={<People />} iconPosition="start" />
           <Tab label={t('pages.dashboard.classes')} icon={<Assessment />} iconPosition="start" />
-          <Tab label="Calendar" icon={<CalendarToday />} iconPosition="start" />
+          <Tab label={t('common.calendar') || 'Calendar'} icon={<CalendarToday />} iconPosition="start" />
           <Tab label={t('pages.dashboard.announcements')} icon={<Announcement />} iconPosition="start" />
           <Tab label={t('pages.dashboard.reports')} icon={<Assessment />} iconPosition="start" />
           <Tab label={t('contactMessages.title')} icon={<Mail />} iconPosition="start" />
@@ -1045,7 +1044,7 @@ export function SchoolAdminDashboard() {
               </Grid>
               <Grid size={{ xs: 12, md: 3 }}>
                 <FormControl fullWidth size="small">
-                  <InputLabel>Grade</InputLabel>
+                  <InputLabel>{t('common.grade')}</InputLabel>
                   <Select 
                     label={t('pages.dashboard.grade')} 
                     value={selectedGrade}
@@ -1054,7 +1053,7 @@ export function SchoolAdminDashboard() {
                     <MenuItem value="all">{t('pages.dashboard.allGrades')}</MenuItem>
                     {gradeOptions.map((grade) => (
                       <MenuItem key={grade} value={grade}>
-                        Grade {grade}
+                        {t('common.grade')} {grade}
                       </MenuItem>
                     ))}
                   </Select>
@@ -1066,12 +1065,12 @@ export function SchoolAdminDashboard() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Grade</TableCell>
-                    <TableCell>Stream</TableCell>
+                    <TableCell>{t('common.name')}</TableCell>
+                    <TableCell>{t('common.grade')}</TableCell>
+                    <TableCell>{t('common.stream')}</TableCell>
                     <TableCell>{t('pages.dashboard.attendance')}</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Actions</TableCell>
+                    <TableCell>{t('common.status')}</TableCell>
+                    <TableCell>{t('common.actions')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

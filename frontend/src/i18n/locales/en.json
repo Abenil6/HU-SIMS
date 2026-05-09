@@ -179,6 +179,7 @@
     "deleteAnnouncement": "Delete Announcement",
     "deleteAnnouncementConfirm": "Are you sure you want to delete \"{{title}}\"? This action cannot be undone.",
     "timetable": "Timetable",
+    "calendar": "Calendar",
     "weeklySchedule": "Weekly class schedule with live class tracking",
     "generateTimetable": "Generate Timetable",
     "versions": "Versions",
@@ -389,7 +390,10 @@
       "searchStudents": "Search students...",
       "searchTeachers": "Search teachers...",
       "noStudents": "No students found",
-      "noTeachers": "No teachers found"
+      "noTeachers": "No teachers found",
+      "schoolAdminDashboard": "School Admin Dashboard",
+      "schoolAdminDashboardSubtitle": "School management, student records, teacher assignments, and administrative operations",
+      "pendingAlerts": "Pending Alerts"
   },
   "materials": {
     "pageTitle": "Study Materials & Assignments",

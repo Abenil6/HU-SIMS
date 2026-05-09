@@ -179,6 +179,7 @@
     "deleteAnnouncement": "ማስታወቂያ ሰርዝ",
     "deleteAnnouncementConfirm": "\"{{title}}\" ለመሰርዝ እርስዎ ዝግጁ ነዎት? ይህ ስራ መታገል አይችልም።",
     "timetable": "የጊዜ ሰሌዳ",
+    "calendar": "ካላንደር",
     "weeklySchedule": "የሳምንት ክፍል ሰሌዳ ከአሁኑ ክፍል ቁጠባ ጋር",
     "generateTimetable": "የጊዜ ሰሌዳ ፍጠር",
     "versions": "እትሞች",
@@ -389,7 +390,10 @@
       "searchStudents": "ተማሪዎችን ፈልግ...",
       "searchTeachers": "አስተማሪዎችን ፈልግ...",
       "noStudents": "ተማሪዎች አልተገኙም",
-      "noTeachers": "አስተማሚዎች አልተገኙም"
+      "noTeachers": "አስተማሚዎች አልተገኙም",
+      "schoolAdminDashboard": "የትምህርት ቤት አስተዳዳሪ ዳሽቦርድ",
+      "schoolAdminDashboardSubtitle": "የትምህርት ቤት አስተዳደር፣ የተማሪ መዝገቦች፣ የአስተማሪ ምደባዎች እና የአስተዳደር ስራዎች",
+      "pendingAlerts": "የሚጠበቁ ማስጠንቀቂያዎች"
     }
   },
   "materials": {
