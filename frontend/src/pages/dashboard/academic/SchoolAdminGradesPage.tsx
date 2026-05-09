@@ -504,7 +504,8 @@ export function SchoolAdminGradesPage() {
 
   // Class comparison stats
   const classComparison = useMemo(() => {
-    const classMap = new Map<string, { count: number; total: number }>();
+    // track unique student IDs per class to avoid counting records as students
+    const classMap = new Map<string, { recordCount: number; totalPercentage: number; studentIds: Set<string> }>();
 
     filteredGrades.forEach((g: any) => {
       const classKey = gradeRequiresStream(g.grade) && g.stream
@@ -512,17 +513,18 @@ export function SchoolAdminGradesPage() {
         : g.grade;
       
       if (!classMap.has(classKey)) {
-        classMap.set(classKey, { count: 0, total: 0 });
+        classMap.set(classKey, { recordCount: 0, totalPercentage: 0, studentIds: new Set() });
       }
       const entry = classMap.get(classKey)!;
-      entry.count++;
-      entry.total += g.percentage;
+      entry.recordCount++;
+      entry.totalPercentage += g.percentage;
+      if (g.studentId) entry.studentIds.add(g.studentId);
     });
 
     return Array.from(classMap.entries()).map(([classKey, data]) => ({
       class: classKey,
-      average: Math.round(data.total / data.count),
-      count: data.count,
+      average: data.recordCount > 0 ? Math.round(data.totalPercentage / data.recordCount) : 0,
+      count: data.studentIds.size, // This will now show the actual number of students
     })).sort((a, b) => b.average - a.average);
   }, [filteredGrades]);
 
