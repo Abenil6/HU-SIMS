@@ -1928,20 +1928,17 @@ export function LandingPage() {
                   {
                     title: t('landing.aboutSection.vision'),
                     subtitle: t('landing.aboutSection.visionText'),
-                    image:
-                      "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80",
+                    image: '/vision.jpg',
                   },
                   {
                     title: t('landing.aboutSection.mission'),
                     subtitle: t('landing.aboutSection.missionText'),
-                    image:
-                      "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
+                    image: '/mission.jpg',
                   },
                   {
                     title: t('landing.aboutSection.goals'),
                     subtitle: t('landing.aboutSection.goalsText'),
-                    image:
-                      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80",
+                    image: '/value.jpg',
                   },
                 ].map((item, index) => (
                   <motion.div key={index} variants={rotateIn}>
