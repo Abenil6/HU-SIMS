@@ -618,13 +618,19 @@ const buildReportHtml = (report, exportData) => {
     </style>
   `;
 
-  const logoPath = path.join(__dirname, '../../frontend/public/hu.png');
+  const possibleLogoPaths = [
+    path.join(__dirname, '../../frontend/public/hu.png'),
+    path.join(process.cwd(), 'frontend/public/hu.png'),
+    path.join(process.cwd(), '../frontend/public/hu.png')
+  ];
+  
+  let logoPath = possibleLogoPaths.find(p => fs.existsSync(p));
   let logoHtml = '<div class="logo-placeholder">HU</div>';
   
-  if (fs.existsSync(logoPath)) {
+  if (logoPath) {
     try {
       const logoBase64 = fs.readFileSync(logoPath, { encoding: 'base64' });
-      logoHtml = `<img src="data:image/png;base64,${logoBase64}" alt="HU Logo" style="height: 80px; width: auto; object-fit: contain;" />`;
+      logoHtml = `<img src="data:image/png;base64,${logoBase64}" alt="HU Logo" style="height: 80px; width: auto; max-width: 150px; object-fit: contain;" />`;
     } catch (error) {
       console.error('Failed to read logo for report:', error);
     }
@@ -1821,8 +1827,14 @@ exports.exportReport = async (req, res) => {
       const doc = new PDFDocument({ margin: 40, size: 'A4' });
       doc.pipe(res);
 
-      const logoPath = path.join(__dirname, '../../frontend/public/hu.png');
-      if (fs.existsSync(logoPath)) {
+      const possibleLogoPaths = [
+        path.join(__dirname, '../../frontend/public/hu.png'),
+        path.join(process.cwd(), 'frontend/public/hu.png'),
+        path.join(process.cwd(), '../frontend/public/hu.png')
+      ];
+      const logoPath = possibleLogoPaths.find(p => fs.existsSync(p));
+
+      if (logoPath) {
         doc.image(logoPath, 480, 40, { width: 60 });
       }
 
