@@ -298,7 +298,6 @@ function App() {
           <Route index element={<TeacherDashboard />} />
           <Route path="students" element={<StudentListPage />} />
           <Route path="attendance" element={<AttendanceMarkingPage />} />
-          <Route path="grades" element={<GradesPage />} />
           <Route path="materials" element={<MaterialsPage />} />
           <Route path="timetable" element={<TimetablePage />} />
           <Route path="messages" element={<MessagesPage />} />
