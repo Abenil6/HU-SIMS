@@ -708,36 +708,6 @@ const buildReportHtml = (report, exportData) => {
         ${schoolHeader}
         ${header}
         ${semesterTables}
-        <h2>Yearly Summary</h2>
-        <div class="summary">
-          <div class="card"><strong>Overall Average</strong><br />${escapeHtml(exportData.data?.yearlySummary?.overallAverage)}</div>
-          <div class="card"><strong>Rank</strong><br />${escapeHtml(
-            exportData.data?.yearlySummary?.rank
-              ? `${exportData.data?.yearlySummary?.rank} / ${exportData.data?.yearlySummary?.totalStudents}`
-              : 'N/A'
-          )}</div>
-          <div class="card"><strong>Behavior</strong><br />${escapeHtml(exportData.data?.yearlySummary?.behavior || 'N/A')}</div>
-        </div>
-        <table>
-          <thead>
-            <tr><th>Subject</th><th>Semester 1</th><th>Semester 2</th><th>Average</th><th>Grade</th></tr>
-          </thead>
-          <tbody>
-            ${(exportData.data?.yearlySummary?.subjects || [])
-              .map(
-                (subject) => `
-                  <tr>
-                    <td>${escapeHtml(subject.subject)}</td>
-                    <td>${escapeHtml(subject.semester1 ?? '')}</td>
-                    <td>${escapeHtml(subject.semester2 ?? '')}</td>
-                    <td>${escapeHtml(subject.yearlyAverage ?? '')}</td>
-                    <td>${escapeHtml(subject.yearlyGrade ?? '')}</td>
-                  </tr>
-                `
-              )
-              .join('')}
-          </tbody>
-        </table>
         <div class="footer">
           <div><strong>Attendance:</strong> ${escapeHtml(exportData.data?.attendance?.percentage ?? 0)}%</div>
           ${exportData.signatureImage ? `
