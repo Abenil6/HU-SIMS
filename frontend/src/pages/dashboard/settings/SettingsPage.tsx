@@ -58,7 +58,8 @@ function TabPanel(props: TabPanelProps) {
 export function SettingsPage() {
   const { t } = useTranslation();
   const { user, updateUser } = useAuthStore();
-  const [tabValue, setTabValue] = useState(0);
+  const isSystemAdmin = user?.role === "SystemAdmin";
+  const [tabValue, setTabValue] = useState(isSystemAdmin ? 1 : 0);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadedSettings, setLoadedSettings] = useState<any>(null);
@@ -383,7 +384,9 @@ export function SettingsPage() {
           onChange={(_, newValue) => setTabValue(newValue)}
           sx={{ borderBottom: 1, borderColor: "divider", px: 2 }}
         >
-          <Tab icon={<School />} label={t('common.schoolSettings')} iconPosition="start" />
+          {!isSystemAdmin && (
+            <Tab icon={<School />} label={t('common.schoolSettings')} iconPosition="start" />
+          )}
           <Tab
             icon={<Notifications />}
             label={t('common.notifications')}
@@ -395,7 +398,8 @@ export function SettingsPage() {
 
         <Box sx={{ p: 3 }}>
           {/* School Settings */}
-          <TabPanel value={tabValue} index={0}>
+          {!isSystemAdmin && (
+            <TabPanel value={tabValue} index={0}>
             <Typography variant="h6" fontWeight={600} mb={3}>
               {t('common.schoolConfiguration')}
             </Typography>
@@ -512,6 +516,7 @@ export function SettingsPage() {
               </Grid>
             </Grid>
           </TabPanel>
+          )}
 
           {/* Notification Settings */}
           <TabPanel value={tabValue} index={1}>
