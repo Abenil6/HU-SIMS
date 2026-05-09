@@ -119,7 +119,7 @@ export const academicService = {
     academicYear?: string;
     page?: number;
     limit?: number;
-  }) => apiGet("/academic-records/grades", { ...params, limit: params.limit || 1000 }),
+  }) => apiGet("/academic-records/grades", { ...params, limit: params.limit || 2000 }),
 
   // Get all grades for admin approval (admin-only parameters)
   getGradesForApproval: async (params?: {
@@ -129,7 +129,7 @@ export const academicService = {
     semester?: string;
     academicYear?: string;
     limit?: number;
-  }) => apiGet("/academic-records/grades", { ...params, admin: true, limit: params?.limit || 1000 }),
+  }) => apiGet("/academic-records/grades", { ...params, admin: true, limit: params?.limit || 2000 }),
 
   // Enter new grade
   enterGrade: async (data: {

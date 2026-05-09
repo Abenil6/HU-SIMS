@@ -489,18 +489,21 @@ export function SchoolAdminGradesPage() {
       return { average: 0, highest: 0, lowest: 0, passed: 0, failed: 0, totalStudents: 0 };
     
     const percentages = filteredGrades.map((g: { percentage: number }) => g.percentage);
-    const passed = filteredGrades.filter((g: { percentage: number }) => getStatus(g.percentage) === "passed").length;
-    const uniqueStudents = new Set(filteredGrades.map((g: { studentId: string }) => g.studentId)).size;
+    
+    // Student-based stats (more accurate for school summary)
+    const uniqueStudents = studentRows.length;
+    const passed = studentRows.filter(s => s.average >= 50).length;
+    const failed = uniqueStudents - passed;
 
     return {
       average: Math.round(percentages.reduce((a: number, b: number) => a + b, 0) / percentages.length),
       highest: Math.max(...percentages),
       lowest: Math.min(...percentages),
       passed,
-      failed: filteredGrades.length - passed,
+      failed,
       totalStudents: uniqueStudents,
     };
-  }, [filteredGrades]);
+  }, [filteredGrades, studentRows]);
 
   // Class comparison stats
   const classComparison = useMemo(() => {
