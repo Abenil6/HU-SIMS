@@ -12,7 +12,17 @@ const normalizeGradeValue = (value) =>
     .replace(/^Grade\s+/i, '')
     .trim();
 
-const normalizeClassScopeValue = (value) => String(value || '').trim();
+const normalizeClassScopeValue = (value) => {
+  const normalized = String(value || '').trim();
+  // Normalize abbreviated stream names to match full names
+  if (normalized === 'Natural' || normalized === 'natural') {
+    return 'Natural Science';
+  }
+  if (normalized === 'Social' || normalized === 'social') {
+    return 'Social Science';
+  }
+  return normalized;
+};
 
 const normalizeSubjectValue = (value) => String(value || '').trim().toLowerCase();
 const isAcademicAdmin = (role) => ['SchoolAdmin', 'SystemAdmin'].includes(String(role || ''));

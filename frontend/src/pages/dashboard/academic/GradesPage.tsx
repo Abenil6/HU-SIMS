@@ -124,10 +124,19 @@ const normalizeGradeValue = (value: unknown) =>
     .replace(/^Grade\s+/i, "")
     .trim();
 
-const normalizeTextValue = (value: unknown) =>
-  String(value || "")
+const normalizeTextValue = (value: unknown) => {
+  const normalized = String(value || "")
     .trim()
     .toLowerCase();
+  // Normalize abbreviated stream names to match full names
+  if (normalized === "natural") {
+    return "natural science";
+  }
+  if (normalized === "social") {
+    return "social science";
+  }
+  return normalized;
+};
 const normalizeSubjectValue = (value: unknown) =>
   String(value || "")
     .trim()
@@ -357,7 +366,7 @@ export function GradesPage() {
     isLoading: isLoadingRecords,
     refetch: refetchGrades,
   } = useAcademicRecords({
-    limit: 100,
+    limit: 1000,
   });
 
   const createGrade = useCreateGrade();
