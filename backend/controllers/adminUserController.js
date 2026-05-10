@@ -33,8 +33,8 @@ const buildTeacherAssignmentFilters = (teacher) => {
 
   return assignments
     .map((assignment) => {
-      const grade = normalizeClassValue(assignment?.grade);
-      const streamOrSection = normalizeClassValue(
+      const grade = normalizeGrade(assignment?.grade);
+      const streamOrSection = normalizeStream(
         assignment?.stream || assignment?.section,
       );
 
