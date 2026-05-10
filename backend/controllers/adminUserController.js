@@ -4,8 +4,7 @@ const bcrypt = require('bcryptjs');
 const { sendVerificationEmail, generateToken } = require('../utils/emailService');
 const { normalizeUserResponse, normalizeUserListResponse } = require('../utils/userResponse');
 
-const normalizeClassValue = (value = '') =>
-  String(value || '').trim();
+const { normalizeGrade, normalizeStream } = require('../utils/normalization');
 
 const normalizeStatusValue = (value = '') => {
   const normalized = String(value || '').trim().toLowerCase();
@@ -835,7 +834,7 @@ exports.getStudents = async (req, res) => {
     }
 
     if (grade) {
-      const normalizedGrade = String(grade).replace(/^Grade\s+/i, '').trim();
+      const normalizedGrade = normalizeGrade(grade);
       if (normalizedGrade) {
         andFilters.push({
           $or: [
@@ -847,12 +846,16 @@ exports.getStudents = async (req, res) => {
     }
 
     if (stream) {
-      andFilters.push({
-        $or: [
-          { 'studentProfile.stream': stream },
-          { 'studentProfile.section': stream },
-        ],
-      });
+      const normalizedStreamValue = normalizeStream(stream);
+      if (normalizedStreamValue) {
+        andFilters.push({
+          $or: [
+            { 'studentProfile.stream': normalizedStreamValue },
+            { 'studentProfile.stream': `${normalizedStreamValue} Science` },
+            { 'studentProfile.section': normalizedStreamValue },
+          ],
+        });
+      }
     }
 
     if (normalizedStatus) {

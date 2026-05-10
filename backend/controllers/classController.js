@@ -1,8 +1,7 @@
 const SchoolClass = require('../models/SchoolClass');
 const User = require('../models/User');
 
-const normalizeGrade = (value) => String(value || '').replace(/^Grade\s+/i, '').trim();
-const normalizeStream = (value) => String(value || '').trim();
+const { normalizeGrade, normalizeStream } = require('../utils/normalization');
 
 const toResponse = (doc, studentCount = 0) => {
   const classTeacher = doc.classTeacher || null;
@@ -120,10 +119,13 @@ exports.getClasses = async (req, res) => {
     if (status) query.status = status;
     if (academicYear) query.academicYear = academicYear;
     if (search) {
+      const normalizedSearch = search.replace(/^Grade\s+/i, '').replace(/\s*Science$/i, '').trim();
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
         { grade: { $regex: search, $options: 'i' } },
+        { grade: { $regex: normalizedSearch, $options: 'i' } },
         { stream: { $regex: search, $options: 'i' } },
+        { stream: { $regex: normalizedSearch, $options: 'i' } },
       ];
     }
 

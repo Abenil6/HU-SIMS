@@ -140,6 +140,12 @@ const buildUserResponse = (user) => ({
   phone: user.phone,
   profileImage: user.profileImage,
   appearanceSettings: user.appearanceSettings,
+  // Role specific profiles
+  studentProfile: user.studentProfile,
+  teacherProfile: user.teacherProfile,
+  parentProfile: user.parentProfile,
+  adminProfile: user.adminProfile,
+  // Flattened legacy fields for backward compatibility
   studentId: user.studentProfile?.studentId || undefined,
   grade: user.studentProfile?.grade || undefined,
   stream: user.studentProfile?.stream || user.studentProfile?.section || undefined,

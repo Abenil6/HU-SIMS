@@ -8,13 +8,7 @@ const Report = require('../models/Report');
 const { generateToken, sendVerificationEmail } = require('../utils/emailService');
 const { findUserByFlexibleId } = require('../utils/userLookup');
 
-const normalizeGradeValue = (value = '') =>
-  String(value || '')
-    .replace(/^Grade\s+/i, '')
-    .trim();
-
-const normalizeClassValue = (value = '') =>
-  String(value || '').trim();
+const { normalizeGrade, normalizeStream } = require('../utils/normalization');
 
 const gradeRequiresStreamOrSection = (grade) => {
   const gradeNumber = Number.parseInt(String(grade || '').replace(/[^\d]/g, ''), 10);
@@ -463,8 +457,8 @@ exports.getMyStudents = async (req, res) => {
       : [];
 
     profileClasses.forEach((entry) => {
-      const grade = normalizeGradeValue(entry?.grade);
-      const streamOrSection = normalizeClassValue(entry?.stream || entry?.section);
+      const grade = normalizeGrade(entry?.grade);
+      const streamOrSection = normalizeStream(entry?.stream || entry?.section);
       if (!grade) return;
       assignments.set(`${grade}::${streamOrSection}`, { grade, streamOrSection });
     });
@@ -476,8 +470,8 @@ exports.getMyStudents = async (req, res) => {
       }).select('class.grade class.section class.stream');
 
       timetables.forEach((timetable) => {
-        const grade = normalizeGradeValue(timetable?.class?.grade);
-        const streamOrSection = normalizeClassValue(
+        const grade = normalizeGrade(timetable?.class?.grade);
+        const streamOrSection = normalizeStream(
           timetable?.class?.stream || timetable?.class?.section,
         );
         if (!grade) return;
