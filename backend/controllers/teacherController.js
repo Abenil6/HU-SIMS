@@ -540,11 +540,33 @@ exports.getClassStudents = async (req, res) => {
   try {
     const { grade, section } = req.params;
 
-    const students = await User.find({
+    const normalizedGrade = normalizeGrade(grade);
+    const normalizedStreamOrSection = normalizeStream(section);
+
+    const query = {
       role: 'Student',
-      'studentProfile.grade': grade,
-      'studentProfile.section': section
-    }).select('firstName lastName email studentProfile');
+      $and: [
+        {
+          $or: [
+            { 'studentProfile.grade': normalizedGrade },
+            { 'studentProfile.grade': `Grade ${normalizedGrade}` }
+          ]
+        }
+      ]
+    };
+
+    if (normalizedStreamOrSection) {
+      query.$and.push({
+        $or: [
+          { 'studentProfile.stream': normalizedStreamOrSection },
+          { 'studentProfile.stream': `${normalizedStreamOrSection} Science` },
+          { 'studentProfile.section': normalizedStreamOrSection },
+          { 'studentProfile.section': `${normalizedStreamOrSection} Science` }
+        ]
+      });
+    }
+
+    const students = await User.find(query).select('firstName lastName email studentProfile');
 
     res.json({
       success: true,
