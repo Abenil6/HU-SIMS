@@ -96,6 +96,9 @@ const normalizeGradeValue = (value: unknown) =>
 
 const normalizeText = (value: unknown) => String(value || "").trim().toLowerCase();
 
+const normalizeStreamValue = (value: unknown) =>
+  normalizeText(value).replace(/\s*science$/i, "").trim();
+
 const toApiStatus = (status: AttendanceStatus): "Present" | "Absent" | "Late" | "Excused" => {
   if (status === "present") return "Present";
   if (status === "absent") return "Absent";
@@ -234,14 +237,14 @@ function TeacherAttendanceMarkingPage() {
 
     const filteredStudents = rawStudents.filter((student: any) => {
       const studentGrade = normalizeGradeValue(student?.studentProfile?.grade || student?.grade);
-      const studentStream = normalizeText(
+      const studentStream = normalizeStreamValue(
         student?.studentProfile?.stream || student?.studentProfile?.section || student?.stream,
       );
 
       if (studentGrade !== normalizeGradeValue(activeClass.grade)) return false;
 
       if (activeClass.stream && classRequiresStream(activeClass.grade)) {
-        return studentStream === normalizeText(activeClass.stream);
+        return studentStream === normalizeStreamValue(activeClass.stream);
       }
 
       return true;
