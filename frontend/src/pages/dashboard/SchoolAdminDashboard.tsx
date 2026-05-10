@@ -159,6 +159,7 @@ export function SchoolAdminDashboard() {
   const { data: announcementsData } = useAnnouncements({ limit: 10 });
   const navigate = useNavigate();
   const [academicYearData, setAcademicYearData] = useState<any>(null);
+  const [schoolSettings, setSchoolSettings] = useState<any>(null);
   const queryClient = useQueryClient();
 
   // Fetch school-wide attendance rate
@@ -226,6 +227,16 @@ export function SchoolAdminDashboard() {
       .getActiveAcademicYear()
       .then(setAcademicYearData)
       .catch(() => setAcademicYearData(null));
+  }, []);
+
+  // Fetch school settings
+  useEffect(() => {
+    apiGet<any>("/system/settings")
+      .then((res: any) => {
+        const settings = res?.data ?? res;
+        setSchoolSettings(settings?.systemSettings || settings);
+      })
+      .catch(() => setSchoolSettings(null));
   }, []);
 
   const students = useMemo(() => {
@@ -1552,7 +1563,7 @@ export function SchoolAdminDashboard() {
             </Typography>
             <Paper sx={{ p: 3 }}>
               <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                {academicYearData?.year || t('common.dashboard')}
+                {schoolSettings?.academicYear || academicYearData?.year || t('common.dashboard')}
               </Typography>
               <Grid container spacing={2}>
                 {(() => {
@@ -1580,17 +1591,22 @@ export function SchoolAdminDashboard() {
                     );
                   }
                   if (events.length === 0) {
+                    const academicYear = schoolSettings?.academicYear || academicYearData?.year;
                     const startDate = academicYearData?.startDate 
                       ? new Date(academicYearData.startDate).toLocaleDateString() 
-                      : "Not configured";
+                      : academicYear 
+                        ? `${academicYear} - 1st Semester`
+                        : "Not configured";
                     const endDate = academicYearData?.endDate 
                       ? new Date(academicYearData.endDate).toLocaleDateString() 
-                      : "Not configured";
+                      : academicYear 
+                        ? `${academicYear} - 2nd Semester`
+                        : "Not configured";
                     events.push(
                       {
                         event: "Semester 1 Start",
                         date: startDate,
-                        status: academicYearData?.status || "Planning",
+                        status: academicYearData?.status || schoolSettings?.semester || "Planning",
                       },
                       {
                         event: "Semester 2 Start",
