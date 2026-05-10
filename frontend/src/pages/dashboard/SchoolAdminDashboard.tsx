@@ -990,7 +990,6 @@ export function SchoolAdminDashboard() {
           <Tab label={t('pages.dashboard.students')} icon={<School />} iconPosition="start" />
           <Tab label={t('pages.dashboard.teachers')} icon={<People />} iconPosition="start" />
           <Tab label={t('pages.dashboard.classes')} icon={<Assessment />} iconPosition="start" />
-          <Tab label={t('common.calendar') || 'Calendar'} icon={<CalendarToday />} iconPosition="start" />
           <Tab label={t('pages.dashboard.announcements')} icon={<Announcement />} iconPosition="start" />
           <Tab label={t('pages.dashboard.reports')} icon={<Assessment />} iconPosition="start" />
           <Tab label={t('contactMessages.title')} icon={<Mail />} iconPosition="start" />
