@@ -230,6 +230,11 @@ const normalizeGradeValue = (value: unknown) =>
     .replace(/^Grade\s+/i, "")
     .trim();
 
+const normalizeStreamValue = (value: unknown) =>
+  String(value || "")
+    .replace(/\s*Science$/i, "")
+    .trim();
+
 export function StudentListPage() {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -325,13 +330,13 @@ export function StudentListPage() {
 
     return displayStudents.filter((student: any) => {
       const studentGrade = normalizeGradeValue(student?.studentProfile?.grade || student?.grade || "");
-      const studentClass = String(
+      const studentClass = normalizeStreamValue(
         student?.studentProfile?.stream || student?.studentProfile?.section || student?.stream || student?.section || "",
-      ).trim();
+      );
 
       return assignedClasses.some((assigned) => {
         const assignedGrade = normalizeGradeValue(assigned.grade);
-        const assignedClass = String(assigned.stream || "").trim();
+        const assignedClass = normalizeStreamValue(assigned.stream || "");
 
         if (assignedGrade !== studentGrade) return false;
         if (!assignedClass) return true;

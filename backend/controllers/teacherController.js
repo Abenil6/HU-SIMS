@@ -504,7 +504,9 @@ exports.getMyStudents = async (req, res) => {
           {
             $or: [
               { 'studentProfile.stream': streamOrSection },
-              { 'studentProfile.section': streamOrSection }
+              { 'studentProfile.stream': `${streamOrSection} Science` },
+              { 'studentProfile.section': streamOrSection },
+              { 'studentProfile.section': `${streamOrSection} Science` }
             ]
           }
         ],
