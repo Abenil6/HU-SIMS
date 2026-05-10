@@ -40,15 +40,32 @@ const buildTeacherAssignmentFilters = (teacher) => {
 
       if (!grade) return null;
 
+      // Match both "9" and "Grade 9" formats stored in DB
+      const gradeFilter = {
+        $or: [
+          { 'studentProfile.grade': grade },
+          { 'studentProfile.grade': `Grade ${grade}` },
+        ],
+      };
+
       if (!streamOrSection || !gradeRequiresStreamOrSection(grade)) {
-        return { 'studentProfile.grade': grade };
+        return gradeFilter;
       }
 
+      // Match both "Natural" and "Natural Science" stream formats
+      // Use $and so both the grade $or and stream $or are evaluated — spreading
+      // two objects with the same $or key would silently discard the first.
       return {
-        'studentProfile.grade': grade,
-        $or: [
-          { 'studentProfile.stream': streamOrSection },
-          { 'studentProfile.section': streamOrSection },
+        $and: [
+          gradeFilter,
+          {
+            $or: [
+              { 'studentProfile.stream': streamOrSection },
+              { 'studentProfile.stream': `${streamOrSection} Science` },
+              { 'studentProfile.section': streamOrSection },
+              { 'studentProfile.section': `${streamOrSection} Science` },
+            ],
+          },
         ],
       };
     })
@@ -916,16 +933,39 @@ exports.getStudents = async (req, res) => {
  */
 exports.getStudentsByClass = async (req, res) => {
   try {
-    const { grade, section, academicYear } = req.query;
+    const { grade, section, stream, academicYear } = req.query;
 
     const query = { role: 'Student' };
-    if (grade) query['studentProfile.grade'] = grade;
-    if (section) query['studentProfile.section'] = section;
+    const andFilters = [];
+
+    if (grade) {
+      const g = normalizeGrade(grade);
+      andFilters.push({
+        $or: [
+          { 'studentProfile.grade': g },
+          { 'studentProfile.grade': `Grade ${g}` },
+        ],
+      });
+    }
+
+    if (section || stream) {
+      const sv = normalizeStream(section || stream);
+      andFilters.push({
+        $or: [
+          { 'studentProfile.stream': sv },
+          { 'studentProfile.stream': `${sv} Science` },
+          { 'studentProfile.section': sv },
+          { 'studentProfile.section': `${sv} Science` },
+        ],
+      });
+    }
+
     if (academicYear) query['studentProfile.academicYear'] = academicYear;
+    if (andFilters.length) query.$and = andFilters;
 
     const students = await User.find(query)
       .select('firstName lastName email phone studentProfile')
-      .sort({ 'studentProfile.grade': 1, 'studentProfile.section': 1, lastName: 1 });
+      .sort({ 'studentProfile.grade': 1, 'studentProfile.stream': 1, lastName: 1 });
 
     res.json({
       success: true,
