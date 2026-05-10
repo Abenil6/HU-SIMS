@@ -1309,7 +1309,7 @@ export function GradesPage() {
               : "Enter and manage student grades (Mid 20 · Final 40 · Assignment 20 · Quiz 20)"
         }
         action={
-          canManageGrades && !isTeacher ? (
+          canManageGrades ? (
             <Box sx={{ display: "flex", gap: 2 }}>
               <Button
                 variant="contained"
