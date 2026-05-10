@@ -1580,15 +1580,21 @@ export function SchoolAdminDashboard() {
                     );
                   }
                   if (events.length === 0) {
+                    const startDate = academicYearData?.startDate 
+                      ? new Date(academicYearData.startDate).toLocaleDateString() 
+                      : "Not configured";
+                    const endDate = academicYearData?.endDate 
+                      ? new Date(academicYearData.endDate).toLocaleDateString() 
+                      : "Not configured";
                     events.push(
                       {
-                        event: "First Term Start",
-                        date: "-",
-                        status: "Upcoming",
+                        event: "Semester 1 Start",
+                        date: startDate,
+                        status: academicYearData?.status || "Planning",
                       },
                       {
-                        event: "Second Term Start",
-                        date: "-",
+                        event: "Semester 2 Start",
+                        date: endDate,
                         status: "Upcoming",
                       },
                     );
