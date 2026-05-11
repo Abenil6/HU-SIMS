@@ -59,7 +59,12 @@ export function SettingsPage() {
   const { t } = useTranslation();
   const { user, updateUser } = useAuthStore();
   const isSystemAdmin = user?.role === "SystemAdmin";
-  const [tabValue, setTabValue] = useState(isSystemAdmin ? 1 : 0);
+  const [tabValue, setTabValue] = useState(0);
+
+  // Dynamic tab indices: SystemAdmin has no School tab, so all indices shift down by 1
+  const notifIndex      = isSystemAdmin ? 0 : 1;
+  const securityIndex   = isSystemAdmin ? 1 : 2;
+  const appearanceIndex = isSystemAdmin ? 2 : 3;
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadedSettings, setLoadedSettings] = useState<any>(null);
@@ -519,7 +524,7 @@ export function SettingsPage() {
           )}
 
           {/* Notification Settings */}
-          <TabPanel value={tabValue} index={1}>
+          <TabPanel value={tabValue} index={notifIndex}>
             <Typography variant="h6" fontWeight={600} mb={3}>
               {t('common.notificationPreferences')}
             </Typography>
@@ -575,7 +580,7 @@ export function SettingsPage() {
           </TabPanel>
 
           {/* Security Settings */}
-          <TabPanel value={tabValue} index={2}>
+          <TabPanel value={tabValue} index={securityIndex}>
             <Typography variant="h6" fontWeight={600} mb={3}>
               {t('common.securitySettings')}
             </Typography>
@@ -619,7 +624,7 @@ export function SettingsPage() {
           </TabPanel>
 
           {/* Appearance Settings */}
-          <TabPanel value={tabValue} index={3}>
+          <TabPanel value={tabValue} index={appearanceIndex}>
             <Typography variant="h6" fontWeight={600} mb={3}>
               {t('common.appearanceSettings')}
             </Typography>
