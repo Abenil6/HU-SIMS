@@ -183,7 +183,7 @@ export function StudentGradesPage() {
           assignment,
           classQuiz,
           total: totalMarks,
-          percentage: Math.round(totalMarks),
+          percentage: Math.round((totalMarks / 100) * 100),
           semester,
           academicYear,
         });

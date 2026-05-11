@@ -119,7 +119,7 @@ export function StudentDashboard() {
         subject,
         midterm: Math.round((midExam / 20) * 100),
         final: Math.round((finalExam / 40) * 100),
-        average: Math.round(total),
+        average: Math.round((total / 100) * 100),
       });
     }
 
