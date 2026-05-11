@@ -130,7 +130,19 @@ export function StudentDashboard() {
 
   const attendanceSummary = attendanceQuery.data?.data?.summary || null;
   const attendanceRecords: any[] = attendanceQuery.data?.data?.records || [];
-  const attendanceRate = Number(attendanceSummary?.attendanceRate ?? 0);
+  
+  // Calculate attendance rate from records if summary is not available or has 0 rate
+  const attendanceRate = useMemo(() => {
+    if (attendanceSummary?.attendanceRate && attendanceSummary.attendanceRate > 0) {
+      return Number(attendanceSummary.attendanceRate);
+    }
+    
+    // Calculate from records
+    if (attendanceRecords.length === 0) return 0;
+    const presentCount = attendanceRecords.filter(r => r?.status === "Present").length;
+    const totalCount = attendanceRecords.length;
+    return totalCount > 0 ? (presentCount / totalCount) * 100 : 0;
+  }, [attendanceSummary, attendanceRecords]);
 
   const attendanceByMonth = useMemo(() => {
     const grouped = new Map<
