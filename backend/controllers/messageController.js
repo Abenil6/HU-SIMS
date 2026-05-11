@@ -2,6 +2,9 @@ const Message = require('../models/Message');
 const User = require('../models/User');
 
 const ACTIVE_USER_QUERY = { status: 'Active', isVerified: true };
+// Students and parents are admin-created and may not be email-verified.
+// For messaging purposes, only Active status is required.
+const ENROLLED_USER_QUERY = { status: 'Active' };
 const INTERNAL_ADMIN_QUERY = { status: { $ne: 'Inactive' } };
 
 const normalizeId = (value) => String(value?._id || value?.id || value || '');
@@ -114,7 +117,7 @@ const getStudentsForTeacher = async (teacher) => {
   if (!assignments.length) return [];
 
   const students = await User.find({
-    ...ACTIVE_USER_QUERY,
+    ...ENROLLED_USER_QUERY,
     role: 'Student',
   }).select('firstName lastName email role studentProfile');
 
@@ -167,7 +170,7 @@ const getParentsForStudents = async (students) => {
   if (!parentIds.size) return [];
 
   const parents = await User.find({
-    ...ACTIVE_USER_QUERY,
+    ...ENROLLED_USER_QUERY,
     role: 'Parent',
     _id: { $in: [...parentIds] },
   }).select('firstName lastName email role parentProfile');
@@ -191,7 +194,7 @@ const getChildrenForParent = async (parent) => {
   if (!childIds.length) return [];
 
   return User.find({
-    ...ACTIVE_USER_QUERY,
+    ...ENROLLED_USER_QUERY,
     role: 'Student',
     _id: { $in: childIds },
   }).select('firstName lastName email role studentProfile');
