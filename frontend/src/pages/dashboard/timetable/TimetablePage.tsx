@@ -382,18 +382,30 @@ export function TimetablePage() {
     [slots, today],
   );
 
+  const SCHOOL_START = toMinutes("08:30"); // 510 min
+  const SCHOOL_END = toMinutes("15:00");   // 900 min
+
   const currentClass = useMemo(
-    () =>
-      todaySlots.find((s) => {
-        const start = toMinutes(s.period.startTime);
-        const end = toMinutes(s.period.endTime);
-        return nowMinutes >= start && nowMinutes < end;
-      }) || null,
+    () => {
+      // Outside school hours → never show a current class
+      if (nowMinutes < SCHOOL_START || nowMinutes >= SCHOOL_END) return null;
+      return (
+        todaySlots.find((s) => {
+          const start = toMinutes(s.period.startTime);
+          const end = toMinutes(s.period.endTime);
+          return nowMinutes >= start && nowMinutes < end;
+        }) || null
+      );
+    },
     [todaySlots, nowMinutes],
   );
 
   const nextClass = useMemo(
-    () => todaySlots.find((s) => toMinutes(s.period.startTime) > nowMinutes) || null,
+    () => {
+      // After school ends → no next class today
+      if (nowMinutes >= SCHOOL_END) return null;
+      return todaySlots.find((s) => toMinutes(s.period.startTime) > nowMinutes) || null;
+    },
     [todaySlots, nowMinutes],
   );
 
@@ -1046,7 +1058,9 @@ export function TimetablePage() {
                   // Display subject cells for regular periods
                   weekDays.map((day) => {
                     const cellSlot = getSlotForCell(day, period);
-                    const isCurrent = cellSlot?.id === currentClass?.id;
+                    // Require cellSlot to be non-null to avoid false positive
+                    // when both cellSlot?.id and currentClass?.id are undefined
+                    const isCurrent = Boolean(cellSlot) && cellSlot?.id === currentClass?.id;
 
                     return (
                       <Paper
