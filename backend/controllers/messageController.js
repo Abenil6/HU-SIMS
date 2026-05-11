@@ -54,11 +54,19 @@ const matchesTeacherClass = (student, classAssignment = {}) => {
     classAssignment.stream || classAssignment.section || '',
   );
 
+  // Grade must match
   if (!studentGrade || !assignmentGrade || studentGrade !== assignmentGrade) {
     return false;
   }
 
+  // No section/stream filter on the assignment — match all students in grade
   if (!assignmentStream) {
+    return true;
+  }
+
+  // Student has no stream/section data — match on grade alone
+  // (prevents students with missing section data from being wrongly excluded)
+  if (!studentStream) {
     return true;
   }
 
