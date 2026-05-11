@@ -172,7 +172,7 @@ export function StudentGradesPage() {
       if (classQuiz > 20) classQuiz = (classQuiz / 100) * 20;
       if (continuousAssessment > 10) continuousAssessment = (continuousAssessment / 100) * 10;
       
-      const totalMarks = Number(record?.totalMarks ?? midExam + finalExam + assignment + classQuiz + continuousAssessment);
+      const totalMarks = midExam + finalExam + assignment + classQuiz + continuousAssessment;
 
       const key = `${subject}-${semester}-${academicYear}`;
       if (!subjectMap.has(key)) {

@@ -114,12 +114,12 @@ export function StudentDashboard() {
       const classQuiz = Number(r?.marks?.classQuiz ?? 0);
       const assignment = Number(r?.marks?.assignment ?? 0);
       const continuousAssessment = Number(r?.marks?.continuousAssessment ?? 0);
-      const total = Number(r?.totalMarks ?? midExam + finalExam + classQuiz + assignment + continuousAssessment);
+      const total = midExam + finalExam + classQuiz + assignment + continuousAssessment;
       bySubject.set(subject, {
         subject,
         midterm: Math.round((midExam / 20) * 100),
         final: Math.round((finalExam / 40) * 100),
-        average: Math.round((total / 100) * 100),
+        average: Math.round(total),
       });
     }
 
