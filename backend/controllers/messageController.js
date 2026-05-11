@@ -33,16 +33,26 @@ const buildReplySubject = (subject) => {
   return `Re: ${normalizedSubject}`;
 };
 
+const normalizeGrade = (value) =>
+  String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/^grade\s*/i, '');
+
+const normalizeStream = (value) => String(value || '').trim().toLowerCase();
+
 const matchesTeacherClass = (student, classAssignment = {}) => {
   const studentProfile = student?.studentProfile || {};
-  const studentGrade = String(studentProfile.grade || student.grade || '');
-  const studentStream = String(
+  const studentGrade = normalizeGrade(
+    studentProfile.grade || student.grade || '',
+  );
+  const studentStream = normalizeStream(
     studentProfile.stream || studentProfile.section || student.stream || '',
-  ).trim();
-  const assignmentGrade = String(classAssignment.grade || '');
-  const assignmentStream = String(
+  );
+  const assignmentGrade = normalizeGrade(classAssignment.grade || '');
+  const assignmentStream = normalizeStream(
     classAssignment.stream || classAssignment.section || '',
-  ).trim();
+  );
 
   if (!studentGrade || !assignmentGrade || studentGrade !== assignmentGrade) {
     return false;
@@ -183,10 +193,22 @@ const getAllowedRecipientsForUser = async (sender) => {
   const senderRole = sender?.role;
 
   if (senderRole === 'Student') {
-    const teachers = await getTeachersForStudent(sender);
-    return teachers.map((teacher) =>
-      toRecipientSummary(teacher, { relationship: 'Class teacher contact' }),
-    );
+    const [teachers, schoolAdmins] = await Promise.all([
+      getTeachersForStudent(sender),
+      User.find({
+        ...ACTIVE_USER_QUERY,
+        role: 'SchoolAdmin',
+      }).select('firstName lastName email role adminProfile'),
+    ]);
+
+    return [
+      ...teachers.map((teacher) =>
+        toRecipientSummary(teacher, { relationship: 'Class teacher contact' }),
+      ),
+      ...schoolAdmins.map((admin) =>
+        toRecipientSummary(admin, { relationship: 'School administration' }),
+      ),
+    ];
   }
 
   if (senderRole === 'Teacher') {
@@ -228,9 +250,22 @@ const getAllowedRecipientsForUser = async (sender) => {
       });
     }
 
-    return [...teacherMap.values()].map((teacher) =>
-      toRecipientSummary(teacher, { relationship: 'Teacher of linked child' }),
-    );
+    const schoolAdmins = await User.find({
+      ...ACTIVE_USER_QUERY,
+      role: 'SchoolAdmin',
+    }).select('firstName lastName email role adminProfile');
+
+    return [
+      ...children.map((child) =>
+        toRecipientSummary(child, { relationship: 'Your child' }),
+      ),
+      ...[...teacherMap.values()].map((teacher) =>
+        toRecipientSummary(teacher, { relationship: 'Teacher of linked child' }),
+      ),
+      ...schoolAdmins.map((admin) =>
+        toRecipientSummary(admin, { relationship: 'School administration' }),
+      ),
+    ];
   }
 
   if (senderRole === 'SchoolAdmin') {
