@@ -222,13 +222,23 @@ export function TimetablePage() {
         if (user.role === "Teacher") {
           const response: any = await apiGet("/teachers/profile");
           const profile = (response?.data ?? response)?.teacherProfile || {};
-          nextOptions = (profile.classes || []).map((entry: any) => ({
-            grade: String(entry.grade || ""),
-            stream: String(entry.stream || entry.section || ""),
-            label: `Grade ${entry.grade}${
-              entry.stream || entry.section ? ` - ${entry.stream || entry.section}` : ""
-            }`,
-          }));
+          // Normalize stream: teacher profiles store "Natural Science"/"Social Science"
+          // but timetables are saved as "Natural"/"Social" — align them so the filter matches.
+          const normalizeStream = (raw: string) => {
+            const s = raw.toLowerCase();
+            if (s.includes("natural")) return "Natural";
+            if (s.includes("social")) return "Social";
+            return raw;
+          };
+          nextOptions = (profile.classes || []).map((entry: any) => {
+            const rawStream = String(entry.stream || entry.section || "");
+            const stream = normalizeStream(rawStream);
+            return {
+              grade: String(entry.grade || ""),
+              stream,
+              label: `Grade ${entry.grade}${rawStream ? ` - ${rawStream}` : ""}`,
+            };
+          });
         } else if (user.role === "Student") {
           const response: any = await apiGet("/students/profile");
           const profile = (response?.data ?? response)?.studentProfile || {};
