@@ -278,6 +278,23 @@ exports.createAcademicRecordFromGrade = async (req, res) => {
 
     const submittedField = markConfig.submittedField;
 
+    // Block if an existing record is approved/locked — cannot overwrite approved marks
+    const existingRecord = await AcademicRecord.findOne(baseFilter);
+    if (existingRecord) {
+      if (existingRecord.isLocked && !isAcademicAdmin(req.user.role)) {
+        return res.status(403).json({
+          success: false,
+          message: 'This grade record has been approved and locked. Contact an admin to unlock it before making changes.',
+        });
+      }
+      if (existingRecord.status === 'Approved' && !isAcademicAdmin(req.user.role)) {
+        return res.status(403).json({
+          success: false,
+          message: 'This grade record has already been approved. Contact an admin to modify it.',
+        });
+      }
+    }
+
     // Update the record with the new mark using atomic operations
     const record = await AcademicRecord.findOneAndUpdate(
       baseFilter,
@@ -493,13 +510,29 @@ exports.createAcademicRecord = async (req, res) => {
       });
     }
 
+    const normSem = normalizeSemester(semester);
+
+    // Explicit duplicate check — gives a clear error before hitting the DB unique index
+    const duplicate = await AcademicRecord.findOne({
+      student: studentUser._id,
+      subject,
+      academicYear,
+      semester: normSem,
+    });
+    if (duplicate) {
+      return res.status(409).json({
+        success: false,
+        message: 'A grade record already exists for this student, subject, semester, and academic year. Use the update endpoint to modify it.',
+      });
+    }
+
     const academicRecord = new AcademicRecord({
       student: studentUser._id,   // always use the real MongoDB _id
       teacher: req.user.id,
       subject,
       gradeLevel: resolveStudentGradeLevel(studentUser),
       academicYear,
-      semester: normalizeSemester(semester),
+      semester: normSem,
       marks: {
         midExam: marks?.midExam || 0,
         finalExam: marks?.finalExam || 0,
