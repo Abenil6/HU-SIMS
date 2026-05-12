@@ -1008,7 +1008,7 @@ const buildReportCardData = async ({
   const yearlyRanking = await calculateStudentRank({
     student,
     academicYear,
-    semester: selectedSemester,
+    semester: null,
     gradeLevel: getStudentGradeLevel(student),
   });
 
