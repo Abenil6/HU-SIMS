@@ -66,7 +66,14 @@ const studentMatchesMaterialClass = (student, material) => {
     return false;
   }
 
+  // No section on material → any student in the grade can access
   if (!materialSection) {
+    return true;
+  }
+
+  // Student has no section stored (e.g. grade 9-10 without section data)
+  // → allow access to any material in their grade
+  if (!studentSection) {
     return true;
   }
 
