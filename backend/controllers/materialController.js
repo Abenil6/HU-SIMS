@@ -1,6 +1,8 @@
 const Material = require('../models/Material');
 const AssignmentSubmission = require('../models/AssignmentSubmission');
 const User = require('../models/User');
+const AcademicRecord = require('../models/AcademicRecord');
+const AcademicYear = require('../models/AcademicYear');
 
 const normalizeGradeValue = (value) =>
   String(value || '')
@@ -810,6 +812,37 @@ exports.reviewSubmission = async (req, res) => {
         success: false,
         message: 'Submission not found',
       });
+    }
+
+    // Check if a grade for this student and subject has already been approved
+    // for the active academic year and semester.
+    try {
+      const activeYear = await AcademicYear.getActiveYear();
+      if (activeYear) {
+        const now = new Date();
+        const currentSemester = activeYear.semesters.find(
+          (s) => now >= s.startDate && now <= s.endDate,
+        );
+
+        if (currentSemester) {
+          const approvedRecord = await AcademicRecord.findOne({
+            student: submission.studentId,
+            subject: material.subject,
+            academicYear: activeYear.year,
+            semester: currentSemester.name,
+            status: 'Approved',
+          });
+
+          if (approvedRecord) {
+            return res.status(403).json({
+              success: false,
+              message: `Cannot review submission. Final grades for ${material.subject} in ${currentSemester.name} have already been approved and locked.`,
+            });
+          }
+        }
+      }
+    } catch (auditError) {
+      console.error('Error during approved record validation:', auditError);
     }
 
     if (score !== undefined && score !== null) {
