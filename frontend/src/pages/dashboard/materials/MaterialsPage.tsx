@@ -1222,11 +1222,11 @@ export function MaterialsPage() {
               </Typography>
               <TextField
                 fullWidth
-                label="Score (0-100)"
+                label="Score (0-20)"
                 type="number"
                 value={reviewScore}
                 onChange={(e) => setReviewScore(e.target.value)}
-                inputProps={{ min: 0, max: 100 }}
+                inputProps={{ min: 0, max: 20 }}
                 sx={{ mb: 2 }}
               />
               <TextField
