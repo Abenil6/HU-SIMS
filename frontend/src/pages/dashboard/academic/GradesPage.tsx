@@ -1312,13 +1312,6 @@ export function GradesPage() {
           canManageGrades ? (
             <Box sx={{ display: "flex", gap: 2 }}>
               <Button
-                variant="contained"
-                startIcon={<Add />}
-                onClick={openAddDialog}
-              >
-                Enter Grade
-              </Button>
-              <Button
                 variant="outlined"
                 startIcon={<Calculate />}
                 onClick={openBulkEntryDialog}
