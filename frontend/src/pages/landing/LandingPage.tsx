@@ -258,7 +258,7 @@ export function LandingPage() {
     students: 65,
     teachers: 40,
     yearsOfExcellence: 10,
-    classes: 7
+    classes: 6
   });
   
   // Fetch real-time statistics from backend

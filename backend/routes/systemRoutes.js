@@ -40,7 +40,8 @@ router.get('/public-stats', async (req, res) => {
     const currentYear = new Date().getFullYear();
     const yearsOfExcellence = currentYear - schoolFoundedYear;
 
-    // Get actual classes count by aggregating unique grade/section/stream combinations from students
+    // Get actual classes count by grouping by grade and stream only (main academic groups)
+    // This typically results in 6 groups: Grade 9, 10, 11 Nat, 11 Soc, 12 Nat, 12 Soc
     const classCount = await User.aggregate([
       { 
         $match: { 
@@ -54,7 +55,6 @@ router.get('/public-stats', async (req, res) => {
       {
         $project: {
           grade: { $ifNull: ['$grade', '$studentProfile.grade'] },
-          section: { $ifNull: ['$section', '$studentProfile.section'] },
           stream: { $ifNull: ['$stream', '$studentProfile.stream'] }
         }
       },
@@ -62,7 +62,6 @@ router.get('/public-stats', async (req, res) => {
         $group: { 
           _id: { 
             grade: '$grade',
-            section: '$section',
             stream: '$stream'
           } 
         }
@@ -74,7 +73,7 @@ router.get('/public-stats', async (req, res) => {
       students: studentCount,
       teachers: teacherCount,
       yearsOfExcellence: yearsOfExcellence,
-      classes: classCount
+      classes: classCount || 6 // Default to 6 if no data yet, to match school structure
     });
   } catch (error) {
     console.error('Error fetching public stats:', error);
