@@ -132,57 +132,65 @@ exports.getClasses = async (req, res) => {
     const numericPage = Math.max(parseInt(page, 10) || 1, 1);
     const numericLimit = Math.max(parseInt(limit, 10) || 20, 1);
 
-    const [classes, total, studentCountMap] = await Promise.all([
+    const [explicitClasses, studentCountMap, allDerivedClasses] = await Promise.all([
       SchoolClass.find(query)
         .populate('classTeacher', 'firstName lastName')
-        .sort({ grade: 1, stream: 1, name: 1 })
-        .skip((numericPage - 1) * numericLimit)
-        .limit(numericLimit),
-      SchoolClass.countDocuments(query),
+        .sort({ grade: 1, stream: 1, name: 1 }),
       buildStudentCountMap(),
+      deriveClassesFromStudents(),
     ]);
 
-    // If no explicit classes exist, derive from student enrollments
-    if (total === 0 && classes.length === 0) {
-      const derivedClasses = await deriveClassesFromStudents();
-
-      // Apply filters to derived classes
-      let filteredDerived = derivedClasses;
-      if (grade) {
-        filteredDerived = filteredDerived.filter(c => c.grade === `Grade ${normalizeGrade(grade)}`);
-      }
-      if (stream !== undefined) {
-        filteredDerived = filteredDerived.filter(c => c.stream === normalizeStream(stream));
-      }
-      if (search) {
-        const searchLower = search.toLowerCase();
-        filteredDerived = filteredDerived.filter(c =>
-          c.name.toLowerCase().includes(searchLower) ||
-          c.grade.toLowerCase().includes(searchLower) ||
-          c.stream.toLowerCase().includes(searchLower)
-        );
-      }
-
-      const totalDerived = filteredDerived.length;
-      const paginatedDerived = filteredDerived
-        .slice((numericPage - 1) * numericLimit, numericPage * numericLimit);
-
-      return res.json({
-        success: true,
-        data: paginatedDerived,
-        pagination: {
-          page: numericPage,
-          limit: numericLimit,
-          total: totalDerived,
-          pages: Math.ceil(totalDerived / numericLimit),
-        },
-      });
-    }
-
-    const data = classes.map((doc) => {
+    const explicitData = explicitClasses.map((doc) => {
       const key = `${normalizeGrade(doc.grade)}::${normalizeStream(doc.stream)}`;
       return toResponse(doc, studentCountMap.get(key) || 0);
     });
+
+    // Identify which grade/stream combinations from students are NOT covered by explicit classes
+    const explicitKeys = new Set(
+      explicitData.map((c) => `${normalizeGrade(c.grade)}::${normalizeStream(c.stream)}`)
+    );
+
+    let filteredDerived = allDerivedClasses.filter((c) => {
+      const key = `${normalizeGrade(c.grade)}::${normalizeStream(c.stream)}`;
+      return !explicitKeys.has(key);
+    });
+
+    // Apply filters to derived classes (since they were fetched without the query filters)
+    if (grade) {
+      const normGrade = normalizeGrade(grade);
+      filteredDerived = filteredDerived.filter((c) => normalizeGrade(c.grade) === normGrade);
+    }
+    if (stream !== undefined) {
+      const normStream = normalizeStream(stream);
+      filteredDerived = filteredDerived.filter((c) => normalizeStream(c.stream) === normStream);
+    }
+    if (status && status !== 'Active') {
+      // Derived classes are always considered 'Active'
+      filteredDerived = [];
+    }
+    if (search) {
+      const searchLower = search.toLowerCase();
+      filteredDerived = filteredDerived.filter(
+        (c) =>
+          c.name.toLowerCase().includes(searchLower) ||
+          c.grade.toLowerCase().includes(searchLower) ||
+          c.stream.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Combine explicit and missing derived classes
+    let combined = [...explicitData, ...filteredDerived];
+
+    // Final Sort
+    combined.sort((a, b) => {
+      const gA = normalizeGrade(a.grade);
+      const gB = normalizeGrade(b.grade);
+      if (gA !== gB) return gA.localeCompare(gB, undefined, { numeric: true });
+      return (a.stream || '').localeCompare(b.stream || '');
+    });
+
+    const total = combined.length;
+    const data = combined.slice((numericPage - 1) * numericLimit, numericPage * numericLimit);
 
     res.json({
       success: true,
