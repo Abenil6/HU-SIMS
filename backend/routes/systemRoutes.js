@@ -73,7 +73,7 @@ router.get('/public-stats', async (req, res) => {
       students: studentCount,
       teachers: teacherCount,
       yearsOfExcellence: yearsOfExcellence,
-      classes: classCount || 6 // Default to 6 if no data yet, to match school structure
+      classes: 6 // Strictly 6 classes as per school structure (9, 10, 11 N/S, 12 N/S)
     });
   } catch (error) {
     console.error('Error fetching public stats:', error);
