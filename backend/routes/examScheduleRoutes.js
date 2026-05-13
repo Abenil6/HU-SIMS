@@ -16,16 +16,19 @@ const validateExamQuery = validateQuery({
   grade: { type: 'string', trim: true, maxLength: 20 },
   section: { type: 'string', trim: true, maxLength: 60 },
   subject: { type: 'string', trim: true, maxLength: 120 },
-  examType: { type: 'string', enum: ['Midterm', 'Final'] },
+  examType: { type: 'string', enum: ['Midterm', 'Final', 'Mock'] },
   startDate: { type: 'date' },
   endDate: { type: 'date' },
 }, { allowUnknown: true });
 
 const validateExamScheduleCreate = validateBody({
   subject: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 120 },
-  grade: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 20 },
+  grade: { 
+    required: true, 
+    custom: (val) => (typeof val === 'string' || typeof val === 'number') && String(val).length >= 1 ? true : 'grade is required'
+  },
   section: { type: 'string', trim: true, maxLength: 60 },
-  examType: { required: true, type: 'string', enum: ['Midterm', 'Final'] },
+  examType: { required: true, type: 'string', enum: ['Midterm', 'Final', 'Mock'] },
   date: { required: true, type: 'date' },
   startTime: { required: true, type: 'string', trim: true, maxLength: 20 },
   endTime: { required: true, type: 'string', trim: true, maxLength: 20 },
@@ -34,11 +37,14 @@ const validateExamScheduleCreate = validateBody({
 }, { allowUnknown: true });
 
 const validateAutoGenerate = validateBody({
-  grade: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 20 },
-  section: { required: true, type: 'string', trim: true, minLength: 1, maxLength: 60 },
+  grade: { 
+    required: true, 
+    custom: (val) => (typeof val === 'string' || typeof val === 'number') && String(val).length >= 1 ? true : 'grade is required'
+  },
+  section: { type: 'string', trim: true, maxLength: 60 },
   academicYear: { required: true, type: 'string', trim: true, maxLength: 30 },
   semester: { required: true, type: 'string', enum: ['Semester 1', 'Semester 2'] },
-  examType: { required: true, type: 'string', enum: ['Midterm', 'Final'] },
+  examType: { required: true, type: 'string', enum: ['Midterm', 'Final', 'Mock'] },
   startDate: { required: true, type: 'date' },
   endDate: { required: true, type: 'date' },
 }, { allowUnknown: true });
