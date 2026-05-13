@@ -255,10 +255,10 @@ export function LandingPage() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [statistics, setStatistics] = useState({
-    students: 0,
-    teachers: 0,
-    yearsOfExcellence: 0,
-    classes: 0
+    students: 65,
+    teachers: 40,
+    yearsOfExcellence: 10,
+    classes: 7
   });
   
   // Fetch real-time statistics from backend
@@ -776,7 +776,6 @@ export function LandingPage() {
                   { label: t('landing.features'), href: "#features" },
                   { label: t('landing.announcements'), href: "#announcements" },
                   { label: t('landing.about'), href: "#about" },
-                  { label: t('landing.faq'), href: "#faq" },
                   { label: t('landing.contact'), href: "#contact" },
                 ].map((item) => (
                   <Button
@@ -1065,23 +1064,6 @@ export function LandingPage() {
               }}
             >
               About School
-            </MenuItem>
-            <MenuItem
-              onClick={handleMenuClose}
-              component="a"
-              href="#faq"
-              aria-label="Go to FAQ section"
-              sx={{
-                color:
-                  currentTheme.palette.mode === "dark"
-                    ? colors.parchment
-                    : colors.charcoal,
-                "&:hover": {
-                  bgcolor: alpha(currentTheme.palette.primary.main, 0.1),
-                },
-              }}
-            >
-              FAQ
             </MenuItem>
             <MenuItem
               onClick={handleMenuClose}
@@ -1470,93 +1452,6 @@ export function LandingPage() {
                     {t('landing.stats.scrollToExplore')}
                   </Typography>
                 </Box>
-              </Box>
-            </motion.div>
-          </Container>
-        </Box>
-
-        {/* Statistics Section */}
-        <Box
-          sx={{
-            py: 12,
-            px: 2,
-            bgcolor: currentTheme.palette.mode === "dark" ? colors.graphite : colors.parchment,
-          }}
-        >
-          <Container maxWidth="lg">
-            <motion.div
-              variants={stagger}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-            >
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: {
-                    xs: "1fr",
-                    sm: "repeat(2, 1fr)",
-                    md: "repeat(4, 1fr)",
-                  },
-                  gap: 4,
-                }}
-              >
-                {[
-                  { label: t('landing.stats.studentsEnrolled'), value: statistics.students, icon: <People /> },
-                  { label: t('landing.stats.teachers'), value: statistics.teachers, icon: <School /> },
-                  { label: t('landing.stats.yearsOfExcellence'), value: statistics.yearsOfExcellence, icon: <EmojiEvents /> },
-                  { label: t('landing.stats.classes'), value: statistics.classes, icon: <Assignment /> },
-                ].map((stat, index) => {
-                  const { count, ref } = useAnimatedCounter(stat.value, 2);
-                  return (
-                    <motion.div key={index} variants={scaleIn}>
-                      <Card
-                        sx={{
-                          textAlign: "center",
-                          py: 4,
-                          px: 2,
-                          background:
-                            currentTheme.palette.mode === "dark"
-                              ? `linear-gradient(160deg, ${alpha(
-                                  colors.graphite,
-                                  0.95
-                                )} 0%, ${alpha(colors.midnight, 0.9)} 100%)`
-                              : `linear-gradient(160deg, ${alpha(
-                                  colors.parchment,
-                                  0.95
-                                )} 0%, ${alpha(colors.eggshell, 0.9)} 100%)`,
-                          border: `1px solid ${alpha(
-                            currentTheme.palette.primary.main,
-                            0.15
-                          )}`,
-                        }}
-                      >
-                        <motion.div
-                          whileHover={{ scale: 1.2, rotate: 10 }}
-                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                        >
-                          <Box sx={{ color: "primary.main", mb: 2, fontSize: 40 }}>
-                            {stat.icon}
-                          </Box>
-                        </motion.div>
-                        <Typography
-                          variant="h3"
-                          sx={{
-                            fontWeight: 700,
-                            color: "primary.main",
-                            mb: 1,
-                            fontSize: { xs: "2.5rem", md: "3rem" },
-                          }}
-                        >
-                          <span ref={ref}>{count}</span>+
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-                          {stat.label}
-                        </Typography>
-                      </Card>
-                    </motion.div>
-                  );
-                })}
               </Box>
             </motion.div>
           </Container>
@@ -2058,235 +1953,7 @@ export function LandingPage() {
           </Container>
         </Box>
 
-        {/* FAQ Section */}
-        <Box
-          sx={{
-            py: 10,
-            px: 2,
-            bgcolor: currentTheme.palette.mode === "dark" ? colors.graphite : colors.eggshell,
-          }}
-        >
-          <Container maxWidth="lg">
-            <motion.div
-              variants={stagger}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-            >
-              <Box sx={{ textAlign: "center", mb: 6 }}>
-                <Typography
-                  variant="h3"
-                  component="h2"
-                  sx={{ mb: 2, fontWeight: 700, color: "text.primary" }}
-                >
-                  {t('landing.faqSection.title')}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  color="text.secondary"
-                  sx={{ maxWidth: 600, mx: "auto" }}
-                >
-                  {t('landing.faqSection.description')}
-                </Typography>
-              </Box>
-              <Box sx={{ maxWidth: 900, mx: "auto" }}>
-                {[
-                  {
-                    question: t('landing.faqs.q1'),
-                    answer: t('landing.faqs.a1'),
-                  },
-                  {
-                    question: t('landing.faqs.q2'),
-                    answer: t('landing.faqs.a2'),
-                  },
-                  {
-                    question: t('landing.faqs.q3'),
-                    answer: t('landing.faqs.a3'),
-                  },
-                  {
-                    question: t('landing.faqs.q4'),
-                    answer: t('landing.faqs.a4'),
-                  },
-                  {
-                    question: t('landing.faqs.q5'),
-                    answer: t('landing.faqs.a5'),
-                  },
-                  {
-                    question: t('landing.faqs.q6'),
-                    answer: t('landing.faqs.a6'),
-                  },
-                ].map((faq, index) => (
-                  <motion.div key={index} variants={fadeUp}>
-                    <Accordion
-                      sx={{
-                        mb: 2,
-                        background:
-                          currentTheme.palette.mode === "dark"
-                            ? `linear-gradient(160deg, ${alpha(
-                                colors.graphite,
-                                0.95
-                              )} 0%, ${alpha(colors.midnight, 0.9)} 100%)`
-                            : `linear-gradient(160deg, ${alpha(
-                                colors.parchment,
-                                0.95
-                              )} 0%, ${alpha(colors.eggshell, 0.9)} 100%)`,
-                        border: `1px solid ${alpha(
-                          currentTheme.palette.primary.main,
-                          0.15
-                        )}`,
-                        "&:before": {
-                          display: "none",
-                        },
-                      }}
-                    >
-                      <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Typography sx={{ fontWeight: 600, color: "text.primary" }}>
-                          {faq.question}
-                        </Typography>
-                      </AccordionSummary>
-                      <AccordionDetails>
-                        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-                          {faq.answer}
-                        </Typography>
-                      </AccordionDetails>
-                    </Accordion>
-                  </motion.div>
-                ))}
-              </Box>
-            </motion.div>
-          </Container>
-        </Box>
 
-        {/* System Access Section */}
-        <Container maxWidth="lg" sx={{ py: 10 }}>
-          <Box sx={{ textAlign: "center", mb: 6 }}>
-            <Typography
-              variant="h3"
-              component="h2"
-              sx={{ mb: 2, fontWeight: 700, color: "text.primary" }}
-            >
-              {t('landing.faqSection.systemAccess')}
-            </Typography>
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              sx={{ maxWidth: 600, mx: "auto" }}
-            >
-              {t('landing.faqSection.systemAccessDesc')}
-            </Typography>
-          </Box>
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-          >
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "repeat(2, 1fr)",
-                  md: "repeat(4, 1fr)",
-                },
-                gap: 3,
-              }}
-            >
-              {roles.map((role, index) => (
-                <motion.div key={index} variants={fadeLeft}>
-                  <motion.div
-                    whileHover={{ 
-                      scale: 1.03,
-                      rotateY: 5,
-                      boxShadow: "0 15px 35px rgba(0,0,0,0.15)"
-                    }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    style={{ transformStyle: "preserve-3d" }}
-                  >
-                    <Card
-                      sx={{
-                        height: "100%",
-                        background:
-                          currentTheme.palette.mode === "dark"
-                            ? `linear-gradient(160deg, ${alpha(
-                                colors.graphite,
-                                0.95
-                              )} 0%, ${alpha(colors.midnight, 0.9)} 100%)`
-                            : `linear-gradient(160deg, ${alpha(
-                                colors.parchment,
-                                0.95
-                              )} 0%, ${alpha(colors.eggshell, 0.9)} 100%)`,
-                        transition: "all 0.3s ease",
-                      }}
-                    >
-                      <CardContent>
-                        <motion.div
-                          whileHover={{ scale: 1.1, rotate: 5 }}
-                          transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                        >
-                          <Box
-                            sx={{ display: "flex", alignItems: "center", mb: 2 }}
-                          >
-                            <People sx={{ color: "primary.main", mr: 1 }} />
-                            <Typography
-                              variant="h6"
-                              sx={{ fontWeight: 600, color: "text.primary" }}
-                            >
-                              {role.title}
-                            </Typography>
-                          </Box>
-                        </motion.div>
-                        <Typography variant="body2" color="text.secondary">
-                          {role.description}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                </motion.div>
-              ))}
-            </Box>
-          </motion.div>
-          <motion.div
-            variants={scaleIn}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.4 }}
-          >
-            <Box sx={{ textAlign: "center", mt: 6 }}>
-              <motion.div
-                whileHover={{ scale: 1.05, y: -3 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              >
-                <Button
-                  variant="contained"
-                  size="large"
-                  color="primary"
-                  href="/login"
-                  endIcon={<ArrowUpRight size={20} />}
-                  sx={{
-                    fontWeight: 600,
-                    borderRadius: 999,
-                    px: 4,
-                    py: 1.5,
-                    boxShadow: "0 4px 15px rgba(0,0,0,0.15)",
-                    "&:hover": {
-                      transform: "scale(1.05) translateY(-2px)",
-                      boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
-                    },
-                    "&:focus-visible": {
-                      outline: "3px solid white",
-                      outlineOffset: 2,
-                    },
-                    transition: "all 0.3s ease",
-                  }}
-                >
-                  {t('landing.getStarted')}
-                </Button>
-              </motion.div>
-            </Box>
-          </motion.div>
-        </Container>
 
         {/* Contact Section */}
         <Box
